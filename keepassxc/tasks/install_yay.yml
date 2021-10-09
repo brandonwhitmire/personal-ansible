@@ -1,0 +1,8 @@
+# https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html
+- name: 
+  community.general.pacman:
+    name:
+      - base-devel
+      - git
+      - yay
+    state: present
