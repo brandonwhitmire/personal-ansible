@@ -1,5 +1,6 @@
 # https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html
 - name: 
+  become: true
   community.general.pacman:
     name:
       - base-devel
