@@ -5,7 +5,8 @@ FROM debian
 RUN apt update -y
 RUN apt install -y python3 python3-pip sshpass git vim zsh ca-certificates
 
-RUN pip3 install --no-cache-dir ansible ansible_runner yamllint molecule[ansible]
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir --upgrade --requirement requirements.txt
 
 RUN ansible-galaxy collection install community.general
 

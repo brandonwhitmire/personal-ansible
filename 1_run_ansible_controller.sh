@@ -18,5 +18,6 @@ docker run \
 	--interactive=true \
 	--tty=true \
 	--volume "$(pwd)":"/root/ansible" \
+	--volume "$HOME"/.ssh:"/root/.ssh" \
 	--workdir "/root/ansible" \
 	"$NAME"

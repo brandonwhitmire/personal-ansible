@@ -1,0 +1,5 @@
+ansible
+ansible_runner
+ansible-lint[core,community,yamllint]
+yamllint
+molecule[ansible]
