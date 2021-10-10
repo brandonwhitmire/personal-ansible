@@ -13,6 +13,10 @@
         - git
         - yay
       state: present
+  - name: Make folder for git clone
+    ansible.builtin.file:
+      path: /tmp/ansible-yay
+      state: directory
   - name: Clone ansible-yay (Ansible) module
     ansible.builtin.git:
       repo: 'https://github.com/mnussbaum/ansible-yay.git'
@@ -27,6 +31,7 @@
   - name: Copy yay module to Ansible module folder
     delegate_to: 127.0.0.1
     ansible.builtin.copy:
+      remote_src: true
       src: /tmp/ansible-yay/yay
       dest: ~/.ansible/plugins/modules/
       mode: '0555'

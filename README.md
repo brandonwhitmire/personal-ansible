@@ -4,6 +4,18 @@ Ansible playbooks for various setups and configurations
 
 ---
 
+# Pre-requisites
+- `sshd` running (and allowed through firewall)
+```shell
+sudo systemctl start sshd
+```
+- If using SSH key authentication, then add the pubkey to `~/.ssh/authorized_keys`:
+```shell
+ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
+```
+[SSH Auth via Keys](https://www.ssh.com/academy/ssh/copy-id)
+---
+
 ```shell
 # Show inventory
 ansible-inventory --list
