@@ -14,7 +14,7 @@ ansible-playbook <PLAYBOOK>
 
 # Specify hosts manually instead of using inventory.vmware.yml
 # NOTE: when not providing a file to "-i" the trailing ',' is required for a hostname or IP address
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --inventory <IP_ADDR>, --user <USER> --ask-become-pass <PLAYBOOK>
+ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-become-pass --inventory <IP_ADDR>, --user <USER> <PLAYBOOK>
 ```
 
 ---

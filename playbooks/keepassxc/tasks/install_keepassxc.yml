@@ -16,25 +16,20 @@
         - cmake
         - make
       state: present
-#  - name: Install Librewolf package
-#    # https://github.com/mnussbaum/ansible-yay
-#    yay:
-#      name: librewolf-bin
-#      state: present
+  - name: Install Librewolf package
+    # https://github.com/mnussbaum/ansible-yay
+    yay:
+      name: librewolf-bin
+      state: present
   - name: Browser config to allow keepassxc-browser extension to communicate
     ansible.builtin.copy:
       src: ../files/browser/native-messaging-hosts
       dest: ~/.librewolf/
-#  - name: Pull keepassxc-proxy repo to build binary
-#    # https://github.com/varjolintu/keepassxc-proxy
-#    ansible.builtin.git:
-#      repo: 'https://github.com/varjolintu/keepassxc-proxy.git'
-#      dest: /tmp/keepassxc-proxy
-#      clone: true
-  - name: Pull keepassxc-proxy repo to build binary
+  - name: Clone keepassxc-proxy repo to build binary
     ansible.builtin.shell:
       cmd: git clone https://github.com/varjolintu/keepassxc-proxy.git
       chdir: /tmp/
+      creates: keepassxc-proxy
   - name: Generate keepassxc-proxy Makefiles
     ansible.builtin.shell:
       cmd: cmake -DCMAKE_BUILD_TYPE=Release .

@@ -1,9 +1,32 @@
-# https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html
-- name: 
-  become: true
-  community.general.pacman:
-    name:
-      - base-devel
-      - git
-      - yay
-    state: present
+#!/usr/bin/env ansible-playbook
+#
+# This playbook will ensure yay and the Ansible module ansible-yay is installed
+---
+- name: Install yay and configure passwordless sudoer
+  hosts: all
+  tasks:
+  - name: Install yay and dependencies
+    become: true
+    community.general.pacman:
+      name:
+        - base-devel
+        - git
+        - yay
+      state: present
+  - name: Clone ansible-yay (Ansible) module
+    ansible.builtin.git:
+      repo: 'https://github.com/mnussbaum/ansible-yay.git'
+      dest: /tmp/ansible-yay
+      clone: true
+  - name: Ensure Ansible module dir exists
+    delegate_to: 127.0.0.1
+    ansible.builtin.file:
+      # https://docs.ansible.com/ansible/latest/dev_guide/developing_locally.html#id2
+      path: ~/.ansible/plugins/modules/
+      state: directory
+  - name: Copy yay module to Ansible module folder
+    delegate_to: 127.0.0.1
+    ansible.builtin.copy:
+      src: /tmp/ansible-yay/yay
+      dest: ~/.ansible/plugins/modules/
+      mode: '0555'
