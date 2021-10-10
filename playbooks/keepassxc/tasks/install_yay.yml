@@ -1,23 +1,27 @@
 #!/usr/bin/env ansible-playbook
 #
 # This playbook will ensure yay and the Ansible module ansible-yay is installed
+# on the local machine (Ansible controller).
 ---
-- name: Install yay and configure passwordless sudoer
+- name: Install yay and dependencies
   hosts: all
   tasks:
   - name: Install yay and dependencies
     become: true
-    community.general.pacman:
+    delegate_to: 127.0.0.1
+    ansible.builtin.package:
       name:
         - base-devel
         - git
         - yay
       state: present
   - name: Make folder for git clone
+    delegate_to: 127.0.0.1
     ansible.builtin.file:
       path: /tmp/ansible-yay
       state: directory
   - name: Clone ansible-yay (Ansible) module
+    delegate_to: 127.0.0.1
     ansible.builtin.git:
       repo: 'https://github.com/mnussbaum/ansible-yay.git'
       dest: /tmp/ansible-yay
