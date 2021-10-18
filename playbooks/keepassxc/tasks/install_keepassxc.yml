@@ -16,11 +16,19 @@
         - cmake
         - make
       state: present
+  - name: Create temp user for yay invocation
+    vars:
+      - install_passwordless_sudo_user: true
+    ansible.builtin.include: yay_passwordless_sudo_user.yml
   - name: Install Librewolf package
     # https://github.com/mnussbaum/ansible-yay
     yay:
       name: librewolf-bin
       state: present
+  - name: Delete temp user for yay invocation
+    vars:
+      - install_passwordless_sudo_user: false
+    ansible.builtin.include: yay_passwordless_sudo_user.yml
   - name: Browser config to allow keepassxc-browser extension to communicate
     ansible.builtin.copy:
       src: ../files/browser/native-messaging-hosts
