@@ -22,10 +22,12 @@
     become: true
     ansible.builtin.shell:
       cmd: cabextract {{ vc_redist_exe }}
+      chdir: '{{ aoe2_dir }}'
   - name: Extract from extracted file
     become: true
     ansible.builtin.shell:
       cmd: cabextract a10
+      chdir: '{{ aoe2_dir }}'
   - name: chown to normal user
     become: true
     ansible.builtin.file:
