@@ -1,0 +1,27 @@
+---
+- name: Perform desired baseline configuration
+  hosts: all
+  tasks:
+
+  # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
+  - name: Ensure numlockx package is installed
+    become: true
+    community.general.pacman:
+      name:
+        - numlockx
+  - name: Copy numlockx systemd unitfile file to /etc/
+    become: true
+    ansible.builtin.copy:
+      src: ../files/systemd/numlockx-on.service
+      dest: /etc/systemd/system/
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Enable numlockx-on service
+    become: true
+    ansible.builtin.service:
+      name: numlockx-on
+      enabled: true
+      state: started
+

@@ -59,6 +59,9 @@
     ansible.builtin.copy:
       src: ../files/systemd/keepassxc-proxy.service
       dest: /etc/systemd/system/
+      owner: root
+      group: root
+      mode: '0644'
   - name: Enable keepassxc-proxy service
     become: true
     ansible.builtin.service:
