@@ -1,0 +1,86 @@
+" === (Neo)vim plugins list: === 
+call plug#begin('~/.vim/plugged') 
+" Tree explorer 
+Plug 'preservim/nerdtree' 
+" Easy commenting in/out with 'gc' 
+Plug 'tpope/vim-commentary' 
+" Fuzzy finder 
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
+" Syntax highlighting 
+Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
+" Python indents 
+Plug 'Vimjas/vim-python-pep8-indent' 
+" Async Linter 
+Plug 'dense-analysis/ale' 
+" Code completion 
+Plug 'neoclide/coc.nvim', {'branch': 'release'} 
+" Closing bracket pairs 
+Plug 'jiangmiao/auto-pairs' 
+" Language-specific end-pairs 
+Plug 'tpope/vim-endwise' 
+" Auto-close HTML tags (works on files with html extension) 
+Plug 'alvan/vim-closetag' 
+" High enclosing HTML tags 
+Plug 'valloric/matchtagalways' 
+" Tabs for buffers 
+Plug 'ap/vim-buftabline' 
+" Automatic resizing of windows 
+Plug 'roman/golden-ratio' 
+" Multiple cursors 
+Plug 'mg979/vim-visual-multi', {'branch': 'master'} 
+" Search and replace in whole repo 
+Plug 'brooth/far.vim' 
+call plug#end() 
+ 
+" === NERDTree Options === 
+" Automatically open NERDTree in blank vim 
+" autocmd StdinReadPre * let s:std_in=1 
+" autocmd VimEnter * if argc() == 0 && s:std_in') | NERDTree | endif 
+" Show hidden files by default 
+let NERDTreeShowHidden=1 
+" === .vimrc Options === 
+" Search case insentive when all lower case 
+set smartcase 
+nnoremap <CR> :nohlsearch 
+" Relative numbering 
+:augroup numbertoggle 
+:  autocmd! 
+:  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber 
+:  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber 
+:augroup END  
+" Python prefs (usually overwritten by plugins) 
+" autocmd BufNewFile,BufRead *.py 
+"     \ set expandtab 
+"     \ set tabstop=4 
+"     \ set softtabstop=4 
+"     \ set shiftwidth=4 
+set textwidth=80 
+nnoremap <C-j> :tabnext<CR> 
+nnoremap <C-k> :tabprev<CR> 
+
+" Split screen 
+set splitbelow 
+set splitright 
+set fillchars=vert:\ 
+
+" Good indetation
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+
+set syntax=on
+" set syntax=sh
+set paste
+set ic
+set nohlsearch
+set paste
+colorscheme torte
+set scrolloff=10
+set mouse=
+set autoindent 
+set number relativenumber 
+
+nmap <F5> o<C-R>=strftime("%F %T %Z -- ")<CR>
+nnoremap <C-h> <C-w>h 
+nnoremap <C-l> <C-w>l

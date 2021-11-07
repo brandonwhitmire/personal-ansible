@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -u
 set -e
 
 NAME="ansible_controller"
@@ -9,8 +10,7 @@ docker build \
 	--file Dockerfile \
 	--build-arg UID="$(id -u)" \
 	--build-arg GUID="$(id -g)" \
-	.
-	# preserve this dot
+	. # preserve this dot
 
 docker run \
 	--hostname "$NAME" \

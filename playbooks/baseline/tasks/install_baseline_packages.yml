@@ -21,8 +21,18 @@
     become: true
     community.general.pacman:
       name:
-        - firefox
-        - steam
+        - firefox  # web browser
+        - calibre  # ereader (ebooks)
+        - alacritty  # terminal
+        - zsh  # shell
+        - optimus-manager  # gpu switching
+        - nitrogen  # background manager
+        - steam  # gaming platform
+        - vim  # text editor
+        - neovim  # text editor
+        - gedit  # text editor
+        - docker  # containers
+        - flameshot  # screenshot
         - pkgfile
         - virt-manager
         - qemu
@@ -31,16 +41,10 @@
         - dnsmasq
         - bridge-utils
         - openbsd-netcat
-        - redshift
-        - calibre
-        - docker
         - lynx
         - strace
         - bind-tools
-        - gedit
         - udisks2
-        - neovim
-        - zsh
       state: present
 
   - name: Change default shell to zsh

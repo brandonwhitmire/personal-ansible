@@ -1,0 +1,312 @@
+# ---
+# CUSTOMIZED
+# ---
+# https://opensource.com/article/19/7/bash-aliases
+# https://techgage.com/article/using_aliases_in_linux_to_make_life_easier/2/
+# https://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
+# https://opensource.com/article/20/1/bash-scripts-aliases
+
+# --- Environment Variables
+
+export EDITOR="nvim"
+export BROWSER="librewolf"
+
+###
+
+# https://scriptingosx.com/2019/07/moving-to-zsh-06-customizing-the-zsh-prompt/
+# These are overwritten by spaceship ;; disable it below
+# export PROMPT='%(?.%F{green}√.%F{red}?%?)%f %B%F{240}%1~%f%b %# '
+# export RPROMPT='%*'
+
+# https://computingforgeeks.com/best-terminal-shell-prompts-for-zsh-bash-fish/
+# Set Spaceship ZSH as a prompt
+autoload -U promptinit; promptinit
+prompt spaceship
+
+# https://github.com/denysdovhan/spaceship-prompt/blob/master/docs/Options.md
+export SPACESHIP_TIME_SHOW="true"
+# export SPACESHIP_BATTERY_SHOW="always"
+# export SPACESHIP_BATTERY_PREFIX="🔋"
+export SPACESHIP_BATTERY_THRESHOLD="75"
+export SPACESHIP_EXIT_CODE_SHOW="true"
+export SPACESHIP_EXIT_CODE_SYMBOL="Exit Code: "
+export SPACESHIP_EXIT_CODE_SUFFIX="\n"
+
+# --- Shell Options
+
+setopt dotglob 					# shell expands '*' for dotfiles
+
+# --- Wrapped Commands
+
+alias grep='grep --colour=auto'
+alias egrep='egrep --colour=auto'
+alias fgrep='fgrep --colour=auto'
+
+alias cp="cp -iv"				# confirm before overwriting something
+alias df='df -h'                # human-readable sizes
+alias du="du -ch"
+alias free='free -m'            # show sizes in MB
+alias np='nano -w PKGBUILD'
+alias more='less'
+alias mkdir='mkdir -pv'
+alias mv='mv -iv'
+alias ln='ln -iv'
+alias rm='rm -vI --preserve-root'
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
+alias killall="killall --verbose"
+alias jobs="jobs -l"
+
+alias ls='ls -C --color=auto'
+alias ll='ls -laF --color=auto'
+alias l='ls -CF --color=auto'
+alias lt='ls --human-readable --size -1 -S --classify'
+alias ping="ping -c 1"
+alias diff="colordiff -y --suppress-common-lines"
+
+alias vi="$EDITOR"
+alias vim="$EDITOR"
+
+# --- New Commands 
+
+alias psg="ps -ef | grep -i"
+alias nsg="ss -antup | grep -i"
+alias cpv='rsync -ah --info=progress2'
+alias hazip="lynx -dump https://icanhazip.com/ | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'"
+alias dl="cdd ~/Downloads"
+alias trash="gio list Trash:"
+alias path='echo -e ${PATH//:/\\n}'
+alias now='date +"%d-%m-%Y %T"'
+alias iptlist='sudo iptables -vnL --line-numbers'
+alias browser="$BROWSER"
+alias reload_background="nitrogen --restore &"
+alias gpu_used="glxinfo | grep 'server glx vendor string' ; optimus-manager --status | grep -E '(intel|integrated|nvidia)|$'"
+alias gpu_nvidia="gpu_used ; optimus-manager --switch nvidia --no-confirm"
+alias gpu_integrated="gpu_used ; optimus-manager --switch integrated --no-confirm"
+alias gimmesysteminfo="clear ; screenfetch -L ; inxi -Fazy ;"
+
+# --- Functions
+
+# Install packages properly
+install () {
+	if [[ -z "$1" ]] ; then
+		echo "Please supply a package(s) to INSTALL!"
+		exit 1
+	fi
+	sudo pacman -S --sysupgrade --refresh "$@"
+}
+# Removes packages and dependencies (not used by other packages)
+uninstall () {
+        if [[ -z "$1" ]] ; then
+                echo "Please supply a package(s) to UNINSTALL!"
+                exit 1
+        fi
+	sudo pacman -R --cascade --recursive --unneeded "$@"
+}
+# Remove unused dependencies
+remove_unused_dependecies () {
+	sudo pacman -R $(pacman -Qdtq)
+}
+# Install AUR packages via yay
+install_yay () {
+	if [[ -z "$1" ]] ; then
+		echo "Please supply a package(s) to INSTALL!"
+		exit 1
+	fi
+	yay -Syu "$@"
+}
+# Removes AUR packages and dependencies (not used by other packages)
+uninstall_yay () {
+        if [[ -z "$1" ]] ; then
+                echo "Please supply a package(s) to UNINSTALL!"
+                exit 1
+        fi
+	yay -Rsu "$@"
+}
+# Perform system update properly
+update () {
+	BREAKLINE
+	pamac checkupdates --aur
+	BREAKLINE
+	set -e
+	echo "[i] Backing up..."
+	BREAKLINE
+	~/scripts/lazymountHDD.sh
+	BREAKLINE
+	~/scripts/borg_backup.sh $1
+	BREAKLINE
+	echo "[i] Updating packages..."
+	set +e
+	sudo pamac upgrade --no-aur
+	yay -Syu
+	BREAKLINE
+}
+# Update pacman mirrors
+update_mirrors () {
+	sudo pacman-mirrors --country United_States && sudo pacman -Syyu
+}
+# Create and switch to new temp directory
+mkt () {
+	cd $(mktemp -d)
+}
+# Switch to and list a directory
+cdd () {
+	if [[ ! -z "$!" ]] ; then
+		cd $1
+	fi
+	ls -laF --color=auto
+}
+# ASCII line break of '=' chars by default or $1 arg supplied
+BREAKLINE () {
+        if [[ -z "$1" ]] ; then
+                CHAR="="
+        else
+                CHAR="$1"
+        fi
+
+        printf "$CHAR%.0s" {1..80} ; echo
+}
+# Download magnets
+download () {
+	# NOTE: This IP address is known to change
+	MAGNET_VPN="209.58.135.120"
+
+	# Keep .zhistory clean of downloads
+	unset HISTFILE
+	echo "HISTFILE (should be blank b/t quotes): \"$HISTFILE\""
+	
+	# Clean previous history from commands in case of error
+	CLEANS=(
+		".*download .*"
+		".*magnet:\?.*"
+		".*\?xt.*"
+		".*transmission.*"
+		"^\s*$"
+	)
+	for CLEAN in $CLEANS ; do
+		sed -i "s#$CLEAN##g" ~/.zhistory
+	done
+
+	# Requires magnet link (MUST be quoted!)
+	if [[ -z "$1" ]] ; then
+		echo "Please supply magnet"
+		exit 1
+	fi
+
+	# Naive check to make sure on desired VPN	
+	if [[ $(hazip) == "$MAGNET_VPN" ]] ; then
+		echo "Already on proper VPN..."
+	else
+		echo "STARTING proper VPN..."
+		~/scripts/openvpn_configs/1_run_openvpn.sh ~/scripts/openvpn_configs/ca1.ovpn
+	fi
+
+	# Start transmission-daemon server if not running
+	if ! pgrep "transmission-da*" ; then
+		# Download and update blocklists
+		BLOCKS=(
+			"https://github.com/sahsu/transmission-blocklist/releases/latest/download/blocklist.gz"
+			"https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz"
+		)
+		pushd ~/.config/transmission-daemon/blocklists > /dev/null
+			"rm" -vf *blocklist*
+			for BLOCK in $BLOCKS ; do
+				wget --no-verbose "$BLOCK"	
+			done
+			gunzip -d *.gz
+			for FILE in *blocklist* ; do
+				mv $FILE $FILE.bin
+			done
+		popd > /dev/null 2>&1
+
+		echo "Starting transmission-daemon..."
+		transmission-daemon
+		sleep 4
+		echo "Updating blocklists..."
+		transmission-remote --blocklist-update
+	else
+		echo "transmission-daemon already running..."
+	fi
+
+	# Add and watch downloads
+	MAGNET=$(python3 -c "import urllib.parse;print(urllib.parse.unquote_plus('$1', encoding='utf-8'))" | grep -o "magnet.*")
+	echo -e "MAGNET:\t$MAGNET"
+	transmission-remote -a "$MAGNET"
+	sleep 1
+	watch -d -n 2 'transmission-remote -l'
+	echo -e "\nREMOVE TORRENTS:\n\n\ttransmission-remote -tall --remove"	
+}
+vpn () {
+	echo "STARTING proper VPN..."
+	~/scripts/openvpn_configs/1_run_openvpn.sh ~/scripts/openvpn_configs/ca1.ovpn
+}
+# Search with locate
+search () {
+	echo -e "Don't forget to update:\n\tsudo updatedb"
+	locate "*$@*"
+}
+# Clean zsh (completion) history
+clean_zsh () {
+	[[ -z "$1" ]] && (echo "ERROR" ; exit 1)
+	echo "Cleaning regex \"$1\" out of history..."
+	sed -i "s/$1//g" ~/.zhistory
+}
+# Find LAN printer
+search_printer () {
+	# https://askubuntu.com/questions/643584/how-do-i-get-ip-of-installed-network-printer
+	PRINTER="HP3822E2B50004.local"
+
+	# Enable avahi-daemon service to use program
+	# sudo systemctl enable --now avahi-daemon.service
+	# avahi-browse -t -d local -c -a --resolve | sed -n '/^=.*Printer/,/txt =/p'
+	avahi-browse --all -t -r | grep -A2 "$PRINTER" | grep "address" | uniq | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}"
+
+	# Discover network printers using Bonjour
+	# lpinfo --include-schemes dnssd -v
+	# snmpwalk -Cc -v 1 -c public <IP_ADDR>
+}
+# Show Clipboard
+show_clipboard () {
+	echo "CTRL+C Clipboard:"
+	clipit -c
+	echo
+	echo "Highlight Clipboard (primary):"
+	clipit -p
+}
+# Python3 pprint a file (e.g. JSON)
+pprint () {
+	if [[ -z "$1" ]] ; then
+		echo "Please supply a filename to print!"
+		exit 1
+	fi
+	echo -e "import pprint\nwith open('$1', 'rt') as file_obj: pprint.pprint(file_obj.readlines())" | python3
+}
+
+# Attempt to configure monitors properly
+set_displays () {
+	echo "Hit button on external monitor to pop info box (wake monitor)"
+	echo -e "\tHit ENTER"
+	read
+	
+	# Force screen on ; wait ; screen off
+	# SLEEP_TIME="2"
+	# xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
+
+	set -x
+
+	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
+	LAPTOP_KEYWORD='eDP-?[0-9]+'
+	LAPTOP_MONITOR="$(echo $DISPLAYS | grep -ioE $LAPTOP_KEYWORD)"
+	EXTERNAL_KEYWORD='HDMI-?[0-9]+'
+	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
+
+	xrandr --output "$LAPTOP_MONITOR" --primary --mode 1920x1080 --pos 0x0 --rotate normal \
+		--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 1920x0 --rotate normal
+	#   --output DP-1 --off
+	#   --output HDMI-1 --off
+}
+
+lazyssh () {
+	ssh -p 22 obb@192.168.5.200
+}
