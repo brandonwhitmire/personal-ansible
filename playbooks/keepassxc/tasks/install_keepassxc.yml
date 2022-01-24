@@ -1,0 +1,70 @@
+#!/usr/bin/env ansible-playbook
+#
+# This playbook will ensure the whole KeepassXC setup is installed
+# Reference:
+# https://keepassxc.org/docs/KeePassXC_GettingStarted.html#_setup_browser_integration
+---
+- name: KeepassXC, keepassxc-browser, keepassxc-proxy
+  hosts: all
+  tasks:
+  - name: Install KeepassXC password manager and required packages
+    become: true
+    # https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html
+    community.general.pacman:
+      name:
+        - keepassxc
+        - cmake
+        - make
+      state: present
+  - name: Create temp user for yay invocation
+    vars:
+      - install_passwordless_sudo_user: true
+    ansible.builtin.include: yay_passwordless_sudo_user.yml
+  - name: Install Librewolf package
+    # https://github.com/mnussbaum/ansible-yay
+    yay:
+      name: librewolf-bin
+      state: present
+  - name: Delete temp user for yay invocation
+    vars:
+      - install_passwordless_sudo_user: false
+    ansible.builtin.include: yay_passwordless_sudo_user.yml
+  - name: Browser config to allow keepassxc-browser extension to communicate
+    ansible.builtin.copy:
+      src: ../files/browser/native-messaging-hosts
+      dest: ~/.librewolf/
+  - name: Clone keepassxc-proxy repo to build binary
+    ansible.builtin.shell:
+      cmd: git clone https://github.com/varjolintu/keepassxc-proxy.git
+      chdir: /tmp/
+      creates: keepassxc-proxy
+  - name: Generate keepassxc-proxy Makefiles
+    ansible.builtin.shell:
+      cmd: cmake -DCMAKE_BUILD_TYPE=Release .
+      chdir: /tmp/keepassxc-proxy/qt_version/
+  - name: Build keepassxc-proxy binary
+    ansible.builtin.shell:
+      cmd: make
+      chdir: /tmp/keepassxc-proxy/qt_version/
+  - name: Copy keepassxc-proxy binary into /usr/bin/
+    become: true
+    ansible.builtin.copy:
+      src: /tmp/keepassxc-proxy/qt_version/keepassxc-proxy
+      dest: /usr/bin/keepassxc-proxy
+      owner: root
+      group: root
+      mode: '0755'
+  - name: Copy keepassxc-proxy systemd unitfile file to /etc/
+    become: true
+    ansible.builtin.copy:
+      src: ../files/systemd/keepassxc-proxy.service
+      dest: /etc/systemd/system/
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Enable keepassxc-proxy service
+    become: true
+    ansible.builtin.service:
+      name: keepassxc-proxy
+      enabled: true
+      state: started

@@ -1,0 +1,4 @@
+sudo pacman vagrant
+sudo systemctl enable --now libvirtd
+vagrant plugin install vagrant-libvirt
+sudo usermod -aG libvirt $USER

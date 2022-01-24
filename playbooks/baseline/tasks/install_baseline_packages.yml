@@ -1,0 +1,54 @@
+---
+- name: Ensure certain baseline packages are remove and present
+  hosts: all
+  tasks:
+
+  - name: Remove packages
+    become: true
+    community.general.pacman:
+      name:
+        - palemoon-bin
+      state: absent
+
+  - name: Remove unneeded files/dirs
+    ansible.builtin.file:
+      path: '{{ item }}'
+      state: absent
+    loop:
+      - ~/.moonchild productions
+
+  - name: Install packages
+    become: true
+    community.general.pacman:
+      name:
+        - firefox  # web browser
+        - calibre  # ereader (ebooks)
+        - alacritty  # terminal
+        - zsh  # shell
+        - optimus-manager  # gpu switching
+        - nitrogen  # background manager
+        - steam  # gaming platform
+        - vim  # text editor
+        - neovim  # text editor
+        - gedit  # text editor
+        - docker  # containers
+        - flameshot  # screenshot
+        - pkgfile
+        - virt-manager
+        - qemu
+        - vde2
+        - ebtables
+        - dnsmasq
+        - bridge-utils
+        - openbsd-netcat
+        - lynx
+        - strace
+        - bind-tools
+        - udisks2
+      state: present
+
+  - name: Change default shell to zsh
+    become: true
+    user:
+      name: '{{ ansible_user_id }}'
+      shell: /bin/zsh

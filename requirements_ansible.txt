@@ -1,0 +1,19 @@
+# General
+requests
+yapf
+pylint
+
+# Flask
+flask
+python-dotenv
+
+# Ansible
+ansible
+ansible_runner
+ansible-inventory-grapher
+ansible-lint
+yamllint
+molecule[ansible]
+pyvmomi
+# This one requires: git config --global http.sslVerify false
+git+https://github.com/vmware/vsphere-automation-sdk-python.git
