@@ -1,6 +1,14 @@
 ---
 - name: Configure GRUB bootloader
   hosts: all
+  
+  handlers:
+  
+    - name: Update GRUB
+      become: true
+      command:
+        cmd: grub-mkconfig -o /boot/grub/grub.cfg
+  
   tasks:
 
   # Reference: https://stackoverflow.com/questions/55844981/ansible-insert-word-in-grub-cmdline

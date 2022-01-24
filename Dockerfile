@@ -5,12 +5,17 @@ FROM debian
 # Pass in user/group to preserve file ownerships
 ARG UID
 ARG GUID
-# Flask API IP:PORT
-ARG API_HOST="0.0.0.0"
-ARG API_PORT=5000
 
-RUN apt update -y
-RUN apt install -y python3 python3-pip git vim zsh ca-certificates sudo sshpass
+RUN apt update -y && apt install -y \
+	python3 \
+	python3-pip \
+	sshpass \
+	sudo \
+	git \
+	vim \
+	zsh \
+	curl \
+	ca-certificates
 
 RUN mkdir -p /etc/ansible
 # Create /home/${UID} dir and set default shell
@@ -30,9 +35,7 @@ ENV PATH="/home/${UID}/.local/bin:$PATH"
 # Install Ansible and plugins
 RUN git config --global http.sslVerify false
 COPY requirements_ansible.txt .
-# RUN pip3 install --upgrade pip setuptools
 RUN pip3 install --upgrade --requirement requirements_ansible.txt
-RUN ansible-galaxy collection install -fvvvv community.vmware
 
 # Shell customizations
 RUN cp /etc/zsh/newuser.zshrc.recommended ~/.zshrc
@@ -46,21 +49,18 @@ ansible --version \n\
 set +e \n\
 ' | tee -a ~/.zshrc
 
+# Install vim plugin manager and plugins
+RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+RUN echo " \n\
+call plug#begin() \n\
+Plug 'pearofducks/ansible-vim' \n\
+call plug#end() \n\
+" > ~/.vimrc
+RUN vim -c "PlugInstall | sleep 1 | q! | q!"
+
 # Change working directory
 # NOTE: currently breaks the server
 ARG WORKDIR
 WORKDIR ${WORKDIR}
 
-# Expose Flask API port
-EXPOSE ${API_PORT}
-
-# Flask env variables
-ENV FLASK_ENV=development
-ENV FLASK_DEBUG=1
-ENV FLASK_TEST=True
-ENV FLASK_APP=${WORKDIR}/ansible/api.py
-ENV FLASK_RUN_HOST=${API_HOST}
-ENV FLASK_RUN_PORT=${API_PORT}
-
-# ENTRYPOINT ["python3", "-m", "flask", "run"]
 ENTRYPOINT ["/usr/bin/zsh"]
