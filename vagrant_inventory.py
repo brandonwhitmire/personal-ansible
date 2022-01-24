@@ -1,21 +1,15 @@
 #!/usr/bin/env python
-"""
-Generate dynamic inventory for Ansible by querying Vagrant
-SSH config for the correct directory.
-Reference:
-    https://github.com/060P0TEHb/vagrant-ansible-dynamic-inventory/blob/main/inventory.py
-"""
+# Adapted from Mark Mandel's implementation
+# https://github.com/ansible/ansible/blob/stable-2.1/contrib/inventory/vagrant.py
 
 import argparse
+import json
 import subprocess
+import sys
 
 import paramiko
 
-
 def parse_args():
-    """
-    Default method to be understood by Ansible
-    """
     parser = argparse.ArgumentParser(description="Vagrant inventory script")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--list', action='store_true')
@@ -23,30 +17,39 @@ def parse_args():
     return parser.parse_args()
 
 
+def list_running_hosts():
+    cmd = "vagrant status --machine-readable"
+    status = subprocess.check_output(cmd.split()).decode().rstrip()
+    hosts = []
+    for line in status.splitlines():
+        (_, host, key, value) = line.split(',')[:4]
+        if key == 'state' and value == 'running':
+            hosts.append(host)
+    return hosts
+
+
 def get_host_details(host):
-    """
-    Return configs for ansible for connection to vms via vagrant cli or vboxmanage
-    Example with vagrant ssh-config
-      Host user
-        HostName 127.0.0.1
-        User vagrant
-        Port 2222
-        ...
-        IdentityFile /home/user/.vagrant.d/insecure_private_key
-        ...
-    """
-    try:
-        cmd = "vagrant ssh-config {}".format(host)
-        result = subprocess.run(cmd, shell=True, check=True)
-        config = paramiko.SSHConfig()
-        config.parse(result.stdout)
-        configfile = config.lookup(host)
-    except KeyError as error:
-        print(f"Exception: {error}")
+    cmd = "vagrant ssh-config {}".format(host)
+    p = subprocess.run(cmd.split(),
+                       shell=True,
+                       check=False,
+                       capture_output=True)
+    config = paramiko.SSHConfig()
+    config.parse(p.stdout.decode())
+    c = config.lookup(host)
     return {
-        'ansible_ssh_host': configfile['hostname'],
-        'ansible_ssh_port': configfile['port'],
-        'ansible_ssh_user': configfile['user'],
-        'ansible_ssh_private_key_file': configfile['identityfile'][0],
-        'ansible_python_interpreter': '/usr/bin/python3'
+        'ansible_host': c['hostname'],
+        'ansible_port': c['port'],
+        'ansible_user': c['user'],
+        'ansible_private_key_file': c['identityfile'][0]
     }
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    if args.list:
+        hosts = list_running_hosts()
+        json.dump({'vagrant': hosts}, sys.stdout)
+    else:
+        details = get_host_details(args.host)
+        json.dump(details, sys.stdout)
