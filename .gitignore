@@ -1,1 +1,12 @@
 .vagrant
+.ansible
+.swp
+*creds*
+*vault*
+*.vmware.yml
+*.md.backup
+__pycache__/
+artifacts/
+env/
+project/
+group_vars

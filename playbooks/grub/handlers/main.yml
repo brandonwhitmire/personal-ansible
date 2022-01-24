@@ -1,0 +1,9 @@
+- name: Update GRUB
+  become: true
+  command:
+    cmd: grub-mkconfig -o /boot/grub/grub.cfg
+
+- name: Update CA cert bundle
+  become: true
+  command:
+    cmd: update-ca-certificates

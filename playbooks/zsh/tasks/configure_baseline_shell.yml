@@ -1,0 +1,61 @@
+---
+- name: Configure baseline shell
+  hosts: all
+  tasks:
+
+  - name: Install needed OS pkgs
+    become: true
+    community.general.pacman:
+      name:
+        - zsh
+      state:
+        present 
+  
+  - name: Copy default zshrc file to {{ ansible_user }} profile
+    copy:
+      force: false
+      remote_src: true
+      src: /etc/zsh/newuser.zshrc.recommended
+      dest: /home/{{ ansible_user }}/.zshrc
+  
+  - name: Add functionality for bashrc
+    blockinfile:
+      path: /home/{{ ansible_user }}/.bashrc
+      insertafter: EOF
+      marker: "# {mark} baseline_shell_rc"
+      block: "{{ lookup('file', '../files/baseline_shell_rc') }}"
+
+  - name: Add functionality for zshrc
+    blockinfile:
+      path: /home/{{ ansible_user }}/.zshrc
+      insertafter: EOF
+      marker: "# {mark} baseline_shell_rc"
+      block: "{{ lookup('file', '../files/baseline_shell_rc') }}"
+
+  - name: Set default shell to zsh
+    become: true
+    user:
+      name: {{ ansible_user }}
+      shell: /usr/bin/zsh
+
+  - name: Copy custom .bashrc to user 'root'
+    become: true
+    copy:
+      backup: yes
+      force: true
+      remote_src: yes
+      src: /home/{{ ansible_user }}/.bashrc
+      dest: /root/.bashrc
+      owner: root
+      group: root
+
+  - name: Copy custom .zshrc to user 'root'
+    become: true
+    copy:
+      backup: yes
+      force: true
+      remote_src: yes
+      src: /home/{{ ansible_user }}/.zshrc
+      dest: /root/.zshrc
+      owner: root
+      group: root

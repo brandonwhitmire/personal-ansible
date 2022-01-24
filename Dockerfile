@@ -41,10 +41,7 @@ bindkey "^[[1;5C" forward-word \n\
 bindkey "^[[1;5D" backward-word  \n\
 eval "$(_MOLECULE_COMPLETE=SHELL_source molecule)" \n\
 alias ll="ls -la --color=auto" \n\
-cd ansible \n\
 set -e \n\
-./run_first_time_setup.sh \n\
-clear \n\
 ansible --version \n\
 set +e \n\
 ' | tee -a ~/.zshrc

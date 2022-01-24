@@ -35,6 +35,8 @@ export SPACESHIP_EXIT_CODE_SUFFIX="\n"
 # --- Shell Options
 
 setopt dotglob 					# shell expands '*' for dotfiles
+bindkey "^[[1;5C" forward-word 2>/dev/null
+bindkey "^[[1;5D" backward-word 2>/dev/null
 
 # --- Wrapped Commands
 
@@ -51,7 +53,8 @@ alias more='less'
 alias mkdir='mkdir -pv'
 alias mv='mv -iv'
 alias ln='ln -iv'
-alias rm='rm -vI --preserve-root'
+# alias rm='rm -vI --preserve-root'
+alias rm='gio trash'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
@@ -70,8 +73,9 @@ alias vim="$EDITOR"
 
 # --- New Commands 
 
-alias psg="ps -ef | grep -i"
-alias nsg="ss -antup | grep -i"
+alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
+alias nsg="ss -antup | grep -v grep | grep -i -e Netid -e"
+
 alias cpv='rsync -ah --info=progress2'
 alias hazip="lynx -dump https://icanhazip.com/ | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'"
 alias dl="cdd ~/Downloads"
@@ -146,7 +150,7 @@ update () {
 update_mirrors () {
 	sudo pacman-mirrors --country United_States && sudo pacman -Syyu
 }
-# Create and switch to new temp directory
+# Create and switch to new, random temp directory
 mkt () {
 	cd $(mktemp -d)
 }
