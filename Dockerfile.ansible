@@ -36,6 +36,14 @@ ENV PATH="/home/${UID}/.local/bin:$PATH"
 COPY requirements_ansible.txt .
 RUN pip3 install --upgrade --requirement requirements_ansible.txt
 
+# Install vim plugin manager and plugins
+RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+RUN echo "\ncall plug#begin() \n\
+		Plug 'pearofducks/ansible-vim' \n\
+	call plug#end()\n" > ~/.vimrc
+RUN vim -c "PlugInstall | sleep 1 | q! | q!"
+
 # Shell customizations
 RUN cp /etc/zsh/newuser.zshrc.recommended ~/.zshrc
 RUN echo '\n\
@@ -43,19 +51,11 @@ bindkey "^[[1;5C" forward-word \n\
 bindkey "^[[1;5D" backward-word  \n\
 eval "$(_MOLECULE_COMPLETE=SHELL_source molecule)" \n\
 alias ll="ls -la --color=auto" \n\
+./run_first_time_setup.sh \n\
 set -e \n\
 ansible --version \n\
 set +e \n\
 ' | tee -a ~/.zshrc
-
-# Install vim plugin manager and plugins
-RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-RUN echo "\n\
-call plug#begin() \n\
-Plug 'pearofducks/ansible-vim' \n\
-call plug#end() \n\
-" > ~/.vimrc
-RUN vim -c "PlugInstall | sleep 1 | q! | q!"
 
 # Change working directory
 ARG WORKDIR
