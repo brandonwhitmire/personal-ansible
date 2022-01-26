@@ -9,8 +9,7 @@
       name:
         - zsh
         - otf-fira-code
-      state:
-        present
+      state: present
 
   - name: Copy default zshrc file to {{ ansible_user }} profile
     ansible.builtin.copy:
