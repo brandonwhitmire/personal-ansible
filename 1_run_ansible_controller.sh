@@ -41,5 +41,6 @@ docker run \
 	--tty=true \
         --user "$(id -u):$(id -g)" \
 	--volume "$DOCKER_HOST_MOUNT":"/$DOCKER_NAME" \
+	--volume "$HOME"/.ssh:/home/"$(id -u)/.ssh" \
 	--workdir="/$DOCKER_NAME" \
 	"$DOCKER_NAME"

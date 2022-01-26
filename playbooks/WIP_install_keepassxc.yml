@@ -18,47 +18,41 @@
         - make
       state: present
 
-  - name: Create temp user for yay invocation
-    vars:
-      - install_passwordless_sudo_user: true
-    ansible.builtin.include: yay_passwordless_sudo_user.yml
+- name: Create temp user for yay invocation
+  vars:
+    install_passwordless_sudo_user: true
+    passwordless_sudo_user: '{{ ansible_user }}'
+  ansible.builtin.import_playbook: install_yay_passwordless_sudo_user.yml
 
+- hosts: all
+  tasks:
   - name: Install Librewolf package
     # https://github.com/mnussbaum/ansible-yay
     yay:
-      name: librewolf-bin
+      name: 
+        - librewolf-bin
+          # TODO: enable service
+        - optimus-manager
       state: present
 
-  - name: Delete temp user for yay invocation
-    vars:
-      - install_passwordless_sudo_user: false
-    ansible.builtin.include: yay_passwordless_sudo_user.yml
+- name: Delete temp user for yay invocation
+  vars:
+    install_passwordless_sudo_user: false
+    passwordless_sudo_user: '{{ ansible_user }}'
+  ansible.builtin.import_playbook: install_yay_passwordless_sudo_user.yml
 
+- hosts: all
+  tasks:
   - name: Browser config to allow keepassxc-browser extension to communicate
     ansible.builtin.copy:
-      src: ../files/browser/native-messaging-hosts
+      src: files/browser/native-messaging-hosts
       dest: ~/.librewolf/
-
-  - name: Clone keepassxc-proxy repo to build binary
-    ansible.builtin.shell:
-      cmd: git clone https://github.com/varjolintu/keepassxc-proxy.git
-      chdir: /tmp/
-      creates: keepassxc-proxy
-
-  - name: Generate keepassxc-proxy Makefiles
-    ansible.builtin.shell:
-      cmd: cmake -DCMAKE_BUILD_TYPE=Release .
-      chdir: /tmp/keepassxc-proxy/qt_version/
-
-  - name: Build keepassxc-proxy binary
-    ansible.builtin.shell:
-      cmd: make
-      chdir: /tmp/keepassxc-proxy/qt_version/
 
   - name: Copy keepassxc-proxy binary into /usr/bin/
     become: true
     ansible.builtin.copy:
-      src: /tmp/keepassxc-proxy/qt_version/keepassxc-proxy
+      remote_src: false
+      src: files/keepassxc-proxy
       dest: /usr/bin/keepassxc-proxy
       owner: root
       group: root
@@ -67,7 +61,7 @@
   - name: Copy keepassxc-proxy systemd unitfile file to /etc/
     become: true
     ansible.builtin.copy:
-      src: ../files/systemd/keepassxc-proxy.service
+      src: files/systemd/keepassxc-proxy.service
       dest: /etc/systemd/system/
       owner: root
       group: root

@@ -20,7 +20,8 @@ RUN apt update -y && apt install -y \
 	curl
 
 # Reference: https://github.com/mnussbaum/ansible-yay
-RUN git clone https://github.com/mnussbaum/ansible-yay.git /tmp/ansible-yay/ && mkdir -p /usr/share/ansible && mv /tmp/ansible-yay/yay /usr/share/ansible/
+# https://docs.ansible.com/ansible/latest/dev_guide/developing_locally.html#adding-standalone-local-modules-for-all-playbooks-and-roles
+RUN git clone https://github.com/mnussbaum/ansible-yay.git /tmp/ansible-yay/ && mkdir -p /usr/share/ansible/plugins/modules/ && mv -v /tmp/ansible-yay/yay /usr/share/ansible/plugins/modules/
 
 # Create /home/${UID} dir and set default shell
 RUN useradd -ms $(which zsh) ${UID}
@@ -50,10 +51,15 @@ RUN vim -c "PlugInstall | sleep 1 | q! | q!"
 # Shell customizations
 RUN cp /etc/zsh/newuser.zshrc.recommended ~/.zshrc
 RUN echo '\n\
+# Find bindkey control char via: `cat`+ENTER, Hit Key, & CTRL+C \n\
+bindkey "^[[7~"   beginning-of-line \n\
+bindkey "^[[8~"   end-of-line \n\
 bindkey "^[[1;5C" forward-word \n\
 bindkey "^[[1;5D" backward-word  \n\
 eval "$(_MOLECULE_COMPLETE=SHELL_source molecule)" \n\
 alias ll="ls -la --color=auto" \n\
+alias ap="ansible-playbook" \n\
+alias ansible_debug="ansible all -m debug -a var=hostvars" \n\
 python3 run_first_time_setup.py \n\
 set -e \n\
 ansible --version \n\
