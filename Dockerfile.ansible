@@ -19,6 +19,9 @@ RUN apt update -y && apt install -y \
 	shellcheck \
 	curl
 
+# Reference: https://github.com/mnussbaum/ansible-yay
+RUN git clone https://github.com/mnussbaum/ansible-yay.git /tmp/ansible-yay/ && mkdir -p /usr/share/ansible && mv /tmp/ansible-yay/yay /usr/share/ansible/
+
 # Create /home/${UID} dir and set default shell
 RUN useradd -ms $(which zsh) ${UID}
 RUN echo "${UID} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers && visudo -c

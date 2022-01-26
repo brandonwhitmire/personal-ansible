@@ -22,7 +22,6 @@
         - libvirt
         - qemu
         - nfs-utils
-      update_cache: true
       state: present
 
   - name: Enable libvirtd service

@@ -25,7 +25,6 @@
         - calibre  # ereader (ebooks)
         - alacritty  # terminal
         - zsh  # shell
-        - optimus-manager  # gpu switching
         - nitrogen  # background manager
         - steam  # gaming platform
         - vim  # text editor
@@ -33,19 +32,16 @@
         - gedit  # text editor
         - docker  # containers
         - flameshot  # screenshot
-        - pkgfile
-        - virt-manager
-        - qemu
-        - vde2
-        - ebtables
-        - dnsmasq
-        - bridge-utils
-        - openbsd-netcat
-        - lynx
-        - strace
-        - bind-tools
-        - udisks2
-        - arandr
+        - pkgfile # pkg search from repos
+        - lynx # terminal-based web browser
+        - strace # debugger
+        - bind-tools # domain resolving
+        - udisks2 # disk mounting
+        - arandr # desktop display
+        - base-devel # meta package for compiling (e.g. AUR)
+        - git # repos
+        - yay # AUR installation
+      update_cache: true
       state: present
 
   - name: Change default shell to zsh
