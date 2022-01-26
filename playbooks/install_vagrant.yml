@@ -20,6 +20,8 @@
       name:
         - vagrant
         - libvirt
+        - qemu
+        - nfs-utils
       update_cache: true
       state: present
 
@@ -29,6 +31,16 @@
       name: libvirtd
       enabled: true
       state: started
+
+  # !!! ADD nfs.conf modification here !!!
+
+    # https://wiki.archlinux.org/title/Vagrant#Mounting_NFS_shared_folders:_mount.nfs:_requested_NFS_version_or_transport_protocol_is_not_supported 
+  - name: Enable nfs-server service
+    become: true
+    ansible.builtin.service:
+      name: nfs-server
+      enabled: true
+      state: restarted
 
   - name: Check if libvirt plugin is installed
     ansible.builtin.command:

@@ -8,42 +8,43 @@
     community.general.pacman:
       name:
         - zsh
+        - otf-fira-code
       state:
-        present 
-  
+        present
+
   - name: Copy default zshrc file to {{ ansible_user }} profile
-    copy:
+    ansible.builtin.copy:
       force: false
       remote_src: true
-      src: /etc/zsh/newuser.zshrc.recommended
+      src: /etc/skel/.zshrc
       dest: /home/{{ ansible_user }}/.zshrc
-  
+
   - name: Add functionality for bashrc
-    blockinfile:
+    ansible.builtin.blockinfile:
       path: /home/{{ ansible_user }}/.bashrc
       insertafter: EOF
-      marker: "# {mark} baseline_shell_rc"
-      block: "{{ lookup('file', '../files/baseline_shell_rc') }}"
+      marker: "# {mark} shell_rc"
+      block: "{{ lookup('file', 'files/shell_rc') }}"
 
   - name: Add functionality for zshrc
-    blockinfile:
+    ansible.builtin.blockinfile:
       path: /home/{{ ansible_user }}/.zshrc
       insertafter: EOF
-      marker: "# {mark} baseline_shell_rc"
-      block: "{{ lookup('file', '../files/baseline_shell_rc') }}"
+      marker: "# {mark} shell_rc"
+      block: "{{ lookup('file', '../files/shell_rc') }}"
 
   - name: Set default shell to zsh
     become: true
-    user:
-      name: {{ ansible_user }}
+    ansible.builtin.user:
+      name: '{{ ansible_user }}'
       shell: /usr/bin/zsh
 
   - name: Copy custom .bashrc to user 'root'
     become: true
-    copy:
-      backup: yes
+    ansible.builtin.copy:
+      backup: true
       force: true
-      remote_src: yes
+      remote_src: true
       src: /home/{{ ansible_user }}/.bashrc
       dest: /root/.bashrc
       owner: root
@@ -51,10 +52,10 @@
 
   - name: Copy custom .zshrc to user 'root'
     become: true
-    copy:
-      backup: yes
+    ansible.builtin.copy:
+      backup: true
       force: true
-      remote_src: yes
+      remote_src: true
       src: /home/{{ ansible_user }}/.zshrc
       dest: /root/.zshrc
       owner: root
