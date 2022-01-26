@@ -9,7 +9,7 @@ Ansible playbooks for various setups and configurations.
 
 ```bash
 sudo systemctl start sshd # SSH on until reboot
-sudo systemctl enable --now sshd # SSH permanentely on
+sudo systemctl enable --now sshd # SSH permanently on
 ```
 
 - If using SSH key authentication, then add the pubkey to `~/.ssh/authorized_keys`:
@@ -53,7 +53,7 @@ ansible-inventory --list
 ansible-inventory --graph
 
 # Specify hosts manually instead of using an inventory file
-# NOTE: when not providing a file to "-i" the trailing ',' is required for a hostname or IP address
+# NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
 
 # Debug output for variables
@@ -63,13 +63,12 @@ ansible all -m debug -a "var=vars"
 
 # Troubleshooting and Pitfalls
 
-* Be aware of the current directory that you invoke any `ansible*` command in. Ansible is sensitive to certain files being in a the current directory, and this could many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory.
+* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it.
 
 # TODO
 
 Actions and capabilities to add eventually:
 
-- parameterize aur\_builder as handler and ensure user is removed after installation
 - zsh/bash setup and default to zsh
 - (neo)vim
 - i3
@@ -77,7 +76,6 @@ Actions and capabilities to add eventually:
 - blurlock (/usr/bin/blurlock) tweaked blur percentage
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 - add optimus-manager installation and configuration and service enabling
-- fix yay_passwordless_sudo thing to not remove user when using ansible_user
 
 # References:
 

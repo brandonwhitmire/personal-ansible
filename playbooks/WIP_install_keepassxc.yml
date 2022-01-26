@@ -14,8 +14,6 @@
     community.general.pacman:
       name:
         - keepassxc
-        - cmake
-        - make
       state: present
 
 - name: Create temp user for yay invocation
@@ -73,3 +71,11 @@
       name: keepassxc-proxy
       enabled: true
       state: started
+
+  - name: Enable optimus-manager service
+    become: true
+    ansible.builtin.service:
+      name: optimus-manager
+      enabled: true
+      state: started
+

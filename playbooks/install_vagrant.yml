@@ -31,7 +31,7 @@
       enabled: true
       state: started
 
-  # !!! ADD nfs.conf modification here !!!
+    # TODO: !!! ADD nfs.conf modification here !!!
 
     # https://wiki.archlinux.org/title/Vagrant#Mounting_NFS_shared_folders:_mount.nfs:_requested_NFS_version_or_transport_protocol_is_not_supported 
   - name: Enable nfs-server service
