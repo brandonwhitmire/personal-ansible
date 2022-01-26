@@ -4,32 +4,66 @@ Ansible playbooks for various setups and configurations.
 
 # Pre-requisites
 
-- `sshd` running (and allowed through firewall)
+## Targets
+- `sshd` running (and allowed through firewall) on target nodes:
 
-```shell
-sudo systemctl start sshd
+```bash
+sudo systemctl start sshd # SSH on until reboot
+sudo systemctl enable --now sshd # SSH permanentely on
 ```
 
 - If using SSH key authentication, then add the pubkey to `~/.ssh/authorized_keys`:
 
-```shell
+[SSH Auth via Keys](https://www.ssh.com/academy/ssh/copy-id)
+
+```bash
 ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 ```
 
-[SSH Auth via Keys](https://www.ssh.com/academy/ssh/copy-id)
+## Controller
 
-```shell
-# Show inventory
-ansible-inventory --list
+- Docker is required
+
+```bash
+# For Arch-based systems
+sudo pacman -S docker
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER # requires logout/reboot
+```
+
+# Quick Start
+
+Use the Dockerized Ansible controller to configure target nodes:
+
+```bash
+# Automatically build the batteries-included Ansible controller node
+# NOTE: this container will prompt the user for necessary connection information
+./1_run_ansible_controller.sh
 
 # Configure VMs by running playbooks against VMs as returned from ansible-inventory
 # NOTE: <PLAYBOOK> is any of the *.yml* files in this repo root directory
 ansible-playbook <PLAYBOOK>
+```
 
-# Specify hosts manually instead of using inventory.vmware.yml
+# Common Commands
+
+```bash
+# Show inventory
+ansible-inventory --list
+ansible-inventory --graph
+
+# Specify hosts manually instead of using an inventory file
 # NOTE: when not providing a file to "-i" the trailing ',' is required for a hostname or IP address
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
+
+# Debug output for variables
+ansible all -m debug -a "var=hostvars"
+ansible all -m debug -a "var=vars"
 ```
+
+# Troubleshooting and Pitfalls
+
+* Be aware of the current directory that you invoke any `ansible*` command in. Ansible is sensitive to certain files being in a the current directory, and this could many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory.
 
 # TODO
 

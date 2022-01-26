@@ -16,9 +16,9 @@ RUN apt update -y && apt install -y \
 	git \
 	vim \
 	zsh \
+	shellcheck \
 	curl
 
-RUN mkdir -p /etc/ansible
 # Create /home/${UID} dir and set default shell
 RUN useradd -ms $(which zsh) ${UID}
 RUN echo "${UID} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers && visudo -c
@@ -51,7 +51,7 @@ bindkey "^[[1;5C" forward-word \n\
 bindkey "^[[1;5D" backward-word  \n\
 eval "$(_MOLECULE_COMPLETE=SHELL_source molecule)" \n\
 alias ll="ls -la --color=auto" \n\
-./run_first_time_setup.sh \n\
+python3 run_first_time_setup.py \n\
 set -e \n\
 ansible --version \n\
 set +e \n\

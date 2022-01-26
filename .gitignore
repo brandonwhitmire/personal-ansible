@@ -3,5 +3,6 @@
 .swp
 *creds*
 *vault*
+all
 *.md.backup
 hosts

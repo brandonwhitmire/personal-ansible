@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# To interactively use this container, run:
+# To get additional terminals after running this container (interactively or otherwise), run:
 # docker exec -it $(docker ps | grep ansible_controller | awk '{print $1}') zsh
 
 set -u
