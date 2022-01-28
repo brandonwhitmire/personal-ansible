@@ -8,7 +8,7 @@
     community.general.pacman:
       name:
         - zsh
-        - otf-fira-code
+        - ttf-fira-code
       state: present
 
   - name: Copy default zshrc file to {{ ansible_user }} profile
