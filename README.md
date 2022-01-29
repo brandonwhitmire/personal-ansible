@@ -68,14 +68,9 @@ ansible all -m debug -a "var=vars"
 # TODO
 
 Actions and capabilities to add eventually:
-
-- zsh/bash setup and default to zsh
 - (neo)vim
-- i3
-- terminal
 - blurlock (/usr/bin/blurlock) tweaked blur percentage
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
-- add optimus-manager installation and configuration and service enabling
 
 # References:
 

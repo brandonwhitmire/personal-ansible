@@ -43,7 +43,8 @@
         - yay # AUR installation
         - python # Python3
         - python-pip  # pip package installer
-        - numlockx
+        - numlockx  # numlock on at login
+        - marker  # Markdown editor
       update_cache: true
       state: present
 
