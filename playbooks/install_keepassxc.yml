@@ -56,10 +56,3 @@
       name: keepassxc-proxy
       enabled: true
       state: started
-
-  - name: Enable optimus-manager service
-    become: true
-    ansible.builtin.service:
-      name: optimus-manager
-      enabled: true
-      state: started

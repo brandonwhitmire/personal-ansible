@@ -41,6 +41,8 @@
         - base-devel # meta package for compiling (e.g. AUR)
         - git # repos
         - yay # AUR installation
+        - python # Python3
+        - python-pip
       update_cache: true
       state: present
 
@@ -50,10 +52,24 @@
       name: '{{ ansible_user_id }}'
       shell: /bin/zsh
 
+  - name: Install pips
+    ansible.builtin.pip:
+      name:
+        - psutil  # soft dep for powerline
+        - i3ipc  # soft dep for powerline
+        - powerline-status
+
+  - name: Enable optimus-manager service
+    become: true
+    ansible.builtin.service:
+      name: optimus-manager
+      enabled: true
+      state: started
+
 - name: Install AUR pkgs
   vars:
     aur_packages:
-      - spaceship-prompt-bin
+      - spaceship-prompt-git
       - librewolf-bin
+      - optimus-manager
   ansible.builtin.import_playbook: function_yay_install.yml
-
