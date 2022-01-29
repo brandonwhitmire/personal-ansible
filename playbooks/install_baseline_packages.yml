@@ -48,12 +48,23 @@
       update_cache: true
       state: present
 
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - spaceship-prompt-git
+      - librewolf-bin
+      - optimus-manager
+  ansible.builtin.import_playbook: function_yay_install.yml
+
+- hosts: all
+  tasks:
+
   - name: Install pips
     ansible.builtin.pip:
       name:
         - psutil  # soft dep for powerline
         - i3ipc  # soft dep for powerline
-        - powerline-status
+        - powerline-status  # terminal beautification
 
   - name: Enable optimus-manager service
     become: true
@@ -84,11 +95,3 @@
       name: numlockx-on
       enabled: true
       state: started
-
-- name: Install AUR pkgs
-  vars:
-    aur_packages:
-      - spaceship-prompt-git
-      - librewolf-bin
-      - optimus-manager
-  ansible.builtin.import_playbook: function_yay_install.yml
