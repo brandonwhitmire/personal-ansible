@@ -2,7 +2,7 @@
 #
 # Install yay packages
 #
-# Invoke like so (no indention nor inside of taskblock):
+# Invoke like so (no indention nor inside of task block):
 #
 # - vars:
 #     aur_packages:

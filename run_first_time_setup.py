@@ -23,6 +23,8 @@ except KeyError:
 
 if __name__ == "__main__":
 
+    print(f"Running {sys.argv[0]} to collect connection info for Ansible targets...")
+
     # --- argparse ---
 
     parser = argparse.ArgumentParser(
