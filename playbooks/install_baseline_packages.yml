@@ -3,7 +3,7 @@
   hosts: all
   tasks:
 
-  - name: Remove unwanted pkgs 
+  - name: Remove unwanted pkgs
     become: true
     community.general.pacman:
       name:
@@ -17,7 +17,7 @@
     loop:
       - ~/.moonchild productions
 
-  - name: Install pacman pkgs 
+  - name: Install pacman pkgs
     become: true
     community.general.pacman:
       name:
@@ -32,16 +32,16 @@
         - gedit  # text editor
         - docker  # containers
         - flameshot  # screenshot
-        - pkgfile # pkg search from repos
-        - lynx # terminal-based web browser
-        - strace # debugger
-        - bind-tools # domain resolving
-        - udisks2 # disk mounting
-        - arandr # desktop display
-        - base-devel # meta package for compiling (e.g. AUR)
-        - git # repos
-        - yay # AUR installation
-        - python # Python3
+        - pkgfile  # pkg search from repos
+        - lynx  # terminal-based web browser
+        - strace  # debugger
+        - bind-tools  # domain resolving
+        - udisks2  # disk mounting
+        - arandr  # desktop display
+        - base-devel  # meta package for compiling (e.g. AUR)
+        - git  # repos
+        - yay  # AUR installation
+        - python  # Python3
         - python-pip  # pip package installer
         - numlockx  # numlock on at login
         - marker  # Markdown editor
@@ -61,39 +61,39 @@
 - hosts: all
   tasks:
 
-  - name: Install pips
-    ansible.builtin.pip:
-      name:
-        - psutil  # soft dep for powerline
-        - i3ipc  # soft dep for powerline
-        - powerline-status  # terminal beautification
+    - name: Install pips
+      ansible.builtin.pip:
+        name:
+          - psutil  # soft dep for powerline
+          - i3ipc  # soft dep for powerline
+          - powerline-status  # terminal beautification
 
-  - name: Enable optimus-manager service
-    become: true
-    ansible.builtin.service:
-      name: optimus-manager
-      enabled: true
-      state: started
+    - name: Enable optimus-manager service
+      become: true
+      ansible.builtin.service:
+        name: optimus-manager
+        enabled: true
+        state: started
 
-  - name: Change default shell to zsh
-    become: true
-    user:
-      name: '{{ ansible_user_id }}'
-      shell: /bin/zsh
+    - name: Change default shell to zsh
+      become: true
+      user:
+        name: '{{ ansible_user_id }}'
+        shell: /bin/zsh
 
-  # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
-  - name: Copy numlockx systemd unitfile file to /etc/
-    become: true
-    ansible.builtin.copy:
-      src: ../files/systemd/numlockx-on.service
-      dest: /etc/systemd/system/
-      owner: root
-      group: root
-      mode: '0644'
+    # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
+    - name: Copy numlockx systemd unitfile file to /etc/
+      become: true
+      ansible.builtin.copy:
+        src: files/systemd/numlockx-on.service
+        dest: /etc/systemd/system/
+        owner: root
+        group: root
+        mode: '0644'
 
-  - name: Enable numlockx-on service
-    become: true
-    ansible.builtin.service:
-      name: numlockx-on
-      enabled: true
-      state: started
+    - name: Enable numlockx-on service
+      become: true
+      ansible.builtin.service:
+        name: numlockx-on
+        enabled: true
+        state: started

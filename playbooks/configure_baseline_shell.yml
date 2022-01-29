@@ -17,6 +17,7 @@
       remote_src: true
       src: /etc/skel/.zshrc
       dest: /home/{{ ansible_user }}/.zshrc
+      mode: '0644'
 
   - name: Add functionality for bashrc
     ansible.builtin.blockinfile:
@@ -48,6 +49,7 @@
       dest: /root/.bashrc
       owner: root
       group: root
+      mode: '0644'
 
   - name: Copy custom .zshrc to user 'root'
     become: true
@@ -59,3 +61,4 @@
       dest: /root/.zshrc
       owner: root
       group: root
+      mode: '0644'
