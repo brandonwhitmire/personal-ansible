@@ -42,15 +42,10 @@
         - git # repos
         - yay # AUR installation
         - python # Python3
-        - python-pip
+        - python-pip  # pip package installer
+        - numlockx
       update_cache: true
       state: present
-
-  - name: Change default shell to zsh
-    become: true
-    user:
-      name: '{{ ansible_user_id }}'
-      shell: /bin/zsh
 
   - name: Install pips
     ansible.builtin.pip:
@@ -63,6 +58,29 @@
     become: true
     ansible.builtin.service:
       name: optimus-manager
+      enabled: true
+      state: started
+
+  - name: Change default shell to zsh
+    become: true
+    user:
+      name: '{{ ansible_user_id }}'
+      shell: /bin/zsh
+
+  # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
+  - name: Copy numlockx systemd unitfile file to /etc/
+    become: true
+    ansible.builtin.copy:
+      src: ../files/systemd/numlockx-on.service
+      dest: /etc/systemd/system/
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Enable numlockx-on service
+    become: true
+    ansible.builtin.service:
+      name: numlockx-on
       enabled: true
       state: started
 
