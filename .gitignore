@@ -6,3 +6,4 @@
 all
 *.md.backup
 hosts
+artifacts/

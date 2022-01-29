@@ -49,3 +49,11 @@
     user:
       name: '{{ ansible_user_id }}'
       shell: /bin/zsh
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - spaceship-prompt-bin
+      - librewolf-bin
+  ansible.builtin.import_playbook: function_yay_install.yml
+

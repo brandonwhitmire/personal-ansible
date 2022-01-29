@@ -1,0 +1,59 @@
+#!/usr/bin/env ansible-playbook
+#
+# Install yay packages
+#
+# Invoke like so (no indention nor inside of taskblock):
+#
+# - vars:
+#     aur_packages:
+#       - package1
+#       - package2
+#       ...
+#   ansible.builtin.import_playbook: function_yay_install.yml
+#
+# NOTE:
+# Temporarily add/remove passwordless sudo ansible_user
+# when using yay module since yay cannot be ran with sudo
+# but will require (and prompt for sudoer password) later.
+#
+# Reference:
+# https://github.com/kewlfft/ansible-aur#create-the-aur_builder-user
+---
+- name: Add/Remove yay passwordless sudo user (to install AUR packages)
+  hosts: all
+
+  vars:
+    - passwordless_sudo_user: '{{ ansible_user }}'
+    - passwordless_sudo_file: /etc/sudoers.d/11-temp-passwordless-sudo-{{ passwordless_sudo_user }}
+    - passwordless_sudo_program: /usr/bin/pacman
+    - aur_packages: nop1,nop2,nop3
+
+  tasks:
+
+    - block:
+
+        - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo pacman`
+          become: true
+          ansible.builtin.lineinfile:
+            path: '{{ passwordless_sudo_file }}'
+            line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
+            create: true
+            validate: 'visudo -cf %s'
+            mode: 0440
+            state: present
+
+        - name: Install pkgs via `yay`
+          yay:
+            name:
+              - '{{ item }}'
+            state: present
+          loop: '{{ aur_packages }}'
+
+      # Always removes this temp security hole even with a previous failure
+      always:
+        # Remove the `{{ passwordless_sudo_file }}` file
+        - name: REMOVE TEMP SUDOER FILE
+          become: true
+          ansible.builtin.file:
+            path: '{{ passwordless_sudo_file }}'
+            state: absent

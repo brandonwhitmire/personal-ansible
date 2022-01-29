@@ -16,35 +16,20 @@
         - keepassxc
       state: present
 
-- name: Create temp user for yay invocation
+- name: Install AUR pkgs
   vars:
-    install_passwordless_sudo_user: true
-    passwordless_sudo_user: '{{ ansible_user }}'
-  ansible.builtin.import_playbook: install_yay_passwordless_sudo_user.yml
+    aur_packages:
+      - librewolf-bin
+  ansible.builtin.import_playbook: function_yay_install.yml
 
 - hosts: all
-  tasks:
-  - name: Install Librewolf package
-    # https://github.com/mnussbaum/ansible-yay
-    yay:
-      name: 
-        - librewolf-bin
-          # TODO: enable service
-        - optimus-manager
-      state: present
 
-- name: Delete temp user for yay invocation
-  vars:
-    install_passwordless_sudo_user: false
-    passwordless_sudo_user: '{{ ansible_user }}'
-  ansible.builtin.import_playbook: install_yay_passwordless_sudo_user.yml
-
-- hosts: all
   tasks:
   - name: Browser config to allow keepassxc-browser extension to communicate
     ansible.builtin.copy:
       src: files/browser/native-messaging-hosts
       dest: ~/.librewolf/
+      mode: '0770'
 
   - name: Copy keepassxc-proxy binary into /usr/bin/
     become: true
@@ -78,4 +63,3 @@
       name: optimus-manager
       enabled: true
       state: started
-
