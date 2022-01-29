@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# To interactively use this container, run:
+# To get additional terminals after running this container (interactively or otherwise), run:
 # docker exec -it $(docker ps | grep ansible_controller | awk '{print $1}') zsh
 
 set -u
@@ -24,7 +24,7 @@ fi
 
 docker build \
 	-t "$DOCKER_NAME" \
-	-f "$DOCKER_HOST_MOUNT"/Dockerfile \
+	-f "$DOCKER_HOST_MOUNT"/Dockerfile.ansible \
 	--build-arg UID="$(id -u)" \
 	--build-arg GUID="$(id -g)" \
 	--build-arg WORKDIR="/$DOCKER_NAME" \
@@ -41,5 +41,6 @@ docker run \
 	--tty=true \
         --user "$(id -u):$(id -g)" \
 	--volume "$DOCKER_HOST_MOUNT":"/$DOCKER_NAME" \
+	--volume "$HOME"/.ssh:/home/"$(id -u)/.ssh" \
 	--workdir="/$DOCKER_NAME" \
 	"$DOCKER_NAME"

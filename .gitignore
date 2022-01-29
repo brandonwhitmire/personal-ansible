@@ -1,1 +1,9 @@
 .vagrant
+.ansible
+.swp
+*creds*
+*vault*
+all
+*.md.backup
+hosts
+artifacts/

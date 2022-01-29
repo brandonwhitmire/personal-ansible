@@ -1,0 +1,94 @@
+---
+- name: Ensure certain baseline packages are remove and present
+  hosts: all
+  tasks:
+
+  - name: Remove packages
+    become: true
+    community.general.pacman:
+      name:
+        - palemoon-bin
+      state: absent
+
+  - name: Remove unneeded files/dirs
+    ansible.builtin.file:
+      path: '{{ item }}'
+      state: absent
+    loop:
+      - ~/.moonchild productions
+
+  - name: Install packages
+    become: true
+    community.general.pacman:
+      name:
+        - firefox  # web browser
+        - calibre  # ereader (ebooks)
+        - alacritty  # terminal
+        - zsh  # shell
+        - nitrogen  # background manager
+        - steam  # gaming platform
+        - vim  # text editor
+        - neovim  # text editor
+        - gedit  # text editor
+        - docker  # containers
+        - flameshot  # screenshot
+        - pkgfile # pkg search from repos
+        - lynx # terminal-based web browser
+        - strace # debugger
+        - bind-tools # domain resolving
+        - udisks2 # disk mounting
+        - arandr # desktop display
+        - base-devel # meta package for compiling (e.g. AUR)
+        - git # repos
+        - yay # AUR installation
+        - python # Python3
+        - python-pip  # pip package installer
+        - numlockx  # numlock on at login
+        - marker  # Markdown editor
+      update_cache: true
+      state: present
+
+  - name: Install pips
+    ansible.builtin.pip:
+      name:
+        - psutil  # soft dep for powerline
+        - i3ipc  # soft dep for powerline
+        - powerline-status
+
+  - name: Enable optimus-manager service
+    become: true
+    ansible.builtin.service:
+      name: optimus-manager
+      enabled: true
+      state: started
+
+  - name: Change default shell to zsh
+    become: true
+    user:
+      name: '{{ ansible_user_id }}'
+      shell: /bin/zsh
+
+  # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
+  - name: Copy numlockx systemd unitfile file to /etc/
+    become: true
+    ansible.builtin.copy:
+      src: ../files/systemd/numlockx-on.service
+      dest: /etc/systemd/system/
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Enable numlockx-on service
+    become: true
+    ansible.builtin.service:
+      name: numlockx-on
+      enabled: true
+      state: started
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - spaceship-prompt-git
+      - librewolf-bin
+      - optimus-manager
+  ansible.builtin.import_playbook: function_yay_install.yml
