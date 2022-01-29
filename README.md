@@ -2,6 +2,8 @@
 
 Ansible playbooks for various setups and configurations.
 
+**Currently, these playbooks are tailored to Manjaro** Linux, which uses the `pacman` package manager.
+
 # Pre-requisites
 
 ## Targets

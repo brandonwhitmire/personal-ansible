@@ -3,7 +3,7 @@
   hosts: all
   tasks:
 
-  - name: Remove packages
+  - name: Remove unwanted pkgs 
     become: true
     community.general.pacman:
       name:
@@ -17,7 +17,7 @@
     loop:
       - ~/.moonchild productions
 
-  - name: Install packages
+  - name: Install pacman pkgs 
     become: true
     community.general.pacman:
       name:
@@ -45,6 +45,8 @@
         - python-pip  # pip package installer
         - numlockx  # numlock on at login
         - marker  # Markdown editor
+        - borg  # encrypted, de-duplicated backups
+        - libreoffice  # office suite of programs
       update_cache: true
       state: present
 
