@@ -71,7 +71,7 @@ ansible all -m debug -a "var=vars"
 
 Actions and capabilities to add eventually:
 
-- (neo)vim
+- (neo)vim: fix and ensure setup works
 - blurlock (/usr/bin/blurlock) tweaked blur percentage
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 

@@ -76,3 +76,20 @@
           src: files/i3_rc
           dest: /home/{{ ansible_user }}/.i3/config
           mode: '0644'
+
+  - name: === (neo)vim block ===
+    block:
+
+      - name: Ensure nvim directory exists
+        ansible.builtin.file:
+          path: /home/{{ ansible_user }}/.config/nvim/
+          state: directory
+          mode: '0755'
+
+      - name: Copy default nvim file to {{ ansible_user }} profile
+        ansible.builtin.copy:
+          remote_src: false
+          force: true
+          src: files/vim_rc
+          dest: /home/{{ ansible_user }}/.config/nvim/init.vim
+          mode: '0644'
