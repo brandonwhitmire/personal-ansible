@@ -63,4 +63,5 @@
     ansible.builtin.user:
       name: '{{ ansible_user }}'
       group: libvirt
+      append: true
       state: present
