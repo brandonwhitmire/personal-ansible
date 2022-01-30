@@ -71,6 +71,8 @@ alias diff="colordiff -y --suppress-common-lines"
 alias vi="$EDITOR"
 alias vim="$EDITOR"
 
+alias update_grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+
 # --- New Commands 
 
 alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
