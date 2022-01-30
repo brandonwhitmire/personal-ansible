@@ -7,58 +7,72 @@
     become: true
     community.general.pacman:
       name:
-        - zsh
-        - ttf-fira-code
+        - zsh  # shell
+        - ttf-fira-code  # fonts
+        - alacritty  # terminal
       state: present
 
-  - name: Copy default zshrc file to {{ ansible_user }} profile
-    ansible.builtin.copy:
-      force: false
-      remote_src: true
-      src: /etc/skel/.zshrc
-      dest: /home/{{ ansible_user }}/.zshrc
-      mode: '0644'
+  - name: === zsh block ===
+    block:
 
-  - name: Add functionality for bashrc
-    ansible.builtin.blockinfile:
-      path: /home/{{ ansible_user }}/.bashrc
-      insertafter: EOF
-      marker: "# {mark} shell_rc"
-      block: "{{ lookup('file', 'files/shell_rc') }}"
+      - name: Copy default zshrc file to {{ ansible_user }} profile
+        ansible.builtin.copy:
+          force: false
+          remote_src: true
+          src: /etc/skel/.zshrc
+          dest: /home/{{ ansible_user }}/.zshrc
+          mode: '0644'
 
-  - name: Add functionality for zshrc
-    ansible.builtin.blockinfile:
-      path: /home/{{ ansible_user }}/.zshrc
-      insertafter: EOF
-      marker: "# {mark} shell_rc"
-      block: "{{ lookup('file', '../files/shell_rc') }}"
+      - name: Add functionality for bashrc
+        ansible.builtin.blockinfile:
+          path: /home/{{ ansible_user }}/.bashrc
+          insertafter: EOF
+          marker: "# {mark} shell_rc"
+          block: "{{ lookup('file', 'files/shell_rc') }}"
 
-  - name: Set default shell to zsh
-    become: true
-    ansible.builtin.user:
-      name: '{{ ansible_user }}'
-      shell: /usr/bin/zsh
+      - name: Add functionality for zshrc
+        ansible.builtin.blockinfile:
+          path: /home/{{ ansible_user }}/.zshrc
+          insertafter: EOF
+          marker: "# {mark} shell_rc"
+          block: "{{ lookup('file', '../files/shell_rc') }}"
 
-  - name: Copy custom .bashrc to user 'root'
-    become: true
-    ansible.builtin.copy:
-      backup: true
-      force: true
-      remote_src: true
-      src: /home/{{ ansible_user }}/.bashrc
-      dest: /root/.bashrc
-      owner: root
-      group: root
-      mode: '0644'
+      - name: Set default shell to zsh
+        become: true
+        ansible.builtin.user:
+          name: '{{ ansible_user }}'
+          shell: /usr/bin/zsh
 
-  - name: Copy custom .zshrc to user 'root'
-    become: true
-    ansible.builtin.copy:
-      backup: true
-      force: true
-      remote_src: true
-      src: /home/{{ ansible_user }}/.zshrc
-      dest: /root/.zshrc
-      owner: root
-      group: root
-      mode: '0644'
+      - name: Copy custom .bashrc to user 'root'
+        become: true
+        ansible.builtin.copy:
+          backup: true
+          force: true
+          remote_src: true
+          src: /home/{{ ansible_user }}/.bashrc
+          dest: /root/.bashrc
+          owner: root
+          group: root
+          mode: '0644'
+
+      - name: Copy custom .zshrc to user 'root'
+        become: true
+        ansible.builtin.copy:
+          backup: true
+          force: true
+          remote_src: true
+          src: /home/{{ ansible_user }}/.zshrc
+          dest: /root/.zshrc
+          owner: root
+          group: root
+          mode: '0644'
+
+  - name: === i3 block ===
+    block:
+
+      - name: Copy default i3 file to {{ ansible_user }} profile
+        ansible.builtin.copy:
+          force: true
+          src: files/i3_rc
+          dest: /home/{{ ansible_user }}/.i3/config
+          mode: '0644'

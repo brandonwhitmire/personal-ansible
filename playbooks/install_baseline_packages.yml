@@ -23,8 +23,6 @@
       name:
         - firefox  # web browser
         - calibre  # ereader (ebooks)
-        - alacritty  # terminal
-        - zsh  # shell
         - nitrogen  # background manager
         - steam  # gaming platform
         - vim  # text editor
@@ -47,6 +45,7 @@
         - marker  # Markdown editor
         - borg  # encrypted, de-duplicated backups
         - libreoffice  # office suite of programs
+        - unzip  # unzip
       update_cache: true
       state: present
 
