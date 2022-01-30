@@ -50,8 +50,9 @@
   - name: Show Vagrant plugin list
     ansible.builtin.debug:
       msg:
-        - "=== vagrant plugin list output ==="
+        - "=== START  :: vagrant plugin list output ==="
         - "{{ output_vagrant_plugin_list.stdout }}"
+        - "=== END    :: vagrant plugin list output ==="
 
   - name: Install libvirt plugin for Vagrant, if absent
     ansible.builtin.command:

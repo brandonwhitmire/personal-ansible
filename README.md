@@ -2,12 +2,28 @@
 
 Ansible playbooks for various setups and configurations.
 
-**Currently, these playbooks are tailored to Manjaro** Linux, which uses the `pacman` package manager.
+**Currently, these playbooks are tailored to _Manjaro Linux_, which uses the `pacman` package manager.**
 
 # Pre-requisites
 
+## Controller
+
+This is the machine that will initiate connections and configure the target notes.
+
+- REQUIRED: `docker`:
+
+```bash
+# For Arch-based systems
+sudo pacman -S --noconfirm docker
+sudo systemctl enable --now docker
+sudo usermod --append --groups docker $USER # requires logout/reboot
+```
+
 ## Targets
-- `sshd` running (and allowed through firewall) on target nodes:
+
+This is the machine or machines that will be configured via the controller.
+
+- REQUIRED: `sshd` running (and allowed through firewall) on target nodes:
 
 ```bash
 sudo systemctl start sshd # SSH on until reboot
@@ -16,26 +32,15 @@ sudo systemctl enable --now sshd # SSH permanently on
 
 - If using SSH key authentication, then add the pubkey to `~/.ssh/authorized_keys`:
 
-[SSH Auth via Keys](https://www.ssh.com/academy/ssh/copy-id)
+> [SSH Auth via Keys](https://www.ssh.com/academy/ssh/copy-id)
 
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 ```
 
-## Controller
-
-- Docker is required
-
-```bash
-# For Arch-based systems
-sudo pacman -S docker
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER # requires logout/reboot
-```
-
 # Quick Start
 
-Use the Dockerized Ansible controller to configure target nodes:
+Using the Dockerized Ansible controller to configure target nodes:
 
 ```bash
 # Automatically build the batteries-included Ansible controller node
@@ -65,7 +70,7 @@ ansible all -m debug -a "var=vars"
 
 # Troubleshooting and Pitfalls
 
-* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it.
+* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via `./1_run_ansible_controller.sh`.
 
 # TODO
 
@@ -74,6 +79,8 @@ Actions and capabilities to add eventually:
 - (neo)vim: fix and ensure setup works
 - blurlock (/usr/bin/blurlock) tweaked blur percentage
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
+- add `nfs.conf` modifcations to proper playbook
+- pull script contents into `.zshrc`
 
 # References:
 

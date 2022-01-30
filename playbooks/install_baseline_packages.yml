@@ -20,34 +20,35 @@
   - name: Install pacman pkgs
     become: true
     community.general.pacman:
-      name:
-        - firefox  # web browser
-        - calibre  # ereader (ebooks)
-        - nitrogen  # background manager
-        - steam  # gaming platform
-        - vim  # text editor
-        - neovim  # text editor
-        - gedit  # text editor
-        - docker  # containers
-        - flameshot  # screenshot
-        - pkgfile  # pkg search from repos
-        - lynx  # terminal-based web browser
-        - strace  # debugger
-        - bind-tools  # domain resolving
-        - udisks2  # disk mounting
-        - arandr  # desktop display
-        - base-devel  # meta package for compiling (e.g. AUR)
-        - git  # repos
-        - yay  # AUR installation
-        - python  # Python3
-        - python-pip  # pip package installer
-        - numlockx  # numlock on at login
-        - marker  # Markdown editor
-        - borg  # encrypted, de-duplicated backups
-        - libreoffice  # office suite of programs
-        - unzip  # unzip
+      # installation takes while so method will show "progress"
+      name: '{{ item }}'
       update_cache: true
       state: present
+    loop:
+      - firefox  # web browser
+      - calibre  # ereader (ebooks)
+      - nitrogen  # background manager
+      - steam  # gaming platform
+      - vim  # text editor
+      - neovim  # text editor
+      - gedit  # text editor
+      - flameshot  # screenshot
+      - pkgfile  # pkg search from repos
+      - lynx  # terminal-based web browser
+      - strace  # debugger
+      - bind-tools  # domain resolving
+      - udisks2  # disk mounting
+      - arandr  # desktop display
+      - base-devel  # meta package for compiling (e.g. AUR)
+      - git  # repos
+      - yay  # AUR installation
+      - python  # Python3
+      - python-pip  # pip package installer
+      - numlockx  # numlock on at login
+      - marker  # Markdown editor
+      - borg  # encrypted, de-duplicated backups
+      - libreoffice  # office suite of programs
+      - unzip  # unzip
 
 - name: Install AUR pkgs
   vars:
@@ -55,7 +56,7 @@
       - spaceship-prompt-git
       - librewolf-bin
       - optimus-manager
-  ansible.builtin.import_playbook: function_yay_install.yml
+  ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
   tasks:

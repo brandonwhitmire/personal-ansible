@@ -20,7 +20,7 @@
   vars:
     aur_packages:
       - librewolf-bin
-  ansible.builtin.import_playbook: function_yay_install.yml
+  ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
   tasks:
