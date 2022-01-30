@@ -6,7 +6,7 @@
 
     - name: Update GRUB
       become: true
-      command:
+      ansible.builtin.command:
         cmd: grub-mkconfig -o /boot/grub/grub.cfg
 
   tasks:
@@ -14,7 +14,7 @@
     # Reference: https://stackoverflow.com/questions/55844981/ansible-insert-word-in-grub-cmdline
     - name: Check if GRUB splash exists in boot command
       become: true
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX=".*splash'
         state: absent
@@ -24,7 +24,7 @@
 
     - name: Insert GRUB splash if missing
       become: true
-      lineinfile:
+      ansible.builtin.lineinfile:
         backup: true
         backrefs: true
         path: /etc/default/grub
@@ -35,7 +35,7 @@
 
     - name: Change GRUB timeout to 0
       become: true
-      replace:
+      ansible.builtin.replace:
         backup: true
         path: /etc/default/grub
         regexp: '^GRUB_TIMEOUT=[1-9][0-9]*'
