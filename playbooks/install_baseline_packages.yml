@@ -59,7 +59,7 @@
   ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
-  task:
+  tasks:
 
     - name: Install pips
       ansible.builtin.pip:

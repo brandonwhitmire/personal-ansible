@@ -114,13 +114,14 @@
 
     - block:
 
-      - name: Set default font for terminal `alacritty`
-        ansible.builtin.blockinfile:
-          path: ~/.config/alacritty/alacritty.yml
-          block: |
-            font:
-              normal:
-                family: MesloLGS NF
-                style: Regular
-          create: true
-          state: present
+        - name: Set default font for terminal `alacritty`
+          ansible.builtin.blockinfile:
+            path: ~/.config/alacritty/alacritty.yml
+            block: |
+              font:
+                normal:
+                  family: MesloLGS NF
+                  style: Regular
+            create: true
+            mode: '0644'
+            state: present
