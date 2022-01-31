@@ -53,13 +53,13 @@
 - name: Install AUR pkgs
   vars:
     aur_packages:
-      - spaceship-prompt-git
-      - librewolf-bin
-      - optimus-manager
+      - spaceship-prompt-git  # terminal eye candy
+      - librewolf-bin  # security-focused web browser
+      - optimus-manager  # GPU switcher
   ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
-  tasks:
+  task:
 
     - name: Install pips
       ansible.builtin.pip:

@@ -8,7 +8,6 @@
     community.general.pacman:
       name:
         - zsh  # shell
-        - ttf-fira-code  # fonts
         - alacritty  # terminal
       state: present
 
@@ -93,3 +92,35 @@
           src: files/vim_rc
           dest: /home/{{ ansible_user }}/.config/nvim/init.vim
           mode: '0644'
+
+  - name: === alacritty block ===
+    block:
+
+      - name: Install `alacritty` pkg
+        become: true
+        community.general.pacman:
+          name:
+            - alacritty
+          state: present
+
+- name: Install meslo font
+  vars:
+    aur_packages:
+      - ttf-meslo-nerd-font-powerlevel10k  # font
+  ansible.builtin.import_playbook: function_yay.yml
+
+- hosts: all
+  tasks:
+
+    - block:
+
+      - name: Set default font for terminal `alacritty`
+        ansible.builtin.blockinfile:
+          path: ~/.config/alacritty/alacritty.yml
+          block: |
+            font:
+              normal:
+                family: MesloLGS NF
+                style: Regular
+          create: true
+          state: present
