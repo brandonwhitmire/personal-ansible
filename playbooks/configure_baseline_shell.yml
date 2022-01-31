@@ -101,13 +101,6 @@
   - name: === alacritty block ===
     block:
 
-      - name: Install `alacritty` pkg
-        become: true
-        community.general.pacman:
-          name:
-            - alacritty
-          state: present
-
 - name: Install meslo font
   vars:
     aur_packages:

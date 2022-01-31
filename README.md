@@ -8,7 +8,7 @@ Ansible playbooks for various setups and configurations.
 
 ## Controller
 
-This is the machine that will initiate connections and configure the target notes.
+This is the machine that will initiate connections and configure the target nodes.
 
 - REQUIRED: `docker`:
 
@@ -76,6 +76,7 @@ ansible all -m debug -a "var=vars"
 
 Actions and capabilities to add eventually:
 
+- parameterize playbooks more by adding variables
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 - pull script contents into `.zshrc`
 
