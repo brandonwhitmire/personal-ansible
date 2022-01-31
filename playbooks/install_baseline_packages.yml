@@ -71,7 +71,7 @@
 - hosts: all
   tasks:
 
-    - name: Miscellaneous config steps
+    - name: Miscellaneous config steps (that don't need their own playbooks)
       block:
 
         - name: Enable optimus-manager service
@@ -97,3 +97,12 @@
             name: numlockx-on
             enabled: true
             state: started
+
+        - name: Tweak blur lock screen to blur more
+          become: true
+          ansible.builtin.lineinfile:
+            backup: true
+            backrefs: true
+            path: /usr/bin/blurlock
+            regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
+            line: '\1 -blur 0x100 \2'
