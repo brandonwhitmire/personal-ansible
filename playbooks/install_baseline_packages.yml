@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: Ensure certain baseline packages are remove and present
   hosts: all
