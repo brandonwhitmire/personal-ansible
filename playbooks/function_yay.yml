@@ -29,7 +29,7 @@
     - passwordless_sudo_user: '{{ ansible_user }}'
     - passwordless_sudo_file: /etc/sudoers.d/11-temp-passwordless-sudo-{{ passwordless_sudo_user }}
     - passwordless_sudo_program: /usr/bin/pacman
-    - aur_packages: nop1,nop2,nop3
+    - aur_packages: package1,package2,package3
     - aur_packages_state: present
 
   tasks:
