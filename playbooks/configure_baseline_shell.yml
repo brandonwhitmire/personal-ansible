@@ -33,6 +33,7 @@
           insertafter: EOF
           marker: "# {mark} shell_rc"
           block: "{{ lookup('file', 'files/shell_rc') }}"
+          state: present
 
       - name: Add functionality for zshrc
         ansible.builtin.blockinfile:
@@ -40,6 +41,7 @@
           insertafter: EOF
           marker: "# {mark} shell_rc"
           block: "{{ lookup('file', '../files/shell_rc') }}"
+          state: present
 
       - name: Set default shell to zsh
         become: true

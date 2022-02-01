@@ -1,4 +1,6 @@
 #!/usr/bin/env ansible-playbook
+#
+# Baseline packages and simple configurations
 ---
 - name: Install (and remove) baseline packages from pacman, AUR, and PyPI
   hosts: all
@@ -105,3 +107,4 @@
             path: /usr/bin/blurlock
             regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
             line: '\1 -blur 0x100 \2'
+            state: present

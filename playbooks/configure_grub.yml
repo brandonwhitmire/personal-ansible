@@ -33,6 +33,7 @@
         path: /etc/default/grub
         regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
         line: '\1 noquiet splash=verbose"'
+        state: present
       when: grub_cmdline_check.found == 0
       notify: Update GRUB
 
