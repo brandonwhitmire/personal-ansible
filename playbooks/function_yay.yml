@@ -39,7 +39,7 @@
 
     - block:
 
-        - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo pacman`
+        - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`
           become: true
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'

@@ -58,6 +58,7 @@
         - i3ipc  # soft dep for powerline
         - powerline-status  # terminal beautification
         - neovim  # used by neovim
+        - paramiko  # SSH-like library
 
 - name: Install AUR pkgs
   vars:
