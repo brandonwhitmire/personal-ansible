@@ -30,8 +30,6 @@
       - calibre  # ereader (ebooks)
       - nitrogen  # background manager
       - steam  # gaming platform
-      - vim  # text editor
-      - neovim  # text editor
       - gedit  # text editor
       - flameshot  # screenshot
       - pkgfile  # pkg search from repos

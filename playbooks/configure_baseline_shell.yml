@@ -12,6 +12,8 @@
       name:
         - zsh  # shell
         - alacritty  # terminal
+        - vim  # text editor
+        - neovim  # upgraded text editor
       state: present
 
   - name: === zsh block ===
