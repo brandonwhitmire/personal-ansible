@@ -20,39 +20,39 @@
   vars:
     aur_packages:
       - librewolf-bin
-  ansible.builtin.import_playbook: function_yay_install.yml
+  ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
-
   tasks:
-  - name: Browser config to allow keepassxc-browser extension to communicate
-    ansible.builtin.copy:
-      src: files/browser/native-messaging-hosts
-      dest: ~/.librewolf/
-      mode: '0770'
 
-  - name: Copy keepassxc-proxy binary into /usr/bin/
-    become: true
-    ansible.builtin.copy:
-      remote_src: false
-      src: files/keepassxc-proxy
-      dest: /usr/bin/keepassxc-proxy
-      owner: root
-      group: root
-      mode: '0755'
+    - name: Browser config to allow keepassxc-browser extension to communicate
+      ansible.builtin.copy:
+        src: files/browser/native-messaging-hosts
+        dest: ~/.librewolf/
+        mode: '0770'
 
-  - name: Copy keepassxc-proxy systemd unitfile file to /etc/
-    become: true
-    ansible.builtin.copy:
-      src: files/systemd/keepassxc-proxy.service
-      dest: /etc/systemd/system/
-      owner: root
-      group: root
-      mode: '0644'
+    - name: Copy keepassxc-proxy binary into /usr/bin/
+      become: true
+      ansible.builtin.copy:
+        remote_src: false
+        src: files/keepassxc-proxy
+        dest: /usr/bin/keepassxc-proxy
+        owner: root
+        group: root
+        mode: '0755'
 
-  - name: Enable keepassxc-proxy service
-    become: true
-    ansible.builtin.service:
-      name: keepassxc-proxy
-      enabled: true
-      state: started
+    - name: Copy keepassxc-proxy systemd unitfile file to /etc/
+      become: true
+      ansible.builtin.copy:
+        src: files/systemd/keepassxc-proxy.service
+        dest: /etc/systemd/system/
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable keepassxc-proxy service
+      become: true
+      ansible.builtin.service:
+        name: keepassxc-proxy
+        enabled: true
+        state: started

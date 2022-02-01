@@ -1,43 +1,46 @@
+#!/usr/bin/env ansible-playbook
+#
+# Configure GRUB
 ---
 - name: Configure GRUB bootloader
   hosts: all
-  
+
   handlers:
-  
+
     - name: Update GRUB
       become: true
-      command:
+      ansible.builtin.command:
         cmd: grub-mkconfig -o /boot/grub/grub.cfg
-  
+
   tasks:
 
-  # Reference: https://stackoverflow.com/questions/55844981/ansible-insert-word-in-grub-cmdline
-  - name: Check if GRUB splash exists in boot command
-    become: true
-    lineinfile:
-      path: /etc/default/grub
-      regexp: '^GRUB_CMDLINE_LINUX=".*splash'
-      state: absent
-    check_mode: true
-    register: grub_cmdline_check
-    changed_when: false
+    # Reference: https://stackoverflow.com/questions/55844981/ansible-insert-word-in-grub-cmdline
+    - name: Check if GRUB splash exists in boot command
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX=".*splash'
+        state: absent
+      check_mode: true
+      register: grub_cmdline_check
+      changed_when: false
 
-  - name: Insert GRUB splash if missing
-    become: true
-    lineinfile:
-      backup: true
-      backrefs: true
-      path: /etc/default/grub
-      regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
-      line: '\1 noquiet splash=verbose"'
-    when: grub_cmdline_check.found == 0
-    notify: Update GRUB
+    - name: Insert GRUB splash if missing
+      become: true
+      ansible.builtin.lineinfile:
+        backup: true
+        backrefs: true
+        path: /etc/default/grub
+        regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
+        line: '\1 noquiet splash=verbose"'
+      when: grub_cmdline_check.found == 0
+      notify: Update GRUB
 
-  - name: Change GRUB timeout to 0
-    become: true
-    replace:
-      backup: true
-      path: /etc/default/grub
-      regexp: '^GRUB_TIMEOUT=[1-9][0-9]*'
-      replace: "GRUB_TIMEOUT=0"
-    notify: Update GRUB
+    - name: Change GRUB timeout to 0
+      become: true
+      ansible.builtin.replace:
+        backup: true
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT=[1-9][0-9]*'
+        replace: "GRUB_TIMEOUT=0"
+      notify: Update GRUB

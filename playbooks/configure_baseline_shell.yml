@@ -1,3 +1,6 @@
+#!/usr/bin/env ansible-playbook
+#
+# Configure and trick-out default shell
 ---
 - name: Configure baseline shell
   hosts: all
@@ -7,55 +10,116 @@
     become: true
     community.general.pacman:
       name:
-        - zsh
-        - ttf-fira-code
+        - zsh  # shell
+        - alacritty  # terminal
       state: present
 
-  - name: Copy default zshrc file to {{ ansible_user }} profile
-    ansible.builtin.copy:
-      force: false
-      remote_src: true
-      src: /etc/skel/.zshrc
-      dest: /home/{{ ansible_user }}/.zshrc
+  - name: === zsh block ===
+    block:
 
-  - name: Add functionality for bashrc
-    ansible.builtin.blockinfile:
-      path: /home/{{ ansible_user }}/.bashrc
-      insertafter: EOF
-      marker: "# {mark} shell_rc"
-      block: "{{ lookup('file', 'files/shell_rc') }}"
+      - name: Copy default zshrc file to {{ ansible_user }} profile
+        ansible.builtin.copy:
+          force: false
+          remote_src: true
+          src: /etc/skel/.zshrc
+          dest: /home/{{ ansible_user }}/.zshrc
+          mode: '0644'
 
-  - name: Add functionality for zshrc
-    ansible.builtin.blockinfile:
-      path: /home/{{ ansible_user }}/.zshrc
-      insertafter: EOF
-      marker: "# {mark} shell_rc"
-      block: "{{ lookup('file', '../files/shell_rc') }}"
+      - name: Add functionality for bashrc
+        ansible.builtin.blockinfile:
+          path: /home/{{ ansible_user }}/.bashrc
+          insertafter: EOF
+          marker: "# {mark} shell_rc"
+          block: "{{ lookup('file', 'files/shell_rc') }}"
 
-  - name: Set default shell to zsh
-    become: true
-    ansible.builtin.user:
-      name: '{{ ansible_user }}'
-      shell: /usr/bin/zsh
+      - name: Add functionality for zshrc
+        ansible.builtin.blockinfile:
+          path: /home/{{ ansible_user }}/.zshrc
+          insertafter: EOF
+          marker: "# {mark} shell_rc"
+          block: "{{ lookup('file', '../files/shell_rc') }}"
 
-  - name: Copy custom .bashrc to user 'root'
-    become: true
-    ansible.builtin.copy:
-      backup: true
-      force: true
-      remote_src: true
-      src: /home/{{ ansible_user }}/.bashrc
-      dest: /root/.bashrc
-      owner: root
-      group: root
+      - name: Set default shell to zsh
+        become: true
+        ansible.builtin.user:
+          name: '{{ ansible_user }}'
+          shell: /usr/bin/zsh
 
-  - name: Copy custom .zshrc to user 'root'
-    become: true
-    ansible.builtin.copy:
-      backup: true
-      force: true
-      remote_src: true
-      src: /home/{{ ansible_user }}/.zshrc
-      dest: /root/.zshrc
-      owner: root
-      group: root
+      - name: Copy custom .bashrc to user 'root'
+        become: true
+        ansible.builtin.copy:
+          backup: true
+          force: true
+          remote_src: true
+          src: /home/{{ ansible_user }}/.bashrc
+          dest: /root/.bashrc
+          owner: root
+          group: root
+          mode: '0644'
+
+      - name: Copy custom .zshrc to user 'root'
+        become: true
+        ansible.builtin.copy:
+          backup: true
+          force: true
+          remote_src: true
+          src: /home/{{ ansible_user }}/.zshrc
+          dest: /root/.zshrc
+          owner: root
+          group: root
+          mode: '0644'
+
+  - name: === i3 block ===
+    block:
+
+      - name: Copy default i3 file to `{{ ansible_user }}` profile
+        ansible.builtin.copy:
+          force: true
+          src: files/i3_rc
+          dest: /home/{{ ansible_user }}/.i3/config
+          mode: '0644'
+
+  - name: === (neo)vim block ===
+    block:
+
+      - name: Ensure nvim directory exists
+        ansible.builtin.file:
+          path: /home/{{ ansible_user }}/.config/nvim/
+          state: directory
+          mode: '0755'
+
+      - name: Copy default nvim file to `{{ ansible_user }}` profile
+        ansible.builtin.copy:
+          remote_src: false
+          force: true
+          src: files/vim_rc
+          dest: /home/{{ ansible_user }}/.config/nvim/init.vim
+          mode: '0644'
+
+      - name: Install (neo)vim plugins
+        ansible.builtin.command:
+          cmd: nvim -c 'PlugInstall | sleep 1 | q! | q!'
+
+- name: Install meslo font
+  vars:
+    aur_packages:
+      - ttf-meslo-nerd-font-powerlevel10k  # font
+  ansible.builtin.import_playbook: function_yay.yml
+
+- hosts: all
+  tasks:
+
+    - name: === alacritty block ===
+      block:
+
+        - name: Set default font for terminal `alacritty`
+          ansible.builtin.blockinfile:
+            path: ~/.config/alacritty/alacritty.yml
+            block: |
+              font:
+                normal:
+                  family: MesloLGS NF
+                  style: Regular
+            create: true
+            mode: '0644'
+            state: present

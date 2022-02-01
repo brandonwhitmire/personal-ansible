@@ -23,6 +23,8 @@ except KeyError:
 
 if __name__ == "__main__":
 
+    print(f"Running {sys.argv[0]} to collect connection info for Ansible targets...")
+
     # --- argparse ---
 
     parser = argparse.ArgumentParser(
@@ -111,4 +113,4 @@ if __name__ == "__main__":
                     shell=True,
                     timeout=5).decode())
             file.write("ansible_become_pass: '{{ ansible_ssh_password }}'")
-        print()
+        print("\n")

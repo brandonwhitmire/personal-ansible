@@ -1,32 +1,39 @@
 #!/usr/bin/env ansible-playbook
 #
-# Install yay packages
+# === Install AUR packages via yay ===
 #
-# Invoke like so (no indention nor inside of taskblock):
+# Invoke like so (no indention nor inside of task block):
 #
 # - vars:
 #     aur_packages:
 #       - package1
 #       - package2
 #       ...
-#   ansible.builtin.import_playbook: function_yay_install.yml
+#     aur_packages_state: present|absent  # pick only one to install/uninstall
+#   ansible.builtin.import_playbook: function_yay.yml
 #
 # NOTE:
-# Temporarily add/remove passwordless sudo ansible_user
+# This playbook temporarily adds/removes a passwordless sudo ansible_user
 # when using yay module since yay cannot be ran with sudo
 # but will require (and prompt for sudoer password) later.
+# This is a pretty egrious security hole, but the playbook is written such
+# that it should always remove that hole after packages are installed, removed, or failed.
 #
 # Reference:
 # https://github.com/kewlfft/ansible-aur#create-the-aur_builder-user
 ---
-- name: Add/Remove yay passwordless sudo user (to install AUR packages)
+- name: '=== [FUNCTION_START] Add/Remove yay packages ==='
   hosts: all
 
   vars:
-    - passwordless_sudo_user: '{{ ansible_user }}'
-    - passwordless_sudo_file: /etc/sudoers.d/11-temp-passwordless-sudo-{{ passwordless_sudo_user }}
-    - passwordless_sudo_program: /usr/bin/pacman
-    - aur_packages: nop1,nop2,nop3
+    passwordless_sudo_user: '{{ ansible_user }}'
+    passwordless_sudo_file: /etc/sudoers.d/11-temp-passwordless-sudo-{{ passwordless_sudo_user }}
+    passwordless_sudo_program: /usr/bin/pacman
+    aur_packages:
+      - package1
+      - package2
+      - package3
+    aur_packages_state: present
 
   tasks:
 
@@ -46,17 +53,17 @@
           yay:
             update_cache: true
 
-        - name: Install pkgs via `yay`
+        - name: 'Ensure `yay` pkgs are: {{ aur_packages_state }}'
           yay:
             name:
               - '{{ item }}'
-            state: present
+            state: '{{ aur_packages_state }}'
           loop: '{{ aur_packages }}'
 
       # Always removes this temp security hole even with a previous failure
       always:
         # Remove the `{{ passwordless_sudo_file }}` file
-        - name: REMOVE TEMP SUDOER FILE
+        - name: '=== [FUNCTION_END] REMOVE TEMP SUDOER FILE ==='
           become: true
           ansible.builtin.file:
             path: '{{ passwordless_sudo_file }}'

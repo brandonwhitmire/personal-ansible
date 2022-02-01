@@ -23,12 +23,12 @@ if [[ -n "$@" ]] ; then
 fi
 
 docker build \
-	-t "$DOCKER_NAME" \
-	-f "$DOCKER_HOST_MOUNT"/Dockerfile.ansible \
+	--tag "$DOCKER_NAME" \
+	--file "$DOCKER_HOST_MOUNT"/Dockerfile.ansible \
+	--compress \
 	--build-arg UID="$(id -u)" \
 	--build-arg GUID="$(id -g)" \
 	--build-arg WORKDIR="/$DOCKER_NAME" \
-	"$@" \
 	. 
 	# preserve this dot '.'
 

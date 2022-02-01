@@ -71,6 +71,8 @@ alias diff="colordiff -y --suppress-common-lines"
 alias vi="$EDITOR"
 alias vim="$EDITOR"
 
+alias update_grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+
 # --- New Commands 
 
 alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
@@ -129,9 +131,8 @@ uninstall_yay () {
 	yay -Rsu "$@"
 }
 # Perform system update properly
+# TODO: pull the functions out of the scripts and place here
 update () {
-	BREAKLINE
-	pamac checkupdates --aur
 	BREAKLINE
 	set -e
 	echo "[i] Backing up..."
@@ -142,13 +143,13 @@ update () {
 	BREAKLINE
 	echo "[i] Updating packages..."
 	set +e
-	sudo pamac upgrade --no-aur
-	yay -Syu
+	sudo pacman -S --refresh --sysupgrade
+	yay -S --refresh --sysupgrade
 	BREAKLINE
 }
 # Update pacman mirrors
 update_mirrors () {
-	sudo pacman-mirrors --country United_States && sudo pacman -Syyu
+	sudo pacman-mirrors --country United_States
 }
 # Create and switch to new, random temp directory
 mkt () {
