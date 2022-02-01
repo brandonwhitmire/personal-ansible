@@ -113,4 +113,4 @@ if __name__ == "__main__":
                     shell=True,
                     timeout=5).decode())
             file.write("ansible_become_pass: '{{ ansible_ssh_password }}'")
-        print()
+        print("\n")

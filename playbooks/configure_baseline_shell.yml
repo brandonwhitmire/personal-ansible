@@ -1,4 +1,6 @@
 #!/usr/bin/env ansible-playbook
+#
+# Configure and trick-out default shell
 ---
 - name: Configure baseline shell
   hosts: all
@@ -98,9 +100,6 @@
         ansible.builtin.command:
           cmd: nvim -c 'PlugInstall | sleep 1 | q! | q!'
 
-  - name: === alacritty block ===
-    block:
-
 - name: Install meslo font
   vars:
     aur_packages:
@@ -110,7 +109,8 @@
 - hosts: all
   tasks:
 
-    - block:
+    - name: === alacritty block ===
+      block:
 
         - name: Set default font for terminal `alacritty`
           ansible.builtin.blockinfile:

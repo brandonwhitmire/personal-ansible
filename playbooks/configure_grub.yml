@@ -1,4 +1,6 @@
 #!/usr/bin/env ansible-playbook
+#
+# Configure GRUB
 ---
 - name: Configure GRUB bootloader
   hosts: all

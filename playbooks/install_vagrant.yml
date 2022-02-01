@@ -4,11 +4,6 @@
 #
 # Reference:
 # https://wiki.archlinux.org/title/Vagrant#Installation
-#
-# sudo pacman vagrant
-# sudo systemctl enable --now libvirtd
-# vagrant plugin install vagrant-libvirt
-# sudo usermod -aG libvirt $USER
 ---
 - name: Install Vagrant
   hosts: all
