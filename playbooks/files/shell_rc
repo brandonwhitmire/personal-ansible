@@ -1,3 +1,8 @@
+# Source manjaro-zsh-configuration
+if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+  source /usr/share/zsh/manjaro-zsh-config
+fi
+
 # ---
 # CUSTOMIZED
 # ---
@@ -11,7 +16,13 @@
 export EDITOR="nvim"
 export BROWSER="librewolf"
 
-###
+# --- Powerline Fonts
+
+export USE_POWERLINE="true"
+powerline-daemon -q
+. /usr/share/powerline/bindings/zsh/powerline.zsh
+
+# --- Spaceship-Prompt Setup
 
 # https://computingforgeeks.com/best-terminal-shell-prompts-for-zsh-bash-fish/
 # Set Spaceship ZSH as a prompt

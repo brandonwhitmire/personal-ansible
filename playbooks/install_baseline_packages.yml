@@ -65,10 +65,8 @@
 - name: Install AUR pkgs
   vars:
     aur_packages:
-      - spaceship-prompt-git  # terminal eye candy
       - librewolf-bin  # security-focused web browser
       - optimus-manager  # GPU switcher
-      - vim-plug  # vim plugin manager
   ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
