@@ -50,6 +50,8 @@
       - borg  # encrypted, de-duplicated backups
       - libreoffice  # office suite of programs
       - unzip  # unzip
+      - colordiff  # diff with color
+      - glxinfo  # GPU info
 
   - name: Install pips
     ansible.builtin.pip:

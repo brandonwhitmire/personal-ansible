@@ -69,6 +69,7 @@ alias ll="ls -la --color=auto" \n\
 alias ap="ansible-playbook" \n\
 alias al="ansible-lint" \n\
 alias ansible_debug="ansible all -m debug -a var=hostvars" \n\
+alias lint_all_the_things="find . -type f -iname \"*.yml\" -execdir ansible-lint \{\} \;" \n\
 clear \n\
 python3 run_first_time_setup.py \n\
 set -e \n\

@@ -14,33 +14,34 @@
         - alacritty  # terminal
         - vim  # text editor
         - neovim  # upgraded text editor
+        - ttf-jetbrains-mono  # font
+        - powerline-fonts  # font
       state: present
 
   - name: === zsh block ===
     block:
 
-      - name: Copy default zshrc file to {{ ansible_user }} profile
-        ansible.builtin.copy:
-          force: false
-          remote_src: true
-          src: /etc/skel/.zshrc
-          dest: /home/{{ ansible_user }}/.zshrc
-          mode: '0644'
+      - name: Ensure no .zshrc file is abse
+        ansible.builtin.file:
+          path: /home/{{ ansible_user }}/.zshrc
+          state: absent
 
       - name: Add functionality for bashrc
         ansible.builtin.blockinfile:
           path: /home/{{ ansible_user }}/.bashrc
-          insertafter: EOF
           marker: "# {mark} shell_rc"
           block: "{{ lookup('file', 'files/shell_rc') }}"
+          create: true
+          mode: '0644'
           state: present
 
       - name: Add functionality for zshrc
         ansible.builtin.blockinfile:
           path: /home/{{ ansible_user }}/.zshrc
-          insertafter: EOF
           marker: "# {mark} shell_rc"
           block: "{{ lookup('file', '../files/shell_rc') }}"
+          create: true
+          mode: '0644'
           state: present
 
       - name: Set default shell to zsh
@@ -104,12 +105,6 @@
         ansible.builtin.command:
           cmd: nvim -c 'PlugInstall | sleep 1 | q! | q!'
 
-- name: Install meslo font
-  vars:
-    aur_packages:
-      - ttf-meslo-nerd-font-powerlevel10k  # font
-  ansible.builtin.import_playbook: function_yay.yml
-
 - hosts: all
   tasks:
 
@@ -119,11 +114,12 @@
         - name: Set default font for terminal `alacritty`
           ansible.builtin.blockinfile:
             path: ~/.config/alacritty/alacritty.yml
+            create: true
+            state: present
+            mode: '0644'
             block: |
               font:
                 normal:
-                  family: MesloLGS NF
+                  family: JetBrains Mono
                   style: Regular
-            create: true
-            mode: '0644'
-            state: present
+                size: 14

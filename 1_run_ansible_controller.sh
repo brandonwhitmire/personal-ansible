@@ -24,7 +24,7 @@ fi
 
 docker build \
 	--tag "$DOCKER_NAME" \
-	--file "$DOCKER_HOST_MOUNT"/Dockerfile.ansible \
+	--file "$DOCKER_HOST_MOUNT"/Dockerfile \
 	--compress \
 	--build-arg UID="$(id -u)" \
 	--build-arg GUID="$(id -g)" \
