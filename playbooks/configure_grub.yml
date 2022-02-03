@@ -5,13 +5,6 @@
 - name: Configure GRUB bootloader
   hosts: all
 
-  handlers:
-
-    - name: Update GRUB
-      become: true
-      ansible.builtin.command:
-        cmd: grub-mkconfig -o /boot/grub/grub.cfg
-
   tasks:
 
     # Reference: https://stackoverflow.com/questions/55844981/ansible-insert-word-in-grub-cmdline
@@ -45,3 +38,10 @@
         regexp: '^GRUB_TIMEOUT=[1-9][0-9]*'
         replace: "GRUB_TIMEOUT=0"
       notify: Update GRUB
+
+  handlers:
+
+    - name: Update GRUB
+      become: true
+      ansible.builtin.command:
+        cmd: grub-mkconfig -o /boot/grub/grub.cfg

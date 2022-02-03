@@ -48,14 +48,14 @@
     - name: === zsh block ===
       block:
 
-        - name: Ensure no .zshrc file is abse
+        - name: Ensure no .zshrc file exists
           ansible.builtin.file:
-            path: /home/{{ ansible_user }}/.zshrc
+            path: ~/.zshrc
             state: absent
 
         - name: Add functionality for bashrc
           ansible.builtin.blockinfile:
-            path: /home/{{ ansible_user }}/.bashrc
+            path: ~/.bashrc
             marker: "# {mark} shell_rc"
             block: "{{ lookup('file', 'files/shell_rc') }}"
             create: true
@@ -64,7 +64,7 @@
 
         - name: Add functionality for zshrc
           ansible.builtin.blockinfile:
-            path: /home/{{ ansible_user }}/.zshrc
+            path: ~/.zshrc
             marker: "# {mark} shell_rc"
             block: "{{ lookup('file', '../files/shell_rc') }}"
             create: true
@@ -83,7 +83,7 @@
             backup: true
             force: true
             remote_src: true
-            src: /home/{{ ansible_user }}/.bashrc
+            src: ~/.bashrc
             dest: /root/.bashrc
             owner: root
             group: root
@@ -95,7 +95,7 @@
             backup: true
             force: true
             remote_src: true
-            src: /home/{{ ansible_user }}/.zshrc
+            src: ~/.zshrc
             dest: /root/.zshrc
             owner: root
             group: root
@@ -108,7 +108,7 @@
           ansible.builtin.copy:
             force: true
             src: files/i3_rc
-            dest: /home/{{ ansible_user }}/.i3/config
+            dest: ~/.i3/config
             mode: '0644'
 
     - name: === (neo)vim block ===
@@ -116,7 +116,7 @@
 
         - name: Ensure nvim directory exists
           ansible.builtin.file:
-            path: /home/{{ ansible_user }}/.config/nvim/
+            path: ~/.config/nvim/
             state: directory
             mode: '0755'
 
@@ -125,7 +125,7 @@
             remote_src: false
             force: true
             src: files/vim_rc
-            dest: /home/{{ ansible_user }}/.config/nvim/init.vim
+            dest: ~/.config/nvim/init.vim
             mode: '0644'
 
         - name: Install (neo)vim plugins
