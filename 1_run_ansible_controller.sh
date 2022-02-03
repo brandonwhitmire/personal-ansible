@@ -34,12 +34,10 @@ docker build \
 
 docker run \
 	--hostname "$DOCKER_NAME" \
-	--publish 2222:22/tcp \
-        --publish 5000:5000/tcp \
 	--rm \
 	--interactive=true \
 	--tty=true \
-        --user "$(id -u):$(id -g)" \
+	--user "$(id -u):$(id -g)" \
 	--volume "$DOCKER_HOST_MOUNT":"/$DOCKER_NAME" \
 	--volume "$HOME"/.ssh:/home/"$(id -u)/.ssh" \
 	--workdir="/$DOCKER_NAME" \
