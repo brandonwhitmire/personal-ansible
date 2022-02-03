@@ -4,13 +4,20 @@
 #
 # Invoke like so (no indention nor inside of task block):
 #
-# - vars:
+# - name: Install AUR pkgs
+#   vars:
 #     aur_packages:
 #       - package1
 #       - package2
 #       ...
 #     aur_packages_state: present|absent  # pick only one to install/uninstall
 #   ansible.builtin.import_playbook: function_yay.yml
+#
+# PREREQUISITES:
+# `ansible-yay` module installed into plugins/modules folder
+#
+# Reference:
+# https://github.com/mnussbaum/ansible-yay
 #
 # NOTE:
 # This playbook temporarily adds/removes a passwordless sudo ansible_user

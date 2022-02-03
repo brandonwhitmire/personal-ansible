@@ -36,6 +36,13 @@
           - neovim  # upgraded text editor
           - ttf-jetbrains-mono  # font
           - powerline  # font
+          - lynx  # terminal-based web browser
+          - rsync  # (remote) file syncer
+          - glxinfo  # GPU info
+          - colordiff  # diff with color
+          - borg  # encrypted, de-duplicated backups
+          - nitrogen  # background manager
+          - transmission-cli  # torrent manager
         state: present
 
     - name: === zsh block ===

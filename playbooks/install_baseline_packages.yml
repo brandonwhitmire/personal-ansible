@@ -30,16 +30,13 @@
     loop:
       - firefox  # web browser
       - calibre  # ereader (ebooks)
-      - nitrogen  # background manager
-      - steam  # gaming platform
       - gedit  # text editor
       - flameshot  # screenshot
       - pkgfile  # pkg search from repos
-      - lynx  # terminal-based web browser
       - strace  # debugger
       - bind-tools  # domain resolving
       - udisks2  # disk mounting
-      - arandr  # desktop display
+      - arandr  # desktop display configurator
       - base-devel  # meta package for compiling (e.g. AUR)
       - git  # repos
       - yay  # AUR installation
@@ -47,11 +44,8 @@
       - python-pip  # pip package installer
       - numlockx  # numlock on at login
       - marker  # Markdown editor
-      - borg  # encrypted, de-duplicated backups
       - libreoffice  # office suite of programs
       - unzip  # unzip
-      - colordiff  # diff with color
-      - glxinfo  # GPU info
 
   - name: Install pips
     ansible.builtin.pip:
