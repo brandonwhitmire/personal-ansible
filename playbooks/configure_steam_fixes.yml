@@ -17,7 +17,8 @@
     # https://www.protondb.com/app/813780#T4QkvqCK-9
     - name: === AOE2 Block ===
       vars:
-        - aoe2_dir: ~/.local/share/Steam/steamapps/compatdata/813780/pfx/drive_c/windows/system32
+        # Leave this so that the files get placed in the user dir and not /root
+        - aoe2_dir: /home/{{ ansible_user }}/.local/share/Steam/steamapps/compatdata/813780/pfx/drive_c/windows/system32
         - vc_redist_exe: vc_redist.x64.exe
         - vc_redist_url: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/{{ vc_redist_exe }}
 
