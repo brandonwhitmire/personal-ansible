@@ -20,18 +20,17 @@
         state: directory
         mode: '0755'
 
-    - name: Copy wallpaper to target
+    - name: Copy wallpapers to target
       become: true
       ansible.builtin.copy:
-        force: true
         remote_src: false
-        src: files/wallpapers/aoe2_italians.png
+        src: files/wallpapers/
         dest: /usr/share/backgrounds/1_PERSONAL_WALLPAPERS/
         mode: '0755'
 
     - name: Copy nitrogen config to target
       ansible.builtin.copy:
         remote_src: false
-        src: files/wallpapers/bg-saved.cfg
+        src: files/bg-saved.cfg
         dest: ~/.config/nitrogen/
         mode: '0755'
