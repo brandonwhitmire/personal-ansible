@@ -41,9 +41,18 @@
           - glxinfo  # GPU info
           - colordiff  # diff with color
           - borg  # encrypted, de-duplicated backups
-          - nitrogen  # background manager
           - transmission-cli  # torrent manager
+          - nodejs  # dep for coc.nvim
         state: present
+
+    - name: Install needed pip3 pkgs
+      ansible.builtin.pip:
+        name:
+          - psutil  # soft dep for powerline
+          - i3ipc  # soft dep for powerline
+          - powerline-status  # terminal beautification
+          - neovim  # used by neovim
+          - paramiko  # SSH-like library
 
     - name: === zsh block ===
       block:

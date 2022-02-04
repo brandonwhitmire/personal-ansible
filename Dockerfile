@@ -56,6 +56,10 @@ RUN echo "\ncall plug#begin() \n\
 	call plug#end()\n" > ~/.vimrc
 RUN vim -c "PlugInstall | sleep 1 | q! | q!"
 
+# Change working directory
+ARG WORKDIR
+WORKDIR ${WORKDIR}
+
 # Shell customizations
 RUN cp /etc/zsh/newuser.zshrc.recommended ~/.zshrc
 RUN echo '\n\
@@ -70,15 +74,14 @@ alias ap="ansible-playbook" \n\
 alias al="ansible-lint" \n\
 alias ansible_debug="ansible all -m debug -a var=hostvars" \n\
 alias lint_all_the_things="find . -type f -iname \"*.yml\" -execdir ansible-lint \{\} \;" \n\
+look_for () { \n\
+	grep --with-filename --recursive --ignore-case --line-number --exclude-dir=".git" --regexp="$1" * \n\
+} \n\
 clear \n\
 python3 run_first_time_setup.py \n\
 set -e \n\
 ansible --version \n\
 set +e \n\
 ' | tee -a ~/.zshrc
-
-# Change working directory
-ARG WORKDIR
-WORKDIR ${WORKDIR}
 
 ENTRYPOINT ["/usr/bin/zsh"]
