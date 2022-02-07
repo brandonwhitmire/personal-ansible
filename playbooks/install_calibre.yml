@@ -47,11 +47,13 @@
         cmd: calibre-customize --list-plugins | grep DeDRM
       register: installed_dedrm
 
-    - name: DEBUG
-      debug:
+    - name: Show if Calibre plugins are already installed
+      ansible.builtin.debug:
         msg:
+          - "=== START  :: calibre plugin list output ==="
           - 'installed_deacsm: {{ installed_deacsm }}'
           - 'installed_dedrm: {{ installed_dedrm }}'
+          - "=== END    :: calibre plugin list output ==="
 
     - name: 'Block: DeACSM'
       when: installed_deacsm.rc != 0

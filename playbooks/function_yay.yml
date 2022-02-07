@@ -60,7 +60,7 @@
           yay:
             update_cache: true
 
-        - name: 'Ensure `yay` pkgs are: {{ aur_packages_state }}'
+        - name: 'Ensure `{{ aur_packages }}` pkgs are: {{ aur_packages_state }}'
           yay:
             name:
               - '{{ item }}'
