@@ -70,7 +70,7 @@ alias al="ansible-lint" \n\
 alias ansible_debug="ansible all -m debug -a var=hostvars" \n\
 alias lint_all_the_things="find . -type f -iname \"*.yml\" -execdir ansible-lint \{\} \;" \n\
 look_for () { \n\
-	grep --with-filename --recursive --ignore-case --line-number --exclude-dir=".git" --regexp="$1" * \n\
+	grep --with-filename --recursive --ignore-case --line-number --exclude-dir="artifacts" --exclude-dir=".git" --regexp="$1" * \n\
 } \n\
 clear \n\
 python3 run_first_time_setup.py \n\
