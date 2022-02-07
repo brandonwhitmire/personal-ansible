@@ -19,7 +19,7 @@ export BROWSER="librewolf"
 # --- Powerline Fonts
 
 export USE_POWERLINE="true"
-powerline-daemon -q
+powerline-daemon --quiet
 . /usr/share/powerline/bindings/zsh/powerline.zsh
 
 # --- Spaceship-Prompt Setup
@@ -71,35 +71,56 @@ SPACESHIP_PROMPT_ORDER=(
 )
 
 # https://spaceship-prompt.sh/options/
-spaceship_vi_mode_disable  # disable vi mode by default
+# PROMPT
 export SPACESHIP_PROMPT_ADD_NEWLINE="false"
+
+# TIME
 export SPACESHIP_TIME_SHOW="true"
 export SPACESHIP_TIME_PREFIX="["
 export SPACESHIP_TIME_SUFFIX="] "
+
+# BATTERY
 export SPACESHIP_BATTERY_SHOW="always"
 # export SPACESHIP_BATTERY_PREFIX="🔋"
 export SPACESHIP_BATTERY_THRESHOLD="101"
+
+# EXIT_CODE
 export SPACESHIP_EXIT_CODE_SHOW="true"
 export SPACESHIP_EXIT_CODE_SYMBOL="    ⤤ "
 export SPACESHIP_EXIT_CODE_PREFIX=""
 # export SPACESHIP_EXIT_CODE_SUFFIX="\n"
+
+# VI MODE
+spaceship_vi_mode_disable  # disable vi mode by default
 export SPACESHIP_VI_MODE_INSERT="[vim]"
 export SPACESHIP_VI_MODE_NORMAL=""
+
+# EXEC_TIME
 export SPACESHIP_EXEC_TIME_ELAPSED="0"
 export SPACESHIP_EXEC_TIME_PREFIX="in "
 export SPACESHIP_EXEC_TIME_SUFFIX="\n\n"
-export SPACESHIP_GIT_PREFIX=""
-# export SPACESHIP_GIT_SYMBOL="" # 
-export SPACESHIP_DOCKER_SYMBOL=""
+
+# USER
 export SPACESHIP_USER_SHOW="always"
 export SPACESHIP_USER_PREFIX=""
 export SPACESHIP_USER_SUFFIX=""
+
+# HOST
 export SPACESHIP_HOST_SHOW_FULL="true"
 export SPACESHIP_HOST_PREFIX="@"
 export SPACESHIP_HOST_SUFFIX=""
+
+# DIR
 export SPACESHIP_DIR_PREFIX=":"
 export SPACESHIP_DIR_TRUNC="0"
 export SPACESHIP_DIR_TRUNC_REPO="false"
+
+# GIT
+export SPACESHIP_GIT_PREFIX=""
+# export SPACESHIP_GIT_SYMBOL="" # 
+
+# DOCKER
+export SPACESHIP_DOCKER_SYMBOL=""
 
 # --- Shell Options
 
@@ -205,7 +226,7 @@ mount_luks_device () {
 	if [[ "$1" == "-h" ]] ; then
 		echo -e "Usage:\t$0 UUID crypt_device_name"
 		echo -e "\t$0 \"58ea1ec5-1654-4d85-92bd-e093f0a1439b\" crypt_harddrive"
-		exit 100
+		return 100
 	fi
 
 	# Use preloaded variables
@@ -228,7 +249,7 @@ mount_luks_device () {
 		echo -e "\tUUID: $UUID"
 		echo -e "\tDEVICE: $DEVICE"
 		echo -e "\tNAME: $NAME"
-		exit 1
+		return 1
 	fi
 
 	# Check if LUKS device mounted
@@ -236,7 +257,7 @@ mount_luks_device () {
 	RET_CODE="$?"
 
 	# Quit on error, unset variable, or pipe errors (bash strict mode)
-	set -euo pipefail
+	# set -eo pipefail
 
 	# Device not mounted ; so mount
 	if [[ "$RET_CODE" == "1" ]] ; then
@@ -254,13 +275,13 @@ mount_luks_device () {
 	else
 		echo "CRITICAL ERROR!"
 		echo "Return code: $RET_CODE"
-		exit 2
+		return 2
 	fi
 }
 # Encrypted, de-duplicated, & compressed backups
 borg_backup () {
-	# Fail on command errors or unset variables
-	set -eu
+	# Fail on command errors
+	# set -e
 
 	REPO="/run/media/obb/nix_hdd/borg_backup"
 	# BACKUP_DIRS="/etc /home"
@@ -278,7 +299,7 @@ borg_backup () {
 	# Ensure repo directory is there exists
 	if [[ ! -d "$REPO" ]] ; then
 		echo "ERROR finding the repo: >>$REPO<<"
-		exit 1
+		return 1
 	fi
 
 	if [[ -z "$1" ]] ; then
@@ -298,10 +319,8 @@ borg_backup () {
 	sync
 }
 # Perform system update properly
-# TODO: pull the functions out of the scripts and place here
 update () {
 	BREAKLINE
-	set -e
 	echo "[i] Backing up..."
 	BREAKLINE
 	mount_luks_device
@@ -309,7 +328,6 @@ update () {
 	borg_backup "$1"
 	BREAKLINE
 	echo "[i] Updating packages..."
-	set +e
 	sudo pacman -S --refresh --sysupgrade
 	yay -S --refresh --sysupgrade
 	BREAKLINE
