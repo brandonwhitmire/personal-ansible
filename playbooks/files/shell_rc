@@ -199,6 +199,104 @@ uninstall_yay () {
         fi
 	yay -R --cascade --recursive --unneeded "$@"
 }
+# Mount LUKS device
+mount_luks_device () {
+	# Help menu
+	if [[ "$1" == "-h" ]] ; then
+		echo -e "Usage:\t$0 UUID crypt_device_name"
+		echo -e "\t$0 \"58ea1ec5-1654-4d85-92bd-e093f0a1439b\" crypt_harddrive"
+		exit 100
+	fi
+
+	# Use preloaded variables
+	if [[ -z "$1" || -z "$2" ]] ; then
+		UUID="eb3382b7-477b-4e93-a103-e4269ec5d0b3"
+		NAME="crypt_HDD"
+		echo "CLI arguments not used..."
+		echo -e "\tUUID: $UUID"
+		echo -e "\tNAME: $NAME"
+	# Use CLI arguments
+	else
+		UUID="$1"
+		NAME="$2"
+	fi
+	# ---
+	DEVICE=$(lsblk -ro NAME,UUID | grep "$UUID" | cut -d ' ' -f 1 )
+
+	if [[ -z "$UUID" || -z "$DEVICE" || -z "$NAME" ]] ; then
+		echo "These cannot be empty!"
+		echo -e "\tUUID: $UUID"
+		echo -e "\tDEVICE: $DEVICE"
+		echo -e "\tNAME: $NAME"
+		exit 1
+	fi
+
+	# Check if LUKS device mounted
+	udisksctl info -b /dev/mapper/"$NAME" > /dev/null 2>&1
+	RET_CODE="$?"
+
+	# Quit on error, unset variable, or pipe errors (bash strict mode)
+	set -euo pipefail
+
+	# Device not mounted ; so mount
+	if [[ "$RET_CODE" == "1" ]] ; then
+		echo "MOUNTING..."
+		sudo cryptsetup open "/dev/$DEVICE" "$NAME"
+		MOUNT=$(udisksctl mount -b /dev/mapper/"$NAME")
+		echo "$MOUNT"
+		ls -laF --color=auto $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
+	# Device already mounted ; so unmount
+	elif [[ "$RET_CODE" == "0" ]] ; then
+		echo "UNMOUNTING..."
+		udisksctl unmount -b /dev/mapper/"$NAME"
+		sudo cryptsetup close "$NAME"
+	# Error
+	else
+		echo "CRITICAL ERROR!"
+		echo "Return code: $RET_CODE"
+		exit 2
+	fi
+}
+# Encrypted, de-duplicated, & compressed backups
+borg_backup () {
+	# Fail on command errors or unset variables
+	set -eu
+
+	REPO="/run/media/obb/nix_hdd/borg_backup"
+	# BACKUP_DIRS="/etc /home"
+	TODAY="$(date +%Y-%m-%d)"
+
+	# borg program ENVs
+	export BORG_RELOCATED_REPO_ACCESS_IS_OK=no
+	export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=no
+
+	# ---
+
+	# Create/intialize backup
+	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
+
+	# Ensure repo directory is there exists
+	if [[ ! -d "$REPO" ]] ; then
+		echo "ERROR finding the repo: >>$REPO<<"
+		exit 1
+	fi
+
+	if [[ -z "$1" ]] ; then
+		EXTRA_TAG="auto"
+	else
+		EXTRA_TAG="$1"
+	fi
+
+	# ---
+
+	borg --version
+	echo $TODAY
+
+	sudo borg --progress create --stats --compression auto,lzma --comment "Automatically backuped up on: $TODAY" $REPO::${TODAY}_${EXTRA_TAG} /etc /home
+
+	# Finish buffering anything from memory to disk
+	sync
+}
 # Perform system update properly
 # TODO: pull the functions out of the scripts and place here
 update () {
@@ -206,9 +304,9 @@ update () {
 	set -e
 	echo "[i] Backing up..."
 	BREAKLINE
-	~/scripts/lazymountHDD.sh
+	mount_luks_device
 	BREAKLINE
-	~/scripts/borg_backup.sh $1
+	borg_backup "$1"
 	BREAKLINE
 	echo "[i] Updating packages..."
 	set +e

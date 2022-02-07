@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 getent ahostsv4 mirror.csclub.uwaterloo.ca
-
-vagrant up
+getent ahostsv4 repo.ialab.dsu.edu
+vagrant up --provision

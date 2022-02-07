@@ -42,7 +42,7 @@ def get_host_details(machine_id):
     """
     result = subprocess.check_output(f"vagrant ssh-config {machine_id}".split())
     config = paramiko.SSHConfig.from_text(result.decode())
-    config_dict = config.lookup(host)
+    config_dict = config.lookup(machine_id)
     return {
         'ansible_host': config_dict['hostname'],
         'ansible_port': config_dict['port'],

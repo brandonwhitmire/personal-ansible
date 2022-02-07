@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    pacman-mirrors --geoip
+    pacman-mirrors --country United_States
     pacman -Syyu --noconfirm vim net-tools
     echo 'DONE!'
   SHELL
