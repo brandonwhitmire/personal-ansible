@@ -17,6 +17,8 @@
         - libvirt
         - qemu
         - nfs-utils
+        - dnsmasq
+        - dmidecode
       state: present
 
   - name: Install needed pip3 pkgs

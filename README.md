@@ -2,7 +2,7 @@
 
 Ansible playbooks for various setups and configurations.
 
-**Currently, these playbooks are tailored to _Manjaro Linux_, which uses the `pacman` package manager.**
+**Currently, these playbooks are tailored to _Manjaro Linux_, which uses the `pacman` package manager and related utilities.**
 
 # Pre-requisites
 
@@ -16,7 +16,13 @@ This is the machine that will initiate connections and configure the target node
 # For Arch-based systems
 sudo pacman -S --noconfirm docker
 sudo systemctl enable --now docker
-sudo usermod --append --groups docker $USER # requires logout/reboot
+sudo usermod --append --groups docker "$USER" # requires logout/reboot
+```
+
+Run the controller like so:
+
+```bash
+./1_run_ansible_controller.sh
 ```
 
 ## Targets
@@ -37,6 +43,14 @@ sudo systemctl enable --now sshd # SSH permanently on
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 ```
+
+### Playbook Precedence
+
+Most playbooks are written such that they are indepedent from each other and should not required anything installed beforehand (other than what is mentioned above). However, this assumption only follows if the playbook `1_install_baseline_packages.yml` has been previously ran. This will install numerous packages, but especially those that are required for the remaining playbooks.
+
+> e.g. #1: The `python-pip` OS-level package is required to install Python3 modules, but this package is not included in all playbooks that install Python3 modules since this would add an undue burden to all current and future playbooks to include this step.
+
+> e.g. #2: The `unzip` is included in the Calibre playbook since that package is specifically required to run the Ansible `unarchive` module, which only used in that respective playbook... the `unzip` package would get moved into `1_install_baseline_packages.yml` if becomes more prevalent in more than one or so playbooks.
 
 # Quick Start
 
