@@ -55,24 +55,24 @@
           - 'installed_dedrm: {{ installed_dedrm.stdout }}'
           - "=== END    :: calibre plugin list output ==="
 
-    - name: 'Block: DeACSM'
+    - name: 'Block: DeACSM plugin'
       when: installed_deacsm.rc != 0
       block:
 
-        - name: Download plugins
+        - name: Download DeACSM plugin
           ansible.builtin.get_url:
             url: https://github.com/Leseratte10/acsm-calibre-plugin/releases/download/v0.0.15/DeACSM_0.0.15.zip
             dest: '{{ temp_working_dir }}'
 
-        - name: Install plugins
+        - name: Install DeACSM plugin
           ansible.builtin.command:
             cmd: 'calibre-customize -a {{ temp_working_dir }}/DeACSM_0.0.15.zip'
 
-    - name: 'Block: DeDRM'
+    - name: 'Block: DeDRM plugin'
       when: installed_dedrm.rc != 0
       block:
 
-        - name: Download plugins
+        - name: Download DeDRM plugin
           ansible.builtin.get_url:
             url: https://github.com/apprenticeharper/DeDRM_tools/releases/download/v7.2.1/DeDRM_tools_7.2.1.zip
             dest: '{{ temp_working_dir }}'
@@ -83,6 +83,6 @@
             src: '{{ temp_working_dir }}/DeDRM_tools_7.2.1.zip'
             dest: '{{ temp_working_dir }}'
 
-        - name: Install plugins
+        - name: Install DeDRM plugin
           ansible.builtin.command:
             cmd: 'calibre-customize -a {{ temp_working_dir }}/DeDRM_plugin.zip'
