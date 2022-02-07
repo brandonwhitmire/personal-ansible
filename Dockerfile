@@ -15,14 +15,45 @@ RUN apt update -y && apt install -y \
 	shellcheck \
 	wget \
 	curl \
-	ca-certificates
+	lsb-release \
+	software-properties-common \
+	systemd
+
+# Install vagrant for dynamic inventory usage
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
+	apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
+	apt update -y && \
+	apt install -y vagrant \
+		ruby-libvirt \
+		qemu \
+		qemu-kvm \
+		libvirt-clients \
+		libvirt-daemon-system \
+		ebtables \
+		dnsmasq-base \
+		virtinst \
+		bridge-utils \
+		libxslt-dev \
+		libxml2-dev \
+		libvirt-dev \
+		zlib1g-dev \
+		ruby-dev \
+		libguestfs-tools
+
+# Reference: https://developers.redhat.com/blog/2014/05/05/running-systemd-within-docker-container
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+	rm -f /lib/systemd/system/multi-user.target.wants/*; \
+	rm -f /etc/systemd/system/*.wants/*; \
+	rm -f /lib/systemd/system/local-fs.target.wants/*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+	rm -f /lib/systemd/system/basic.target.wants/*; \
+	rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+RUN vagrant plugin install vagrant-libvirt
 
 # Added to mitigate CA certs issue, but ignored in git since it was still broke
-RUN mkdir -p /usr/local/share/ca-certificates/cacert.org && \
-	wget -P /usr/local/share/ca-certificates/cacert.org http://www.cacert.org/certs/root.crt http://www.cacert.org/certs/class3.crt && \
-	update-ca-certificates && \
-	git config --global http.sslCAinfo /etc/ssl/certs/ca-certificates.crt && \
-	git config --global http.sslverify false
+RUN git config --global http.sslverify false
 
 # Reference: https://github.com/mnussbaum/ansible-yay
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_locally.html#adding-standalone-local-modules-for-all-playbooks-and-roles
@@ -84,4 +115,6 @@ ansible --version \n\
 set +e \n\
 ' | tee -a ~/.zshrc
 
-ENTRYPOINT ["/usr/bin/zsh"]
+# ENTRYPOINT ["/usr/bin/zsh"]
+VOLUME [ "/sys/fs/cgroup" ]
+CMD ["/sbin/init"]
