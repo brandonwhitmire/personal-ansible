@@ -29,7 +29,6 @@
       state: present
     loop:
       - firefox  # web browser
-      - calibre  # ereader (ebooks)
       - gedit  # text editor
       - flameshot  # screenshot
       - pkgfile  # pkg search from repos
