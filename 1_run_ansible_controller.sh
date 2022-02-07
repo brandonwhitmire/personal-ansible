@@ -41,10 +41,4 @@ docker run \
 	--volume "$DOCKER_HOST_MOUNT":"/$DOCKER_NAME" \
 	--volume "$HOME"/.ssh:/home/"$(id -u)/.ssh" \
 	--workdir="/$DOCKER_NAME" \
-	--privileged \
-	--volume /sys/fs/cgroup:/sys/fs/cgroup:ro \
-	--volume /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock \
-	--tmpfs /tmp \
-	--tmpfs /run \
-	--tmpfs /run/lock \
 	"$DOCKER_NAME"
