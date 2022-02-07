@@ -9,9 +9,10 @@
   - name: Remove unwanted pkgs
     become: true
     community.general.pacman:
-      name:
-        - palemoon-bin
+      name: '{{ item }}'
       state: absent
+    loop:
+      - palemoon-bin
 
   - name: Remove unneeded files/dirs
     ansible.builtin.file:
