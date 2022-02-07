@@ -51,8 +51,8 @@
       ansible.builtin.debug:
         msg:
           - "=== START  :: calibre plugin list output ==="
-          - 'installed_deacsm: {{ installed_deacsm }}'
-          - 'installed_dedrm: {{ installed_dedrm }}'
+          - 'installed_deacsm: {{ installed_deacsm.stdout }}'
+          - 'installed_dedrm: {{ installed_dedrm.stdout }}'
           - "=== END    :: calibre plugin list output ==="
 
     - name: 'Block: DeACSM'
