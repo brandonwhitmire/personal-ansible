@@ -79,10 +79,16 @@
             mode: '0644'
             state: present
 
-        - name: Set default shell to zsh
+        - name: 'Set default shell to zsh for user: {{ ansible_user }}'
           become: true
           ansible.builtin.user:
             name: '{{ ansible_user }}'
+            shell: /usr/bin/zsh
+
+        - name: 'Set default shell to zsh for user: root'
+          become: true
+          ansible.builtin.user:
+            name: root
             shell: /usr/bin/zsh
 
         - name: Copy custom .bashrc to user 'root'
@@ -91,7 +97,7 @@
             backup: true
             force: true
             remote_src: true
-            src: ~/.bashrc
+            src: '/home/{{ ansible_user }}/.bashrc'
             dest: /root/.bashrc
             owner: root
             group: root
@@ -103,7 +109,7 @@
             backup: true
             force: true
             remote_src: true
-            src: ~/.zshrc
+            src: '/home/{{ ansible_user }}/.zshrc'
             dest: /root/.zshrc
             owner: root
             group: root
@@ -111,6 +117,22 @@
 
     - name: === i3 block ===
       block:
+
+        - name: Ensure i3 is present
+          become: true
+          community.general.pacman:
+            name:
+              - i3-gaps
+              - i3blocks
+              - i3lock
+              - i3status
+            state: present
+
+        - name: Ensure i3 config dir is present
+          ansible.builtin.file:
+            path: ~/.i3/
+            state: directory
+            mode: '0755'
 
         - name: Copy default i3 file to `{{ ansible_user }}` profile
           ansible.builtin.copy:

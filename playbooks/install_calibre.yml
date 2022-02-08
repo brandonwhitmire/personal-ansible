@@ -37,12 +37,14 @@
 
     - name: 'Check if plugin installed: DeACSM'
       ignore_errors: true
+      changed_when: false
       ansible.builtin.shell:
         cmd: calibre-customize --list-plugins | grep DeACSM
       register: installed_deacsm
 
     - name: 'Check if plugin installed: DeDRM'
       ignore_errors: true
+      changed_when: false
       ansible.builtin.shell:
         cmd: calibre-customize --list-plugins | grep DeDRM
       register: installed_dedrm

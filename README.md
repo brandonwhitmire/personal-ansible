@@ -96,7 +96,6 @@ Actions and capabilities to add eventually:
 - parameterize playbooks more by adding variables
 - fix blurlock failure if file doesn't already exist
 - consider fixing `function_yay.yml` to have empty args for `aur_packages`
-- fix `root`'s `.bashrc` not existing and copy `.zshrc` to `root` profile as well
 - run shellcheck against `shell_rc`
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 
