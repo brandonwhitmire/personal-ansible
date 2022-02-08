@@ -45,7 +45,6 @@
       - numlockx  # numlock on at login
       - marker  # Markdown editor
       - libreoffice  # office suite of programs
-      - unzip  # unzip
 
 - name: Install AUR pkgs
   vars:
