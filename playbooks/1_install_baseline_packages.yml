@@ -1,4 +1,6 @@
 #!/usr/bin/env ansible-playbook
+#
+# Baseline packages and simple configurations
 ---
 - name: Install (and remove) baseline packages from pacman, AUR, and PyPI
   hosts: all
@@ -7,9 +9,10 @@
   - name: Remove unwanted pkgs
     become: true
     community.general.pacman:
-      name:
-        - palemoon-bin
+      name: '{{ item }}'
       state: absent
+    loop:
+      - palemoon-bin
 
   - name: Remove unneeded files/dirs
     ansible.builtin.file:
@@ -27,19 +30,13 @@
       state: present
     loop:
       - firefox  # web browser
-      - calibre  # ereader (ebooks)
-      - nitrogen  # background manager
-      - steam  # gaming platform
-      - vim  # text editor
-      - neovim  # text editor
       - gedit  # text editor
       - flameshot  # screenshot
       - pkgfile  # pkg search from repos
-      - lynx  # terminal-based web browser
       - strace  # debugger
       - bind-tools  # domain resolving
       - udisks2  # disk mounting
-      - arandr  # desktop display
+      - arandr  # desktop display configurator
       - base-devel  # meta package for compiling (e.g. AUR)
       - git  # repos
       - yay  # AUR installation
@@ -47,25 +44,13 @@
       - python-pip  # pip package installer
       - numlockx  # numlock on at login
       - marker  # Markdown editor
-      - borg  # encrypted, de-duplicated backups
       - libreoffice  # office suite of programs
-      - unzip  # unzip
-
-  - name: Install pips
-    ansible.builtin.pip:
-      name:
-        - psutil  # soft dep for powerline
-        - i3ipc  # soft dep for powerline
-        - powerline-status  # terminal beautification
-        - neovim  # used by neovim
 
 - name: Install AUR pkgs
   vars:
     aur_packages:
-      - spaceship-prompt-git  # terminal eye candy
       - librewolf-bin  # security-focused web browser
       - optimus-manager  # GPU switcher
-      - vim-plug  # vim plugin manager
   ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
@@ -106,3 +91,4 @@
             path: /usr/bin/blurlock
             regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
             line: '\1 -blur 0x100 \2'
+            state: present

@@ -17,7 +17,14 @@
         - libvirt
         - qemu
         - nfs-utils
+        - dnsmasq
+        - dmidecode
       state: present
+
+  - name: Install needed pip3 pkgs
+    ansible.builtin.pip:
+      name:
+        - paramiko  # SSH-like library used for dynamic inventory
 
   - name: Enable libvirtd service
     become: true

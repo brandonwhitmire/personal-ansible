@@ -1,3 +1,8 @@
+# Source manjaro-zsh-configuration
+if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+  source /usr/share/zsh/manjaro-zsh-config
+fi
+
 # ---
 # CUSTOMIZED
 # ---
@@ -11,26 +16,111 @@
 export EDITOR="nvim"
 export BROWSER="librewolf"
 
-###
+# --- Powerline Fonts
 
-# https://scriptingosx.com/2019/07/moving-to-zsh-06-customizing-the-zsh-prompt/
-# These are overwritten by spaceship ;; disable it below
-# export PROMPT='%(?.%F{green}√.%F{red}?%?)%f %B%F{240}%1~%f%b %# '
-# export RPROMPT='%*'
+export USE_POWERLINE="true"
+powerline-daemon --quiet
+. /usr/share/powerline/bindings/zsh/powerline.zsh
+
+# --- Spaceship-Prompt Setup
 
 # https://computingforgeeks.com/best-terminal-shell-prompts-for-zsh-bash-fish/
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 prompt spaceship
 
-# https://github.com/denysdovhan/spaceship-prompt/blob/master/docs/Options.md
+# Disabled some unused sections for speedup
+SPACESHIP_PROMPT_ORDER=(
+  exit_code     # Exit code section
+  exec_time     # Execution time
+  time          # Time stamps section
+  user          # Username section
+  host          # Hostname section
+  dir           # Current directory section
+  git           # Git section (git_branch + git_status)
+  # hg            # Mercurial section (hg_branch  + hg_status)
+  package       # Package version
+  # gradle        # Gradle section
+  # maven         # Maven section
+  # node          # Node.js section
+  # ruby          # Ruby section
+  # elixir        # Elixir section
+  # xcode         # Xcode section
+  # swift         # Swift section
+  # golang        # Go section
+  # php           # PHP section
+  # rust          # Rust section
+  # haskell       # Haskell Stack section
+  # julia         # Julia section
+  docker        # Docker section
+  # aws           # Amazon Web Services section
+  # gcloud        # Google Cloud Platform section
+  venv          # virtualenv section
+  conda         # conda virtualenv section
+  pyenv         # Pyenv section
+  # dotnet        # .NET section
+  # ember         # Ember.js section
+  # kubectl       # Kubectl context section
+  # terraform     # Terraform workspace section
+  # ibmcloud      # IBM Cloud section
+  battery       # Battery level and status
+  line_sep      # Line break
+  jobs          # Background jobs indicator
+  vi_mode       # Vi-mode indicator
+  char          # Prompt character
+)
+
+# https://spaceship-prompt.sh/options/
+# PROMPT
+export SPACESHIP_PROMPT_ADD_NEWLINE="false"
+
+# TIME
 export SPACESHIP_TIME_SHOW="true"
-# export SPACESHIP_BATTERY_SHOW="always"
+export SPACESHIP_TIME_PREFIX="["
+export SPACESHIP_TIME_SUFFIX="] "
+
+# BATTERY
+export SPACESHIP_BATTERY_SHOW="always"
 # export SPACESHIP_BATTERY_PREFIX="🔋"
-export SPACESHIP_BATTERY_THRESHOLD="75"
+export SPACESHIP_BATTERY_THRESHOLD="101"
+
+# EXIT_CODE
 export SPACESHIP_EXIT_CODE_SHOW="true"
-export SPACESHIP_EXIT_CODE_SYMBOL="Exit Code: "
-export SPACESHIP_EXIT_CODE_SUFFIX="\n"
+export SPACESHIP_EXIT_CODE_SYMBOL="    ⤤ "
+export SPACESHIP_EXIT_CODE_PREFIX=""
+# export SPACESHIP_EXIT_CODE_SUFFIX="\n"
+
+# VI MODE
+spaceship_vi_mode_disable  # disable vi mode by default
+export SPACESHIP_VI_MODE_INSERT="[vim]"
+export SPACESHIP_VI_MODE_NORMAL=""
+
+# EXEC_TIME
+export SPACESHIP_EXEC_TIME_ELAPSED="0"
+export SPACESHIP_EXEC_TIME_PREFIX="in "
+export SPACESHIP_EXEC_TIME_SUFFIX="\n\n"
+
+# USER
+export SPACESHIP_USER_SHOW="always"
+export SPACESHIP_USER_PREFIX=""
+export SPACESHIP_USER_SUFFIX=""
+
+# HOST
+export SPACESHIP_HOST_SHOW_FULL="true"
+export SPACESHIP_HOST_PREFIX="@"
+export SPACESHIP_HOST_SUFFIX=""
+
+# DIR
+export SPACESHIP_DIR_PREFIX=":"
+export SPACESHIP_DIR_TRUNC="0"
+export SPACESHIP_DIR_TRUNC_REPO="false"
+
+# GIT
+export SPACESHIP_GIT_PREFIX=""
+# export SPACESHIP_GIT_SYMBOL="" # 
+
+# DOCKER
+export SPACESHIP_DOCKER_SYMBOL=""
 
 # --- Shell Options
 
@@ -53,8 +143,8 @@ alias more='less'
 alias mkdir='mkdir -pv'
 alias mv='mv -iv'
 alias ln='ln -iv'
+alias rm='gio trash'			# safely "delete" things into Trash:
 # alias rm='rm -vI --preserve-root'
-alias rm='gio trash'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
@@ -71,7 +161,7 @@ alias diff="colordiff -y --suppress-common-lines"
 alias vi="$EDITOR"
 alias vim="$EDITOR"
 
-alias update_grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 
 # --- New Commands 
 
@@ -100,7 +190,7 @@ install () {
 		echo "Please supply a package(s) to INSTALL!"
 		exit 1
 	fi
-	sudo pacman -S --sysupgrade --refresh "$@"
+	sudo pacman -S "$@"
 }
 # Removes packages and dependencies (not used by other packages)
 uninstall () {
@@ -112,7 +202,7 @@ uninstall () {
 }
 # Remove unused dependencies
 remove_unused_dependecies () {
-	sudo pacman -R $(pacman -Qdtq)
+	sudo pacman -R $(pacman -Q --deps --unrequired --quiet)
 }
 # Install AUR packages via yay
 install_yay () {
@@ -120,7 +210,7 @@ install_yay () {
 		echo "Please supply a package(s) to INSTALL!"
 		exit 1
 	fi
-	yay -Syu "$@"
+	yay -S "$@"
 }
 # Removes AUR packages and dependencies (not used by other packages)
 uninstall_yay () {
@@ -128,21 +218,116 @@ uninstall_yay () {
                 echo "Please supply a package(s) to UNINSTALL!"
                 exit 1
         fi
-	yay -Rsu "$@"
+	yay -R --cascade --recursive --unneeded "$@"
+}
+# Mount LUKS device
+mount_luks_device () {
+	# Help menu
+	if [[ "$1" == "-h" ]] ; then
+		echo -e "Usage:\t$0 UUID crypt_device_name"
+		echo -e "\t$0 \"58ea1ec5-1654-4d85-92bd-e093f0a1439b\" crypt_harddrive"
+		return 100
+	fi
+
+	# Use preloaded variables
+	if [[ -z "$1" || -z "$2" ]] ; then
+		UUID="eb3382b7-477b-4e93-a103-e4269ec5d0b3"
+		NAME="crypt_HDD"
+		echo "CLI arguments not used..."
+		echo -e "\tUUID: $UUID"
+		echo -e "\tNAME: $NAME"
+	# Use CLI arguments
+	else
+		UUID="$1"
+		NAME="$2"
+	fi
+	# ---
+	DEVICE=$(lsblk -ro NAME,UUID | grep "$UUID" | cut -d ' ' -f 1 )
+
+	if [[ -z "$UUID" || -z "$DEVICE" || -z "$NAME" ]] ; then
+		echo "These cannot be empty!"
+		echo -e "\tUUID: $UUID"
+		echo -e "\tDEVICE: $DEVICE"
+		echo -e "\tNAME: $NAME"
+		return 1
+	fi
+
+	# Check if LUKS device mounted
+	udisksctl info -b /dev/mapper/"$NAME" > /dev/null 2>&1
+	RET_CODE="$?"
+
+	# Quit on error, unset variable, or pipe errors (bash strict mode)
+	# set -eo pipefail
+
+	# Device not mounted ; so mount
+	if [[ "$RET_CODE" == "1" ]] ; then
+		echo "MOUNTING..."
+		sudo cryptsetup open "/dev/$DEVICE" "$NAME"
+		MOUNT=$(udisksctl mount -b /dev/mapper/"$NAME")
+		echo "$MOUNT"
+		ls -laF --color=auto $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
+	# Device already mounted ; so unmount
+	elif [[ "$RET_CODE" == "0" ]] ; then
+		echo "UNMOUNTING..."
+		udisksctl unmount -b /dev/mapper/"$NAME"
+		sudo cryptsetup close "$NAME"
+	# Error
+	else
+		echo "CRITICAL ERROR!"
+		echo "Return code: $RET_CODE"
+		return 2
+	fi
+}
+# Encrypted, de-duplicated, & compressed backups
+borg_backup () {
+	# Fail on command errors
+	# set -e
+
+	REPO="/run/media/obb/nix_hdd/borg_backup"
+	# BACKUP_DIRS="/etc /home"
+	TODAY="$(date +%Y-%m-%d)"
+
+	# borg program ENVs
+	export BORG_RELOCATED_REPO_ACCESS_IS_OK=no
+	export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=no
+
+	# ---
+
+	# Create/intialize backup
+	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
+
+	# Ensure repo directory is there exists
+	if [[ ! -d "$REPO" ]] ; then
+		echo "ERROR finding the repo: >>$REPO<<"
+		return 1
+	fi
+
+	if [[ -z "$1" ]] ; then
+		EXTRA_TAG="auto"
+	else
+		EXTRA_TAG="$1"
+	fi
+
+	# ---
+
+	borg --version
+	echo $TODAY
+
+	sudo borg --progress create --stats --compression auto,lzma --comment "Automatically backed up on: $TODAY" $REPO::${TODAY}_${EXTRA_TAG} /etc /home
+
+	# Finish buffering anything from memory to disk
+	sync
 }
 # Perform system update properly
-# TODO: pull the functions out of the scripts and place here
 update () {
 	BREAKLINE
-	set -e
 	echo "[i] Backing up..."
 	BREAKLINE
-	~/scripts/lazymountHDD.sh
+	mount_luks_device
 	BREAKLINE
-	~/scripts/borg_backup.sh $1
+	borg_backup "$1"
 	BREAKLINE
 	echo "[i] Updating packages..."
-	set +e
 	sudo pacman -S --refresh --sysupgrade
 	yay -S --refresh --sysupgrade
 	BREAKLINE

@@ -24,7 +24,7 @@ fi
 
 docker build \
 	--tag "$DOCKER_NAME" \
-	--file "$DOCKER_HOST_MOUNT"/Dockerfile.ansible \
+	--file "$DOCKER_HOST_MOUNT"/Dockerfile \
 	--compress \
 	--build-arg UID="$(id -u)" \
 	--build-arg GUID="$(id -g)" \
@@ -34,12 +34,10 @@ docker build \
 
 docker run \
 	--hostname "$DOCKER_NAME" \
-	--publish 2222:22/tcp \
-        --publish 5000:5000/tcp \
 	--rm \
 	--interactive=true \
 	--tty=true \
-        --user "$(id -u):$(id -g)" \
+	--user "$(id -u):$(id -g)" \
 	--volume "$DOCKER_HOST_MOUNT":"/$DOCKER_NAME" \
 	--volume "$HOME"/.ssh:/home/"$(id -u)/.ssh" \
 	--workdir="/$DOCKER_NAME" \

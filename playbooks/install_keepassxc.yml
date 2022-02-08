@@ -35,7 +35,7 @@
       become: true
       ansible.builtin.copy:
         remote_src: false
-        src: files/keepassxc-proxy
+        src: files/browser/native-messaging-hosts/keepassxc-proxy
         dest: /usr/bin/keepassxc-proxy
         owner: root
         group: root
