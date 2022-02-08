@@ -90,7 +90,13 @@ ansible all -m debug -a "var=vars"
 
 Actions and capabilities to add eventually:
 
+- make steam fixes indempotent by `creates` for cabextract portion
+- create install Ansible playbook
+- move `$BROWSER` and `$EDITOR` into `~/.profile`
 - parameterize playbooks more by adding variables
+- fix blurlock failure if file doesn't already exist
+- consider fixing `function_yay.yml` to have empty args for `aur_packages`
+- fix `root`'s `.bashrc` not existing and copy `.zshrc` to `root` profile as well
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 
 # References:
