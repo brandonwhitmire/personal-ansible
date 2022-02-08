@@ -313,7 +313,7 @@ borg_backup () {
 	borg --version
 	echo $TODAY
 
-	sudo borg --progress create --stats --compression auto,lzma --comment "Automatically backuped up on: $TODAY" $REPO::${TODAY}_${EXTRA_TAG} /etc /home
+	sudo borg --progress create --stats --compression auto,lzma --comment "Automatically backed up on: $TODAY" $REPO::${TODAY}_${EXTRA_TAG} /etc /home
 
 	# Finish buffering anything from memory to disk
 	sync
