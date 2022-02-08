@@ -46,11 +46,11 @@ ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 
 ### Playbook Precedence
 
-Most playbooks are written such that they are indepedent from each other and should not required anything installed beforehand (other than what is mentioned above). However, this assumption only follows if the playbook `1_install_baseline_packages.yml` has been previously ran. This will install numerous packages, but especially those that are required for the remaining playbooks.
+Most playbooks are written such that they are indepedent from each other and should not require anything installed beforehand (other than what is mentioned above). However, this assumption only follows if the playbook `1_install_baseline_packages.yml` has been previously ran. This will install numerous packages, but especially those that are required for the remaining playbooks.
 
-> e.g. #1: The `python-pip` OS-level package is required to install Python3 modules, but this package is not included in all playbooks that install Python3 modules since this would add an undue burden to all current and future playbooks to include this step.
+> e.g. #1: The `python-pip` OS-level package is required to install Python3 modules, but this package is not included in all playbooks that install Python3 modules since this would add an undue burden to all current and future playbooks.
 
-> e.g. #2: The `unzip` is included in the Calibre playbook since that package is specifically required to run the Ansible `unarchive` module, which only used in that respective playbook... the `unzip` package would get moved into `1_install_baseline_packages.yml` if becomes more prevalent in more than one or so playbooks.
+> e.g. #2: The `unzip` is included in the Calibre playbook since that package is specifically required to run the Ansible `unarchive` module, which is only used in that respective playbook... the `unzip` package would get moved into `1_install_baseline_packages.yml` if its usage becomes more prevalent in more than one or so playbooks.
 
 # Quick Start
 
@@ -95,6 +95,7 @@ Actions and capabilities to add eventually:
 - move `$BROWSER` and `$EDITOR` into `~/.profile`
 - parameterize playbooks more by adding variables
 - fix blurlock failure if file doesn't already exist
+- consider migrating requirements_ansible.txt into Dockerfile
 - consider fixing `function_yay.yml` to have empty args for `aur_packages`
 - run shellcheck against `shell_rc`
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480

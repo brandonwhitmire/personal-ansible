@@ -16,7 +16,7 @@ RUN apt update -y && apt install -y \
 	wget \
 	curl
 
-# Added to mitigate CA certs issue, but ignored in git since it was still broke
+# Added to mitigate CA certs issue lazily
 RUN git config --global http.sslverify false
 
 # Reference: https://github.com/mnussbaum/ansible-yay
@@ -27,6 +27,7 @@ RUN git clone https://github.com/mnussbaum/ansible-yay.git /tmp/ansible-yay/ && 
 ARG UID
 ARG GUID
 # Save passed outside user/group
+# NOTE: Used by some scripts as a "inside Docker" check
 ENV NEW_UID=$UID
 ENV NEW_GUID=$GUID
 
