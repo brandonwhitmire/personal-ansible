@@ -43,6 +43,7 @@
           - borg  # encrypted, de-duplicated backups
           - transmission-cli  # torrent manager
           - nodejs  # dep for coc.nvim
+          - galculator  # default calc
         state: present
 
     - name: Install needed pip3 pkgs

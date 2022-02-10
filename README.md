@@ -86,6 +86,15 @@ ansible all -m debug -a "var=vars"
 
 * Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via `./1_run_ansible_controller.sh`.
 
+# Things to Backup
+
+This repository was written with the goal of getting a fresh Manjaro installation to a personalized, standard state. For clarity's sake, the following is a rough list of things that should be backed up (usually with `borg`) but will not be added into this repository:
+
+- Web browser bookmarks
+- Password database
+- EBook collection
+- Music/Audiobook Collection
+
 # TODO
 
 Actions and capabilities to add eventually:
