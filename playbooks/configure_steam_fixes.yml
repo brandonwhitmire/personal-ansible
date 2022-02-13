@@ -54,7 +54,6 @@
           ansible.builtin.get_url:
             url: '{{ vc_redist_url }}'
             dest: '{{ aoe2_dir }}'
-            # force: true
             checksum: sha256:5eea714e1f22f1875c1cb7b1738b0c0b1f02aec5ecb95f0fdb1c5171c6cd93a3
 
         - name: Extract from downloaded file
@@ -62,12 +61,14 @@
           ansible.builtin.command:
             cmd: cabextract {{ vc_redist_exe }}
             chdir: '{{ aoe2_dir }}'
+            creates: a10
 
         - name: Extract from extracted file
           become: true
           ansible.builtin.command:
             cmd: cabextract a10
             chdir: '{{ aoe2_dir }}'
+            creates: ucrtbase.dll
 
         - name: chown to normal user
           become: true
@@ -82,13 +83,15 @@
         - name: Move 1/2 file to fix crash after splash screen
           become: true
           ansible.builtin.command:
-            cmd: 'mv {{ vulcan_folder }}/intel_icd.x86_64.json {{ vulcan_folder }}/intel_icd.x86_64.json.disabled'
-            creates: '{{ vulcan_folder }}/intel_icd.x86_64.json.disabled'
-            deletes: '{{ vulcan_folder }}/intel_icd.x86_64.json'
+            cmd: mv intel_icd.x86_64.json intel_icd.x86_64.json.disabled
+            chdir: '{{ vulcan_folder }}'
+            creates: intel_icd.x86_64.json.disabled
+            removes: intel_icd.x86_64.json
 
         - name: Move 2/2 file to fix crash after splash screen
           become: true
           ansible.builtin.command:
-            cmd: 'mv {{ vulcan_folder }}/intel_icd.i686.json {{ vulcan_folder }}/intel_icd.i686.json.disabled'
-            creates: '{{ vulcan_folder }}/intel_icd.i686.json.disabled'
-            deletes: '{{ vulcan_folder }}/intel_icd.i686.json'
+            cmd: mv intel_icd.i686.json intel_icd.i686.json.disabled
+            chdir: '{{ vulcan_folder }}'
+            creates: intel_icd.i686.json.disabled
+            removes: intel_icd.i686.json
