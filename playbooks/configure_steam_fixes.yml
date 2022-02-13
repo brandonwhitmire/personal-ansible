@@ -1,8 +1,11 @@
 #!/usr/bin/env ansible-playbook
 #
 # Various fixes (usually from Proton DB) for Steam Linux games
+#
+# References:
+# - https://wiki.archlinux.org/title/Steam#Proton_Steam-Play
 ---
-- name: Steam Linux comptabililty fixes for games
+- name: Steam Linux compatibility fixes for games
   hosts: all
 
   tasks:
@@ -12,18 +15,28 @@
       community.general.pacman:
         name:
           - steam
+          - wine
         state: present
 
-    # https://www.protondb.com/app/813780#T4QkvqCK-9
+- name: Install proton via AUR (takes a very long time)
+  vars:
+    aur_packages:
+      - proton
+    aur_packages_state: present
+  ansible.builtin.import_playbook: function_yay.yml
+
+- hosts: all
+  tasks:
     - name: === AOE2 Block ===
       vars:
         # Leave this so that the files get placed in the user dir and not /root
         - aoe2_dir: /home/{{ ansible_user }}/.local/share/Steam/steamapps/compatdata/813780/pfx/drive_c/windows/system32
         - vc_redist_exe: vc_redist.x64.exe
         - vc_redist_url: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/{{ vc_redist_exe }}
-
+        - vulcan_folder: /usr/share/vulkan/icd.d
       block:
 
+        # Multi Desync: https://www.protondb.com/app/813780#T4QkvqCK-9
         - name: Install necessary pkgs
           become: true
           community.general.pacman:
@@ -64,3 +77,18 @@
             path: '{{ aoe2_dir }}'
             recurse: true
             state: directory
+
+        # Crash after Splash: https://www.protondb.com/app/813780#eoQwQT6ngx
+        - name: Move 1/2 file to fix crash after splash screen
+          become: true
+          ansible.builtin.command:
+            cmd: 'mv {{ vulcan_folder }}/intel_icd.x86_64.json {{ vulcan_folder }}/intel_icd.x86_64.json.disabled'
+            creates: '{{ vulcan_folder }}/intel_icd.x86_64.json.disabled'
+            deletes: '{{ vulcan_folder }}/intel_icd.x86_64.json'
+
+        - name: Move 2/2 file to fix crash after splash screen
+          become: true
+          ansible.builtin.command:
+            cmd: 'mv {{ vulcan_folder }}/intel_icd.i686.json {{ vulcan_folder }}/intel_icd.i686.json.disabled'
+            creates: '{{ vulcan_folder }}/intel_icd.i686.json.disabled'
+            deletes: '{{ vulcan_folder }}/intel_icd.i686.json'
