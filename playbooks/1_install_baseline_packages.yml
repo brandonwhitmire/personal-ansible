@@ -45,6 +45,9 @@
       - numlockx  # numlock on at login
       - marker  # Markdown editor
       - libreoffice  # office suite of programs
+      - pulseaudio  # Pulse Audio
+      - pavucontrol  # PulseAudio GUI for volume
+      - pa-applet  # PulseAudio statusbar applet
 
 - name: Install AUR pkgs
   vars:
@@ -65,6 +68,15 @@
             name: optimus-manager
             enabled: true
             state: started
+
+        - name: Disable lightdm greeter GUI login (when using optimus to switch GPUs)
+          become: true
+          ansible.builtin.replace:
+            path: /etc/lightdm/lightdm.conf
+            backup: true
+            regexp: '^\s*(greeter-session=.*)'
+            replace: '# \1'
+            validate: 'lightdm --show-config --config=%s'
 
         # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
         - name: Copy numlockx systemd unitfile file to /etc/
