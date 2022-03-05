@@ -480,8 +480,7 @@ set_displays () {
 	read
 	
 	# Force screen on ; wait ; screen off
-	# SLEEP_TIME="2"
-	# xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
+	# SLEEP_TIME="2" xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
 
 	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
 	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
@@ -489,8 +488,8 @@ set_displays () {
 	EXTERNAL_KEYWORD='HDMI-?[0-9\-]+'
 	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
 
-	xrandr --output "$LAPTOP_MONITOR" --primary --mode 1920x1080 --pos 0x0 --rotate normal \
-		--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 1920x0 --rotate normal
+	xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
+		--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
 	#   --output DP-1 --off
 	#   --output HDMI-1 --off
 }
