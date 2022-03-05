@@ -18,14 +18,6 @@
           - wine
         state: present
 
-# Takes too long so disabling for the time being (and is unnecessary)
-# - name: Install proton via AUR (takes a very long time)
-#   vars:
-#     aur_packages:
-#       - proton
-#     aur_packages_state: present
-#   ansible.builtin.import_playbook: function_yay.yml
-
 - hosts: all
   tasks:
     - name: === AOE2 Block ===
@@ -86,7 +78,6 @@
           ansible.builtin.command:
             cmd: mv intel_icd.x86_64.json intel_icd.x86_64.json.disabled
             chdir: '{{ vulcan_folder }}'
-            # creates: intel_icd.x86_64.json.disabled
             removes: intel_icd.x86_64.json
 
         - name: Move 2/2 file to fix crash after splash screen
@@ -94,5 +85,4 @@
           ansible.builtin.command:
             cmd: mv intel_icd.i686.json intel_icd.i686.json.disabled
             chdir: '{{ vulcan_folder }}'
-            # creates: intel_icd.i686.json.disabled
             removes: intel_icd.i686.json
