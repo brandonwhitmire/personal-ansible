@@ -29,6 +29,7 @@ inventory = ansible_runner.interface.get_inventory(action="list",
                                                    response_format="json",
                                                    quiet=True,
                                                    inventories=[INVENTORY])[0]
+print("Hosts from Inventory:\n")
 pprint.pprint(inventory["_meta"]["hostvars"])
 
 # Find all files ending in '*.yml', ignoring some, and execute them with Ansible
@@ -39,12 +40,15 @@ for playbook in [
 ]:
     neat_border()
     print(f"Running {playbook} ...")
-    returns.append(
-        ansible_runner.run(private_data_dir=PRIVATE_DATA_DIR,
-                           playbook=playbook))
+    returns.append((playbook,
+                    ansible_runner.run(private_data_dir=PRIVATE_DATA_DIR,
+                                       quiet=False,
+                                       playbook=playbook).stats))
 
 # Show those delicious stats
 neat_border()
-print(returns)
+for ret in returns:
+    pprint.pprint(ret)
+    neat_border(char=".", repeat=40)
 
 neat_border(char='=')
