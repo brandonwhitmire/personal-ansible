@@ -7,10 +7,12 @@ Reference:
 """
 
 import glob
+import pprint
 import ansible_runner
 
 PRIVATE_DATA_DIR = "."
 INVENTORY = "hosts"
+
 
 def neat_border(char="-", repeat=80):
     """
@@ -18,20 +20,28 @@ def neat_border(char="-", repeat=80):
     """
     print(char * repeat)
 
+
 neat_border(char='=')
 
 # Show inventory
-print(ansible_runner.interface.get_inventory(action="list",
-                                             inventories=[INVENTORY]))
+# NOTE: this functon returns a tuple
+inventory = ansible_runner.interface.get_inventory(action="list",
+                                                   response_format="json",
+                                                   quiet=True,
+                                                   inventories=[INVENTORY])[0]
+pprint.pprint(inventory["_meta"]["hostvars"])
 
 # Find all files ending in '*.yml', ignoring some, and execute them with Ansible
 returns = []
-for playbook in [playbook for playbook in glob.glob("**/*.yml",
-                                                    recursive=True) if
-                 "function_" not in playbook]:
+for playbook in [
+        playbook for playbook in glob.glob("**/*.yml", recursive=True)
+        if "function_" not in playbook
+]:
     neat_border()
     print(f"Running {playbook} ...")
-    returns.append(ansible_runner.run(private_data_dir=PRIVATE_DATA_DIR, playbook=playbook))
+    returns.append(
+        ansible_runner.run(private_data_dir=PRIVATE_DATA_DIR,
+                           playbook=playbook))
 
 # Show those delicious stats
 neat_border()
