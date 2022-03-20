@@ -16,6 +16,7 @@
         - vagrant
         - libvirt
         - qemu
+        - virt-manager
         - nfs-utils
         - dnsmasq
         - dmidecode

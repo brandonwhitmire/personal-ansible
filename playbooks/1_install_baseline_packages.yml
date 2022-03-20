@@ -30,6 +30,7 @@
       state: present
     loop:
       - firefox  # web browser
+      - chromium  # web browser
       - gedit  # text editor
       - flameshot  # screenshot
       - pkgfile  # pkg search from repos
@@ -48,6 +49,7 @@
       - pulseaudio  # Pulse Audio
       - pavucontrol  # PulseAudio GUI for volume
       - pa-applet  # PulseAudio statusbar applet
+      - packer  # automate VM building
 
 - name: Install AUR pkgs
   vars:
@@ -78,22 +80,15 @@
             replace: '# \1'
             validate: 'lightdm --show-config --config=%s'
 
-        # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
-        - name: Copy numlockx systemd unitfile file to /etc/
+        # https://wiki.archlinux.org/title/LightDM#NumLock_on_by_default
+        - name: Enable numlock on GUI login
           become: true
-          ansible.builtin.copy:
-            src: files/systemd/numlockx-on.service
-            dest: /etc/systemd/system/
-            owner: root
-            group: root
-            mode: '0644'
-
-        - name: Enable numlockx-on service
-          become: true
-          ansible.builtin.service:
-            name: numlockx-on
-            enabled: true
-            state: started
+          ansible.builtin.replace:
+            path: /etc/lightdm/lightdm.conf
+            backup: true
+            regexp: '^#\s*greeter-setup-script=.*'
+            replace: 'greeter-setup-script=/usr/bin/numlockx on'
+            validate: 'lightdm --show-config --config=%s'
 
         - name: Tweak blur lock screen to blur more
           become: true
