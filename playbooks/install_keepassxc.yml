@@ -10,7 +10,6 @@
 
   - name: Install KeepassXC password manager and required packages
     become: true
-    # https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html
     community.general.pacman:
       name:
         - keepassxc
@@ -27,6 +26,7 @@
 
     - name: Browser config to allow keepassxc-browser extension to communicate
       ansible.builtin.copy:
+        remote_src: false
         src: files/browser/native-messaging-hosts
         dest: ~/.librewolf/
         mode: '0770'
@@ -44,6 +44,7 @@
     - name: Copy keepassxc-proxy systemd unitfile file to /etc/
       become: true
       ansible.builtin.copy:
+        remote_src: false
         src: files/systemd/keepassxc-proxy.service
         dest: /etc/systemd/system/
         owner: root

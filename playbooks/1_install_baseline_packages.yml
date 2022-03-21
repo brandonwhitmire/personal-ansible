@@ -74,20 +74,20 @@
         - name: Disable lightdm greeter GUI login (when using optimus to switch GPUs)
           become: true
           ansible.builtin.replace:
-            path: /etc/lightdm/lightdm.conf
             backup: true
+            path: /etc/lightdm/lightdm.conf
             regexp: '^\s*(greeter-session=.*)'
-            replace: '# \1'
+            replace: '#\1'
             validate: 'lightdm --show-config --config=%s'
 
         # https://wiki.archlinux.org/title/LightDM#NumLock_on_by_default
         - name: Enable numlock on GUI login
           become: true
           ansible.builtin.replace:
-            path: /etc/lightdm/lightdm.conf
             backup: true
-            regexp: '^#\s*greeter-setup-script=.*'
-            replace: 'greeter-setup-script=/usr/bin/numlockx on'
+            path: /etc/lightdm/lightdm.conf
+            regexp: '^#\s*(greeter-setup-script=).*'
+            replace: '\1/usr/bin/numlockx on'
             validate: 'lightdm --show-config --config=%s'
 
         - name: Tweak blur lock screen to blur more
@@ -99,3 +99,11 @@
             regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
             line: '\1 -blur 0x100 \2'
             state: present
+
+        - name: Disable default i3 shortcuts via Conky
+          become: true
+          ansible.builtin.replace:
+            backup: true
+            path: /usr/bin/start_conky_maia
+            regexp: '(.*/usr/share/conky/conky1.10_shortcuts_maia.*)'
+            replace: '#\1'
