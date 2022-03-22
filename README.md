@@ -46,11 +46,11 @@ ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 
 ### Playbook Precedence
 
-Most playbooks are written such that they are indepedent from each other and should not required anything installed beforehand (other than what is mentioned above). However, this assumption only follows if the playbook `1_install_baseline_packages.yml` has been previously ran. This will install numerous packages, but especially those that are required for the remaining playbooks.
+Most playbooks are written such that they are indepedent from each other and should not require anything installed beforehand (other than what is mentioned above). However, this assumption only follows if the playbook `1_install_baseline_packages.yml` has been previously ran. This will install numerous packages, but especially those that are required for the remaining playbooks.
 
-> e.g. #1: The `python-pip` OS-level package is required to install Python3 modules, but this package is not included in all playbooks that install Python3 modules since this would add an undue burden to all current and future playbooks to include this step.
+> e.g. #1: The `python-pip` OS-level package is required to install Python3 modules, but this package is not included in all playbooks that install Python3 modules since this would add an undue burden to all current and future playbooks.
 
-> e.g. #2: The `unzip` is included in the Calibre playbook since that package is specifically required to run the Ansible `unarchive` module, which only used in that respective playbook... the `unzip` package would get moved into `1_install_baseline_packages.yml` if becomes more prevalent in more than one or so playbooks.
+> e.g. #2: The `unzip` is included in the Calibre playbook since that package is specifically required to run the Ansible `unarchive` module, which is only used in that respective playbook... the `unzip` package would get moved into `1_install_baseline_packages.yml` if its usage becomes more prevalent in more than one or so playbooks.
 
 # Quick Start
 
@@ -86,6 +86,15 @@ ansible all -m debug -a "var=vars"
 
 * Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via `./1_run_ansible_controller.sh`.
 
+# Things to Backup
+
+This repository was written with the goal of getting a fresh Manjaro installation to a personalized, standard state. For clarity's sake, the following is a rough list of things that should be backed up (usually with `borg`) but will not be added into this repository:
+
+- Web browser bookmarks
+- Password database
+- EBook collection
+- Music/Audiobook Collection
+
 # TODO
 
 Actions and capabilities to add eventually:
@@ -95,6 +104,7 @@ Actions and capabilities to add eventually:
 - move `$BROWSER` and `$EDITOR` into `~/.profile`
 - parameterize playbooks more by adding variables
 - fix blurlock failure if file doesn't already exist
+- consider migrating requirements_ansible.txt into Dockerfile
 - consider fixing `function_yay.yml` to have empty args for `aur_packages`
 - run shellcheck against `shell_rc`
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480

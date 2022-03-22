@@ -30,6 +30,7 @@
       state: present
     loop:
       - firefox  # web browser
+      - chromium  # web browser
       - gedit  # text editor
       - flameshot  # screenshot
       - pkgfile  # pkg search from repos
@@ -45,6 +46,10 @@
       - numlockx  # numlock on at login
       - marker  # Markdown editor
       - libreoffice  # office suite of programs
+      - pulseaudio  # Pulse Audio
+      - pavucontrol  # PulseAudio GUI for volume
+      - pa-applet  # PulseAudio statusbar applet
+      - packer  # automate VM building
 
 - name: Install AUR pkgs
   vars:
@@ -66,22 +71,14 @@
             enabled: true
             state: started
 
-        # https://wiki.archlinux.org/title/Activating_numlock_on_bootup
-        - name: Copy numlockx systemd unitfile file to /etc/
+        - name: Disable lightdm greeter GUI login (when using optimus to switch GPUs)
           become: true
-          ansible.builtin.copy:
-            src: files/systemd/numlockx-on.service
-            dest: /etc/systemd/system/
-            owner: root
-            group: root
-            mode: '0644'
-
-        - name: Enable numlockx-on service
-          become: true
-          ansible.builtin.service:
-            name: numlockx-on
-            enabled: true
-            state: started
+          ansible.builtin.replace:
+            backup: true
+            path: /etc/lightdm/lightdm.conf
+            regexp: '^\s*(greeter-session=.*)'
+            replace: '#\1'
+            validate: 'lightdm --show-config --config=%s'
 
         - name: Tweak blur lock screen to blur more
           become: true
@@ -92,3 +89,11 @@
             regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
             line: '\1 -blur 0x100 \2'
             state: present
+
+        - name: Disable default i3 help display in Conky
+          become: true
+          ansible.builtin.replace:
+            backup: true
+            path: /usr/bin/start_conky_maia
+            regexp: '(.*/usr/share/conky/conky1.10_shortcuts_maia.*)'
+            replace: '#\1'

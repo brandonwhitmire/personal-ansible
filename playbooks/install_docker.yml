@@ -14,6 +14,7 @@
     community.general.pacman:
       name:
         - docker
+        - docker-compose
       state: present
 
   - name: Enable Docker service

@@ -35,6 +35,14 @@ cd vagrant/
 ./1_run_vagrant_vm.sh
 ```
 
+## Clean Environment
+
+Delete and re-build environment to a fresh, unconfigured state.
+
+```bash
+vagrant halt -f && vagrant destroy -f
+```
+
 # Troubleshooting
 
 Sometimes domain resolving prevents the box from fully provisioning. Try resolving the name right before running a `vagrant up`.

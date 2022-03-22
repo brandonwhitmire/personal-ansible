@@ -157,6 +157,7 @@ alias l='ls -CF --color=auto'
 alias lt='ls --human-readable --size -1 -S --classify'
 alias ping="ping -c 1"
 alias diff="colordiff -y --suppress-common-lines"
+alias pdf="epdfview"
 
 alias vi="$EDITOR"
 alias vim="$EDITOR"
@@ -177,10 +178,6 @@ alias now='date +"%d-%m-%Y %T"'
 alias iptlist='sudo iptables -vnL --line-numbers'
 alias browser="$BROWSER"
 alias reload_background="nitrogen --restore &"
-alias gpu_used="glxinfo | grep 'server glx vendor string' ; optimus-manager --status | grep -E '(intel|integrated|nvidia)|$'"
-alias gpu_nvidia="gpu_used ; optimus-manager --switch nvidia --no-confirm"
-alias gpu_integrated="gpu_used ; optimus-manager --switch integrated --no-confirm"
-alias gimmesysteminfo="clear ; screenfetch -L ; inxi -Fazy ;"
 
 # --- Functions
 
@@ -220,6 +217,44 @@ uninstall_yay () {
         fi
 	yay -R --cascade --recursive --unneeded "$@"
 }
+# Show full system information
+systeminfo () {
+	# Ref: https://forum.manjaro.org/t/howto-provide-system-information/874
+	clear
+	export LANG=C
+	screenfetch
+	inxi --admin --verbosity=7 --filter --width
+}
+sysinfo () {
+	systeminfo
+}
+# Kernel Ring Buffer logs for hardware errors (only emergency, alert, critical, error, and warning messages)
+logs_kernel () {
+	sudo dmesg --level emerg,alert,crit,err,warn
+}
+# systemd logs (of a particular priority)
+logs_systemd () {
+	journalctl --catalog --priority=3 --boot=-1
+}
+# systemd current logs (followed)
+logs_follow_systemd () {
+	journalctl --follow
+}
+# Show current used GPU
+gpu_used () {
+	glxinfo | grep 'server glx vendor string'
+	optimus-manager --status | grep -E '(intel|integrated|nvidia)'
+}
+# Switch GPU to Nvidia (more powerful, discrete GPU)
+gpu_nvidia () {
+	gpu_used
+	optimus-manager --switch nvidia --no-confirm
+}
+# Switch GPU to Intel (less powerful, integrated GPU)
+gpu_integrated () {
+	gpu_used
+	optimus-manager --switch integrated --no-confirm
+}
 # Mount LUKS device
 mount_luks_device () {
 	# Help menu
@@ -256,9 +291,6 @@ mount_luks_device () {
 	udisksctl info -b /dev/mapper/"$NAME" > /dev/null 2>&1
 	RET_CODE="$?"
 
-	# Quit on error, unset variable, or pipe errors (bash strict mode)
-	# set -eo pipefail
-
 	# Device not mounted ; so mount
 	if [[ "$RET_CODE" == "1" ]] ; then
 		echo "MOUNTING..."
@@ -280,8 +312,8 @@ mount_luks_device () {
 }
 # Encrypted, de-duplicated, & compressed backups
 borg_backup () {
-	# Fail on command errors
-	# set -e
+	# Create/intialize backup
+	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
 
 	REPO="/run/media/obb/nix_hdd/borg_backup"
 	# BACKUP_DIRS="/etc /home"
@@ -292,9 +324,6 @@ borg_backup () {
 	export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=no
 
 	# ---
-
-	# Create/intialize backup
-	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
 
 	# Ensure repo directory is there exists
 	if [[ ! -d "$REPO" ]] ; then
@@ -318,6 +347,11 @@ borg_backup () {
 	# Finish buffering anything from memory to disk
 	sync
 }
+update_no_backup () {
+    echo "[i] Updating packages..."
+    sudo pacman -S --refresh --sysupgrade
+    yay -S --refresh --sysupgrade
+}
 # Perform system update properly
 update () {
 	BREAKLINE
@@ -327,9 +361,7 @@ update () {
 	BREAKLINE
 	borg_backup "$1"
 	BREAKLINE
-	echo "[i] Updating packages..."
-	sudo pacman -S --refresh --sysupgrade
-	yay -S --refresh --sysupgrade
+	update_no_backup
 	BREAKLINE
 }
 # Update pacman mirrors
@@ -480,21 +512,22 @@ set_displays () {
 	read
 	
 	# Force screen on ; wait ; screen off
-	# SLEEP_TIME="2"
-	# xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
-
-	set -x
+	# SLEEP_TIME="2" xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
 
 	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
-	LAPTOP_KEYWORD='eDP-?[0-9]+'
+	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
 	LAPTOP_MONITOR="$(echo $DISPLAYS | grep -ioE $LAPTOP_KEYWORD)"
-	EXTERNAL_KEYWORD='HDMI-?[0-9]+'
+	EXTERNAL_KEYWORD='HDMI-?[0-9\-]+'
 	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
 
-	xrandr --output "$LAPTOP_MONITOR" --primary --mode 1920x1080 --pos 0x0 --rotate normal \
-		--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 1920x0 --rotate normal
+	xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
+		--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
 	#   --output DP-1 --off
 	#   --output HDMI-1 --off
+}
+
+fix_displays () {
+	set_displays
 }
 
 lazyssh () {

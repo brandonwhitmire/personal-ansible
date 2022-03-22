@@ -1,0 +1,50 @@
+#!/usr/bin/env ansible-playbook
+#
+# This playbook will install and configure the bootsplash GUI animation
+# (shown during boot up).
+---
+- name: Bootsplash
+  hosts: all
+  vars:
+    bootsplash_desired_theme: arch
+  tasks:
+
+    - name: Install required bootsplash packages
+      become: true
+      community.general.pacman:
+        name:
+          - bootsplash-systemd
+          - bootsplash-manager
+          - "bootsplash-theme-{{ bootsplash_desired_theme }}"
+        state: present
+
+    - name: Enable bootsplash service for LUKS decryption password
+      become: true
+      ansible.builtin.service:
+        name: bootsplash-ask-password-console.path
+        enabled: true
+        state: started
+
+    - name: Get current bootsplash status
+      ansible.builtin.command:
+        cmd: bootsplash-manager --status
+      register: bootsplash_status
+      changed_when: bootsplash_status.rc != 0
+
+    - name: Parse current bootsplash theme
+      ansible.builtin.set_fact:
+        bootsplash_current_theme: "{{ bootsplash_status.stdout | regex_search('current theme: (\\w+)', '\\1') | first }}"
+
+    - name: Show current theme
+      ansible.builtin.debug:
+        msg:
+          - "Current bootsplash theme:"
+          - "{{ bootsplash_current_theme }}"
+          - "Desired bootsplash theme:"
+          - "{{ bootsplash_desired_theme }}"
+
+    - name: "Change bootsplash animation to {{ bootsplash_desired_theme }}"
+      become: true
+      ansible.builtin.command:
+        cmd: "bootsplash-manager --set {{ bootsplash_desired_theme }}"
+      when: "bootsplash_status.stdout | regex_search('current theme: ' + bootsplash_desired_theme) == none"
