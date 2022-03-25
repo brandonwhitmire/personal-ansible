@@ -1,3 +1,5 @@
+# TODO: fix vpn and magnet commands
+
 # Source manjaro-zsh-configuration
 if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
   source /usr/share/zsh/manjaro-zsh-config
@@ -26,7 +28,7 @@ powerline-daemon --quiet
 
 # https://computingforgeeks.com/best-terminal-shell-prompts-for-zsh-bash-fish/
 # Set Spaceship ZSH as a prompt
-autoload -U promptinit; promptinit
+autoload -U promptinit ; promptinit
 prompt spaceship
 
 # Disabled some unused sections for speedup
@@ -134,48 +136,50 @@ alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 
-alias cp="cp -iv"				# confirm before overwriting something
-alias df='df -h'                # human-readable sizes
-alias du="du -ch"
-alias free='free -m'            # show sizes in MB
-alias np='nano -w PKGBUILD'
+alias cp="cp --interactive --verbose" # confirm before overwriting something
+alias df='df --human-readable' # human-readable sizes
+alias du="du --total --human-readable"
+alias free='free --mebi' # show sizes in mebibytes
+alias np='nano --nowrap PKGBUILD'
 alias more='less'
-alias mkdir='mkdir -pv'
-alias mv='mv -iv'
-alias ln='ln -iv'
-alias rm='gio trash'			# safely "delete" things into Trash:
+alias mkdir='mkdir --parents --verbose'
+alias mv='mv --interactive --verbose'
+alias ln='ln --interactive --verbose'
+alias rm='gio trash' # safely "delete" things into Trash:
 # alias rm='rm -vI --preserve-root'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
 alias killall="killall --verbose"
-alias jobs="jobs -l"
+alias jobs="jobs -l" # no long option for "-l"
 
-alias ls='ls -C --color=auto'
-alias ll='ls -laF --color=auto'
-alias l='ls -CF --color=auto'
-alias lt='ls --human-readable --size -1 -S --classify'
-alias ping="ping -c 1"
-alias diff="colordiff -y --suppress-common-lines"
+# some options in "ls" do not have long name versions
+alias ls='ls -C --color=auto' # normal
+alias ll='ls -l --all --classify --color=auto' # long-listing
+alias lt='ls -l -t -all --reverse --human-readable --size -1 --classify --color=auto' # time-sorted
+alias l='ls -l -S --all --reverse --classify --color=auto' # size-sorted
+alias ping="ping -c 1" # no long option for "-c"
+alias diff="colordiff --side-by-side --suppress-common-lines"
 alias pdf="epdfview"
 
 alias vi="$EDITOR"
 alias vim="$EDITOR"
 
-alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias update-grub="sudo grub-mkconfig --output=/boot/grub/grub.cfg"
 
 # --- New Commands 
 
-alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
-alias nsg="ss -antup | grep -v grep | grep -i -e Netid -e"
+# BSD syntax to show every process
+alias psg="ps aux | grep --invert-match 'grep' | grep --ignore-case --regexp 'VSZ' --regexp"
+alias nsg="ss --all --numeric --tcp --udp --processes | grep --invert-match 'grep' | grep --ignore-case --regexp 'Netid' --regexp"
 
-alias cpv='rsync -ah --info=progress2'
-alias hazip="lynx -dump https://icanhazip.com/ | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'"
+alias cpv='rsync --archive --human-readable --info=progress2'
+alias hazip="lynx --dump 'https://icanhazip.com' | grep --only-matching --extended-regexp '([0-9]{1,3}\.){3}[0-9]{1,3}'"
 alias dl="cdd ~/Downloads"
 alias trash="gio list Trash:"
-alias path='echo -e ${PATH//:/\\n}'
+alias path='echo -e ${PATH//:/\\n}' # no long option for "-e"
 alias now='date +"%d-%m-%Y %T"'
-alias iptlist='sudo iptables -vnL --line-numbers'
+alias iptlist='sudo iptables --verbose --numeric --list --line-numbers'
 alias browser="$BROWSER"
 alias reload_background="nitrogen --restore &"
 
@@ -191,10 +195,10 @@ install () {
 }
 # Removes packages and dependencies (not used by other packages)
 uninstall () {
-        if [[ -z "$1" ]] ; then
-                echo "Please supply a package(s) to UNINSTALL!"
-                exit 1
-        fi
+    if [[ -z "$1" ]] ; then
+        echo "Please supply a package(s) to UNINSTALL!"
+        exit 1
+    fi
 	sudo pacman -R --cascade --recursive --unneeded "$@"
 }
 # Remove unused dependencies
@@ -209,13 +213,19 @@ install_yay () {
 	fi
 	yay -S "$@"
 }
+yinstall () {
+	install_yay "$@"
+}
 # Removes AUR packages and dependencies (not used by other packages)
 uninstall_yay () {
-        if [[ -z "$1" ]] ; then
-                echo "Please supply a package(s) to UNINSTALL!"
-                exit 1
-        fi
+    if [[ -z "$1" ]] ; then
+        echo "Please supply a package(s) to UNINSTALL!"
+        exit 1
+    fi
 	yay -R --cascade --recursive --unneeded "$@"
+}
+yuninstall () {
+	uninstall_yay "$@"
 }
 # Show full system information
 systeminfo () {
@@ -256,6 +266,8 @@ gpu_integrated () {
 	optimus-manager --switch integrated --no-confirm
 }
 # Mount LUKS device
+# $1: UUID of harddrive (obtain via "sudo fdisk -l")
+# $2: name to crypt open as
 mount_luks_device () {
 	# Help menu
 	if [[ "$1" == "-h" ]] ; then
@@ -267,7 +279,7 @@ mount_luks_device () {
 	# Use preloaded variables
 	if [[ -z "$1" || -z "$2" ]] ; then
 		UUID="eb3382b7-477b-4e93-a103-e4269ec5d0b3"
-		NAME="crypt_HDD"
+		NAME="crypt_hdd"
 		echo "CLI arguments not used..."
 		echo -e "\tUUID: $UUID"
 		echo -e "\tNAME: $NAME"
@@ -277,7 +289,7 @@ mount_luks_device () {
 		NAME="$2"
 	fi
 	# ---
-	DEVICE=$(lsblk -ro NAME,UUID | grep "$UUID" | cut -d ' ' -f 1 )
+	DEVICE=$(lsblk --raw --output NAME,UUID | grep "$UUID" | cut --delimiter ' ' --fields 1 )
 
 	if [[ -z "$UUID" || -z "$DEVICE" || -z "$NAME" ]] ; then
 		echo "These cannot be empty!"
@@ -288,20 +300,20 @@ mount_luks_device () {
 	fi
 
 	# Check if LUKS device mounted
-	udisksctl info -b /dev/mapper/"$NAME" > /dev/null 2>&1
+	udisksctl info --block-device /dev/mapper/"$NAME" > /dev/null 2>&1
 	RET_CODE="$?"
 
 	# Device not mounted ; so mount
 	if [[ "$RET_CODE" == "1" ]] ; then
 		echo "MOUNTING..."
 		sudo cryptsetup open "/dev/$DEVICE" "$NAME"
-		MOUNT=$(udisksctl mount -b /dev/mapper/"$NAME")
+		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
-		ls -laF --color=auto $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
+		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
 	elif [[ "$RET_CODE" == "0" ]] ; then
 		echo "UNMOUNTING..."
-		udisksctl unmount -b /dev/mapper/"$NAME"
+		udisksctl unmount --block-device /dev/mapper/"$NAME"
 		sudo cryptsetup close "$NAME"
 	# Error
 	else
@@ -370,31 +382,33 @@ update_mirrors () {
 }
 # Create and switch to new, random temp directory
 mkt () {
-	cd $(mktemp -d)
+	cd $(mktemp --directory)
 }
 # Switch to and list a directory
 cdd () {
 	if [[ ! -z "$!" ]] ; then
 		cd $1
 	fi
-	ls -laF --color=auto
+	ll
 }
 # ASCII line break of '=' chars by default or $1 arg supplied
 BREAKLINE () {
-        if [[ -z "$1" ]] ; then
-                CHAR="="
-        else
-                CHAR="$1"
-        fi
+    if [[ -z "$1" ]] ; then
+            CHAR="="
+    else
+            CHAR="$1"
+    fi
 
-        printf "$CHAR%.0s" {1..80} ; echo
+    printf "$CHAR%.0s" {1..80} ; echo
 }
 # Download magnets
 download () {
 	# NOTE: This IP address is known to change
+	# and is currently ca1.ovpn
 	MAGNET_VPN="209.58.135.120"
 
 	# Keep .zhistory clean of downloads
+	clean_histfile "download"
 	unset HISTFILE
 	echo "HISTFILE (should be blank b/t quotes): \"$HISTFILE\""
 	
@@ -407,7 +421,7 @@ download () {
 		"^\s*$"
 	)
 	for CLEAN in $CLEANS ; do
-		sed -i "s#$CLEAN##g" ~/.zhistory
+		sed --in-place "s#$CLEAN##g" ~/.zhistory
 	done
 
 	# Requires magnet link (MUST be quoted!)
@@ -432,11 +446,11 @@ download () {
 			"https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz"
 		)
 		pushd ~/.config/transmission-daemon/blocklists > /dev/null
-			"rm" -vf *blocklist*
+			"rm" --verbose --force *blocklist*
 			for BLOCK in $BLOCKS ; do
 				wget --no-verbose "$BLOCK"	
 			done
-			gunzip -d *.gz
+			gunzip --decompress *.gz
 			for FILE in *blocklist* ; do
 				mv $FILE $FILE.bin
 			done
@@ -452,11 +466,11 @@ download () {
 	fi
 
 	# Add and watch downloads
-	MAGNET=$(python3 -c "import urllib.parse;print(urllib.parse.unquote_plus('$1', encoding='utf-8'))" | grep -o "magnet.*")
+	MAGNET=$(python3 -c "import urllib.parse;print(urllib.parse.unquote_plus('$1', encoding='utf-8'))" | grep --only-matching "magnet.*")
 	echo -e "MAGNET:\t$MAGNET"
-	transmission-remote -a "$MAGNET"
+	transmission-remote --add "$MAGNET"
 	sleep 1
-	watch -d -n 2 'transmission-remote -l'
+	watch --differences --interval 2 'transmission-remote -l'
 	echo -e "\nREMOVE TORRENTS:\n\n\ttransmission-remote -tall --remove"	
 }
 vpn () {
@@ -468,11 +482,11 @@ search () {
 	echo -e "Don't forget to update:\n\tsudo updatedb"
 	locate "*$@*"
 }
-# Clean zsh (completion) history
-clean_zsh () {
-	[[ -z "$1" ]] && (echo "ERROR" ; exit 1)
-	echo "Cleaning regex \"$1\" out of history..."
-	sed -i "s/$1//g" ~/.zhistory
+# Clean shell history
+clean_histfile () {
+	[[ -z "$1" ]] && (echo 'ERROR: Missing argument "$1" to clean out' ; exit 1)
+	echo "Cleaning regex \"$1\" out of history: $HISTFILE"
+	sed --in-place "s/$1//g" "$HISTFILE"
 }
 # Find LAN printer
 search_printer () {
@@ -482,7 +496,7 @@ search_printer () {
 	# Enable avahi-daemon service to use program
 	# sudo systemctl enable --now avahi-daemon.service
 	# avahi-browse -t -d local -c -a --resolve | sed -n '/^=.*Printer/,/txt =/p'
-	avahi-browse --all -t -r | grep -A2 "$PRINTER" | grep "address" | uniq | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}"
+	avahi-browse --all --terminate --resolve | grep --after-context=2 "$PRINTER" | grep "address" | uniq | grep --only-matching --extended-regexp "([0-9]{1,3}\.){3}[0-9]{1,3}"
 
 	# Discover network printers using Bonjour
 	# lpinfo --include-schemes dnssd -v
@@ -491,10 +505,10 @@ search_printer () {
 # Show Clipboard
 show_clipboard () {
 	echo "CTRL+C Clipboard:"
-	clipit -c
+	clipit --clipboard
 	echo
 	echo "Highlight Clipboard (primary):"
-	clipit -p
+	clipit --primary
 }
 # Python3 pprint a file (e.g. JSON)
 pprint () {
@@ -515,12 +529,10 @@ screen_off () {
 }
 
 # Set/Fix monitor displays
-# For extended displays, run like: set_displays
-# For duplicated displays, run like: set_displays asdfasdf
+# For extended displays, run like: "set_displays"
+# For duplicated displays, run like: "set_displays asdfasdf"
 set_displays () {
 	echo "FIX: Hit button on external monitor to pop info box (wake monitor) or reset KVM switch..."
-	echo -e "\n--- Hit ENTER to continue ---"
-	read
 	
 	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
 	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
@@ -546,5 +558,5 @@ fix_displays () {
 }
 
 lazyssh () {
-	ssh -p 22 obb@192.168.5.200
+	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
 }

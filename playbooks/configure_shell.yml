@@ -60,64 +60,61 @@
     - name: === zsh block ===
       block:
 
+        # I don't like the Manjaro defaults at all
         - name: Ensure no .zshrc file exists
           ansible.builtin.file:
             path: ~/.zshrc
             state: absent
 
-        - name: Add functionality for bashrc
-          ansible.builtin.blockinfile:
-            path: ~/.bashrc
-            marker: "# {mark} shell_rc"
-            block: "{{ lookup('file', 'files/shell_rc') }}"
-            create: true
+        - name: Overwrite current shell_rc with skeleton, original version
+          become: true
+          ansible.builtin.copy:
+            backup: true
+            force: true
+            remote_src: true
+            src: '/etc/skel/{{ item }}'
+            dest: '~/{{ item }}'
+            owner: '{{ ansible_user }}'
+            group: '{{ ansible_user }}'
             mode: '0644'
-            state: present
+          loop:
+            - .bashrc
 
-        - name: Add functionality for zshrc
+        - name: Add functionality for shells
           ansible.builtin.blockinfile:
-            path: ~/.zshrc
+            path: '~/{{ item }}'
             marker: "# {mark} shell_rc"
             block: "{{ lookup('file', '../files/shell_rc') }}"
             create: true
             mode: '0644'
             state: present
+          loop:
+            - .zshrc
+            - .bashrc
 
-        - name: 'Set default shell to zsh for user: {{ ansible_user }}'
-          become: true
-          ansible.builtin.user:
-            name: '{{ ansible_user }}'
-            shell: /usr/bin/zsh
-
-        - name: 'Set default shell to zsh for user: root'
-          become: true
-          ansible.builtin.user:
-            name: root
-            shell: /usr/bin/zsh
-
-        - name: Copy custom .bashrc to user 'root'
+        - name: Copy custom shell_rc to root
           become: true
           ansible.builtin.copy:
             backup: true
             force: true
             remote_src: true
-            src: '/home/{{ ansible_user }}/.bashrc'
-            dest: /root/.bashrc
+            src: '/home/{{ ansible_user }}/{{ item }}'
+            dest: '/root/{{ item }}'
             owner: root
             group: root
             mode: '0644'
+          loop:
+            - .zshrc
+            - .bashrc
 
-        - name: Copy custom .zshrc to user 'root'
+        - name: 'Set default shell to zsh for user "{{ ansible_user }}" and root'
           become: true
-          ansible.builtin.copy:
-            backup: true
-            force: true
-            remote_src: true
-            src: '/home/{{ ansible_user }}/.zshrc'
-            dest: /root/.zshrc
-            owner: root
-            group: root
-            mode: '0644'
+          ansible.builtin.user:
+            name: '{{ item }}'
+            shell: /usr/bin/zsh
+          loop:
+            - '{{ ansible_user }}'
+            - root
 
     - name: === i3 block ===
       block:

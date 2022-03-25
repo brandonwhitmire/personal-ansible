@@ -80,6 +80,9 @@ ansible-playbook --check -vvv <PLAYBOOK>
 ansible all -m debug -a "var=hostvars"
 ansible all -m debug -a "var=vars"
 
+# Probe a particular variable, in this case "ansible_user"
+ansible -m debug -a 'msg={{ ansible_user }}' all
+
 # Specify hosts manually instead of using an inventory file
 # NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
