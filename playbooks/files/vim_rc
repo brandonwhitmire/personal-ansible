@@ -7,6 +7,7 @@ Plug 'tpope/vim-commentary'
 " Fuzzy finder 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
 " Syntax highlighting 
+" https://github.com/numirias/semshi
 Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
 " Python indents 
 Plug 'Vimjas/vim-python-pep8-indent' 

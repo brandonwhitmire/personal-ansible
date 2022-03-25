@@ -44,6 +44,7 @@
           - transmission-cli  # torrent manager
           - nodejs  # dep for coc.nvim
           - galculator  # default calc
+          - geckodriver  # used by Selenium for Firefox browsers
         state: present
 
     - name: Install needed pip3 pkgs
@@ -53,6 +54,8 @@
           - i3ipc  # soft dep for powerline
           - powerline-status  # terminal beautification
           - neovim  # used by neovim
+          - selenium  # Website automation
+          - requests  # HTTP actions
 
     - name: === zsh block ===
       block:
@@ -161,7 +164,7 @@
 
         - name: Install (neo)vim plugins
           ansible.builtin.command:
-            cmd: nvim -c 'PlugUpdate | PlugUpgrade | PlugStatus | sleep 3 | q! | q!'
+            cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
             creates: ~/.vim/plugged
 
     - name: === alacritty block ===

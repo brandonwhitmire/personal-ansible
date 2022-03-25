@@ -73,18 +73,21 @@ ansible-playbook <PLAYBOOK>
 ansible-inventory --list
 ansible-inventory --graph
 
-# Specify hosts manually instead of using an inventory file
-# NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
+# Debug mode (this will not perform the actions but emulate as if they were)
+ansible-playbook --check -vvv <PLAYBOOK>
 
 # Debug output for variables
 ansible all -m debug -a "var=hostvars"
 ansible all -m debug -a "var=vars"
+
+# Specify hosts manually instead of using an inventory file
+# NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
+ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
 ```
 
 # Troubleshooting and Pitfalls
 
-* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via `./1_run_ansible_controller.sh`.
+* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run "`cd /ansible_controller`" to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via "`./1_run_ansible_controller.sh`".
 
 # Things to Backup
 

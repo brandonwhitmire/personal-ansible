@@ -461,7 +461,7 @@ download () {
 }
 vpn () {
 	echo "STARTING proper VPN..."
-	~/scripts/openvpn_configs/1_run_openvpn.sh ~/scripts/openvpn_configs/ca1.ovpn
+	~/scripts/openvpn_configs/1_run_openvpn.sh
 }
 # Search with locate
 search () {
@@ -505,25 +505,40 @@ pprint () {
 	echo -e "import pprint\nwith open('$1', 'rt') as file_obj: pprint.pprint(file_obj.readlines())" | python3
 }
 
-# Attempt to configure monitors properly
+# Force screen on ; wait ; screen off
+# NOTE: wake screen via keyboard or mouse
+screen_off () {
+	SLEEP_TIME="0"
+	xset dpms force on
+	sleep "$SLEEP_TIME"
+	xset dpms force off
+}
+
+# Set/Fix monitor displays
+# For extended displays, run like: set_displays
+# For duplicated displays, run like: set_displays asdfasdf
 set_displays () {
-	echo "Hit button on external monitor to pop info box (wake monitor)"
-	echo -e "\tHit ENTER"
+	echo "FIX: Hit button on external monitor to pop info box (wake monitor) or reset KVM switch..."
+	echo -e "\n--- Hit ENTER to continue ---"
 	read
 	
-	# Force screen on ; wait ; screen off
-	# SLEEP_TIME="2" xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
-
 	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
 	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
 	LAPTOP_MONITOR="$(echo $DISPLAYS | grep -ioE $LAPTOP_KEYWORD)"
 	EXTERNAL_KEYWORD='HDMI-?[0-9\-]+'
 	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
 
-	xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
-		--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
-	#   --output DP-1 --off
-	#   --output HDMI-1 --off
+	# Give no options to activate this mode
+	if [[ -z "$1" ]] ; then
+		echo "[+] Setting EXTENDED Display mode!"
+		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
+			--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
+	# Give any arbitrary option to activate this mode
+	else
+		echo "[+] Setting DUPLICATED Display mode!"
+		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
+			--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal
+	fi
 }
 
 fix_displays () {
