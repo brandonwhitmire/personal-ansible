@@ -199,7 +199,7 @@ uninstall () {
         echo "Please supply a package(s) to UNINSTALL!"
         exit 1
     fi
-	sudo pacman -R --cascade --recursive --unneeded "$@"
+	sudo pacman -R --recursive --unneeded "$@"
 }
 # Remove unused dependencies
 remove_unused_dependecies () {

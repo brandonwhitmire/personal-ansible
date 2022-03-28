@@ -29,7 +29,7 @@
 # Reference:
 # https://github.com/kewlfft/ansible-aur#create-the-aur_builder-user
 ---
-- name: '=== [FUNCTION_START] Add/Remove yay packages ==='
+- name: '=== [AUR_FUNCTION_START] Add/Remove >>AUR<< packages ==='
   hosts: all
 
   vars:
@@ -48,6 +48,7 @@
 
         - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`
           become: true
+          changed_when: false
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
@@ -56,6 +57,7 @@
             mode: 0440
             state: present
 
+        # Consider not updating cache since this causes a partial sysupgrade
         - name: Update yay's cache for AUR
           yay:
             update_cache: true
@@ -70,8 +72,9 @@
       # Always removes this temp security hole even with a previous failure
       always:
         # Remove the `{{ passwordless_sudo_file }}` file
-        - name: '=== [FUNCTION_END] REMOVE TEMP SUDOER FILE ==='
+        - name: '=== [AUR_FUNCTION_END] REMOVE TEMP SUDOER FILE ==='
           become: true
+          changed_when: false
           ansible.builtin.file:
             path: '{{ passwordless_sudo_file }}'
             state: absent

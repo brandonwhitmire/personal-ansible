@@ -56,6 +56,7 @@
     aur_packages:
       - librewolf-bin  # security-focused web browser
       - optimus-manager  # GPU switcher
+      - informant  # show package-related news to mitigate known installation bugs
   ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
@@ -97,3 +98,21 @@
             path: /usr/bin/start_conky_maia
             regexp: '(.*/usr/share/conky/conky1.10_shortcuts_maia.*)'
             replace: '#\1'
+
+        - name: Enable weekly pacman cache cleaner
+          become: true
+          ansible.builtin.service:
+            name: paccache.timer
+            enabled: true
+            state: started
+
+        - name: Enable pacman options
+          become: true
+          ansible.builtin.replace:
+            backup: true
+            path: /etc/pacman.conf
+            regexp: '#\s*({{ item }}.*)'
+            replace: '\1'
+          loop:
+            - VerbosePkgLists # show from->to version and download/upgrade sizes
+            - ParallelDownloads # download more pkgs at concurrently
