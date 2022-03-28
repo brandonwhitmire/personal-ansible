@@ -489,7 +489,7 @@ search () {
 clean_histfile () {
 	[[ -z "$1" ]] && (echo 'ERROR: Missing argument "$1" to clean out' ; exit 1)
 	echo "Cleaning regex \"$1\" out of history: $HISTFILE"
-	sed --in-place "s/$1//g" "$HISTFILE"
+	sed --in-place "/^.*$1.*$/d" "$HISTFILE"
 }
 # Find LAN printer
 search_printer () {
