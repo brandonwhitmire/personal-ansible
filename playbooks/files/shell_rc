@@ -378,7 +378,10 @@ update () {
 }
 # Update pacman mirrors
 update_mirrors () {
-	sudo pacman-mirrors --country United_States
+	sudo pacman-mirrors --country United_States --api --protocol https
+	# https://wiki.manjaro.org/index.php?title=Pacman-mirrors
+	# "Every run of pacman-mirrors requires you to syncronize your database and update your system"
+	update
 }
 # Create and switch to new, random temp directory
 mkt () {
