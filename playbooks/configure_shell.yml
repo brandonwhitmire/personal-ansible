@@ -13,7 +13,7 @@
           - powerline-fonts
         state: absent
 
-- name: Install powerline fonts via `yay`
+- name: Install necessary AUR packages
   vars:
     aur_packages:
       - spaceship-prompt-git  # terminal eye candy
@@ -24,6 +24,8 @@
 
 - name: Configure baseline shell
   hosts: all
+  vars:
+    - default_browser: librewolf
   tasks:
 
     - name: Install needed OS pkgs
@@ -179,3 +181,45 @@
                   family: ProFont for Powerline
                   style: Regular
                 size: 16
+
+    - name: === .profile block ===
+      block:
+
+        - name: Ensure user-wide env vars are set
+          ansible.builtin.lineinfile:
+            path: ~/.profile
+            create: true
+            state: present
+            mode: '0644'
+            backrefs: true
+            regexp: "^(export\\s*{{ item.env_var }}=).*$"
+            line: '\1"{{ item.env_value }}"'
+          loop:
+            - {env_var: "EDITOR", env_value: "/usr/bin/nvim"}
+            - {env_var: "BROWSER", env_value: "/usr/bin/{{ default_browser }}"}
+            - {env_var: "TERMINAL", env_value: "/usr/bin/alacritty"}
+
+    - name: === mimeapps.list block ===
+      block:
+
+        # https://wiki.archlinux.org/title/XDG_MIME_Applications
+        # https://unix.stackexchange.com/questions/234734/set-the-default-browser-system-wide-on-manjaro
+        - name: Ensure {{ default_browser }} is default for XDG MIME apps
+          ansible.builtin.replace:
+            backup: true
+            path: ~/.config/mimeapps.list
+            regexp: '{{ item }}=.*'
+            # regex_replace removes only {{item}} backslashes such as "\+" => "+"
+            replace: '{{ item | regex_replace("\\+", "") + "=" + default_browser + ".desktop" }}'
+          loop:
+            - x-scheme-handler/https
+            - x-scheme-handler/http
+            - x-scheme-handler/ftp
+            - x-scheme-handler/chrome
+            - text/html
+            - application/x-extension-htm
+            - application/x-extension-html
+            - application/x-extension-shtml
+            - application/x-extension-xhtml
+            - application/x-extension-xht
+            - application/xhtml\+xml

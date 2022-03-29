@@ -74,10 +74,8 @@ set shiftwidth=4
 
 set syntax=on
 " set syntax=sh
-set paste
 set ic
 set nohlsearch
-set paste
 colorscheme torte
 set scrolloff=10
 set mouse=

@@ -114,5 +114,5 @@
             regexp: '#\s*({{ item }}.*)'
             replace: '\1'
           loop:
-            - VerbosePkgLists # show from->to version and download/upgrade sizes
-            - ParallelDownloads # download more pkgs at concurrently
+            - VerbosePkgLists  # show from->to version and download/upgrade sizes
+            - ParallelDownloads  # download more pkgs at concurrently

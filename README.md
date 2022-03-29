@@ -88,6 +88,20 @@ ansible -m debug -a 'msg={{ ansible_user }}' all
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
 ```
 
+# Testing and Validation
+
+References:
+- https://youtu.be/FaXVZ60o8L8?t=1239
+
+```shell
+yamllint
+ansible-playbook --syntax-check
+ansible-lint
+molecule test # integration
+ansible-playbook --check # against target
+Parallel Infrastructure # RARE
+```
+
 # Troubleshooting and Pitfalls
 
 * Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run "`cd /ansible_controller`" to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via "`./1_run_ansible_controller.sh`".
@@ -107,7 +121,6 @@ Actions and capabilities to add eventually:
 
 - make steam fixes indempotent by `creates` for cabextract portion
 - create install Ansible playbook
-- move `$BROWSER` and `$EDITOR` into `~/.profile`
 - parameterize playbooks more by adding variables
 - fix blurlock failure if file doesn't already exist
 - consider migrating requirements_ansible.txt into Dockerfile

@@ -13,11 +13,6 @@ fi
 # https://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
 # https://opensource.com/article/20/1/bash-scripts-aliases
 
-# --- Environment Variables
-
-export EDITOR="nvim"
-export BROWSER="librewolf"
-
 # --- Powerline Fonts
 
 export USE_POWERLINE="true"
@@ -237,6 +232,18 @@ systeminfo () {
 }
 sysinfo () {
 	systeminfo
+}
+# Spawn new terminal
+# NOTE: default options are for alacritty terminal
+newterm () {
+	# Use $CWD by default
+	if [[ -z "$1" ]] ; then
+		DIRECTORY="$(pwd)"
+	# if $1 is supplied, use that location instead
+	else
+		DIRECTORY="$1"
+	fi
+	nohup "$TERMINAL" --working-directory "$DIRECTORY" > /dev/null 2>&1 &
 }
 # Kernel Ring Buffer logs for hardware errors (only emergency, alert, critical, error, and warning messages)
 logs_kernel () {
