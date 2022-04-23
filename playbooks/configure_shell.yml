@@ -44,6 +44,8 @@
           - colordiff  # diff with color
           - borg  # encrypted, de-duplicated backups
           - transmission-cli  # torrent manager
+          - transmission-gtk  # GUI torrent manager client
+          - transmission-remote-gtk  # GUI torrent manager daemon
           - nodejs  # dep for coc.nvim
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
@@ -161,10 +163,9 @@
             dest: ~/.config/nvim/init.vim
             mode: '0644'
 
-        - name: Install (neo)vim plugins
+        - name: Download/Install (neo)vim plugins
           ansible.builtin.command:
             cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
-            creates: ~/.vim/plugged
 
     - name: === alacritty block ===
       block:

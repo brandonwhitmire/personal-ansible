@@ -147,6 +147,9 @@ alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
 alias killall="killall --verbose"
 alias jobs="jobs -l" # no long option for "-l"
+alias exif_view="exiftool"
+alias exif_strip_metadata="exiftool -all="
+alias open="xdg-open"
 
 # some options in "ls" do not have long name versions
 alias ls='ls -C --color=auto' # normal
@@ -271,6 +274,20 @@ gpu_nvidia () {
 gpu_integrated () {
 	gpu_used
 	optimus-manager --switch integrated --no-confirm
+}
+# EZ block device mounting
+ez_mount () {
+	if [[ -z "$1" ]] ; then
+        udisksctl mount --block-device "$1"
+    fi
+    udisksctl status
+}
+# EZ block device unmounting
+ez_unmount () {
+	if [[ -z "$1" ]] ; then
+        udisksctl unmount --block-device "$1"
+    fi
+    udisksctl status
 }
 # Mount LUKS device
 # $1: UUID of harddrive (obtain via "sudo fdisk -l")

@@ -1,0 +1,3 @@
+#!/usr/bin/env ansible-playbook
+---
+- ansible.builtin.import_playbook: 1_install_baseline_packages.yml
