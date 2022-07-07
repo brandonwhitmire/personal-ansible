@@ -348,12 +348,11 @@ mount_luks_device () {
 }
 # Encrypted, de-duplicated, & compressed backups
 borg_backup () {
+	REPO="/run/media/obb/nix_hdd/borg_backup"
+	TODAY="$(date +%Y-%m-%d)"
+
 	# Create/intialize backup
 	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
-
-	REPO="/run/media/obb/nix_hdd/borg_backup"
-	# BACKUP_DIRS="/etc /home"
-	TODAY="$(date +%Y-%m-%d)"
 
 	# borg program ENVs
 	export BORG_RELOCATED_REPO_ACCESS_IS_OK=no
@@ -367,6 +366,7 @@ borg_backup () {
 		return 1
 	fi
 
+    # Useful for manual backups or new name (to backup more than once/day)
 	if [[ -z "$1" ]] ; then
 		EXTRA_TAG="auto"
 	else
@@ -378,7 +378,24 @@ borg_backup () {
 	borg --version
 	echo $TODAY
 
-	sudo borg --progress create --stats --compression auto,lzma --comment "Automatically backed up on: $TODAY" $REPO::${TODAY}_${EXTRA_TAG} /etc /home
+	sudo borg \
+        create \
+        --progress \
+        --stats \
+        --compression auto,lzma \
+        --comment "Autobackup: $TODAY" \
+        --exclude '*.img' \
+        --exclude '.local' \
+        --exclude '.cache' \
+        --exclude '.vagrant.d' \
+        --exclude '.wine' \
+        --exclude '.yarn' \
+        --exclude '.npm' \
+        --exclude '.gem' \
+        --exclude '.config/chromium' \
+        $REPO::${TODAY}_${EXTRA_TAG} \
+        /etc \
+        $HOME
 
 	# Finish buffering anything from memory to disk
 	sync
