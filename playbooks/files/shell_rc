@@ -183,6 +183,11 @@ alias reload_background="nitrogen --restore &"
 
 # --- Functions
 
+# Show trashcan
+trashcan () {
+    nohup xdg-open $HOME/.local/share/Trash/files > /dev/null 2>&1 &
+}
+
 # Install packages properly
 install () {
 	if [[ -z "$1" ]] ; then
@@ -348,11 +353,11 @@ mount_luks_device () {
 }
 # Encrypted, de-duplicated, & compressed backups
 borg_backup () {
-	REPO="/run/media/obb/nix_hdd/borg_backup"
+	REPO_BORG="/run/media/obb/nix_hdd/borg_backup"
 	TODAY="$(date +%Y-%m-%d)"
 
 	# Create/intialize backup
-	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
+	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO_BORG"
 
 	# borg program ENVs
 	export BORG_RELOCATED_REPO_ACCESS_IS_OK=no
@@ -361,8 +366,8 @@ borg_backup () {
 	# ---
 
 	# Ensure repo directory is there exists
-	if [[ ! -d "$REPO" ]] ; then
-		echo "ERROR finding the repo: >>$REPO<<"
+	if [[ ! -d "$REPO_BORG" ]] ; then
+		echo "ERROR finding the repo: >>$REPO_BORG<<"
 		return 1
 	fi
 
@@ -376,8 +381,11 @@ borg_backup () {
 	# ---
 
 	borg --version
+    BREAKLINE
 	echo $TODAY
+    BREAKLINE
 
+    # NOTE: sudo required for reading "/etc"
 	sudo borg \
         create \
         --progress \
@@ -385,15 +393,16 @@ borg_backup () {
         --compression auto,lzma \
         --comment "Autobackup: $TODAY" \
         --exclude '*.img' \
-        --exclude '.local' \
-        --exclude '.cache' \
-        --exclude '.vagrant.d' \
-        --exclude '.wine' \
-        --exclude '.yarn' \
-        --exclude '.npm' \
-        --exclude '.gem' \
-        --exclude '.config/chromium' \
-        $REPO::${TODAY}_${EXTRA_TAG} \
+        --exclude '*.iso' \
+        --exclude $HOME/.local \
+        --exclude $HOME/.cache \
+        --exclude $HOME/.vagrant.d \
+        --exclude $HOME/.wine \
+        --exclude $HOME/.yarn \
+        --exclude $HOME/.npm \
+        --exclude $HOME/.gem \
+        --exclude $HOME/.config/chromium \
+        $REPO_BORG::${TODAY}_${EXTRA_TAG} \
         /etc \
         $HOME
 
