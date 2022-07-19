@@ -39,14 +39,14 @@
       ignore_errors: true
       changed_when: false
       ansible.builtin.shell:
-        cmd: calibre-customize --list-plugins | grep DeACSM
+        cmd: calibre-customize --list-plugins | grep DeACSM | grep -i 'true'
       register: installed_deacsm
 
     - name: 'Check if plugin installed: DeDRM'
       ignore_errors: true
       changed_when: false
       ansible.builtin.shell:
-        cmd: calibre-customize --list-plugins | grep DeDRM
+        cmd: calibre-customize --list-plugins | grep DeDRM | grep -i 'true'
       register: installed_dedrm
 
     - name: Show if Calibre plugins are already installed
@@ -68,7 +68,7 @@
 
         - name: Install DeACSM plugin
           ansible.builtin.command:
-            cmd: 'calibre-customize -a {{ temp_working_dir }}/DeACSM_0.0.15.zip'
+            cmd: 'calibre-customize --add-plugin={{ temp_working_dir }}/DeACSM_0.0.15.zip'
 
     - name: 'Block: DeDRM plugin'
       when: installed_dedrm.rc != 0
@@ -87,4 +87,4 @@
 
         - name: Install DeDRM plugin
           ansible.builtin.command:
-            cmd: 'calibre-customize -a {{ temp_working_dir }}/DeDRM_plugin.zip'
+            cmd: 'calibre-customize --add-plugin={{ temp_working_dir }}/DeDRM_plugin.zip'

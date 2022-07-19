@@ -114,11 +114,14 @@ This repository was written with the goal of getting a fresh Manjaro installatio
 - Password database
 - EBook collection
 - Music/Audiobook Collection
+- SSH keys
 
 # TODO
 
 Actions and capabilities to add eventually:
 
+- add robustness for Arch or Manjaro configuration
+  - `yay` manual installation https://github.com/Jguer/yay
 - make steam fixes indempotent by `creates` for cabextract portion
 - create install Ansible playbook
 - parameterize playbooks more by adding variables
