@@ -10,8 +10,11 @@
 #       - package1
 #       - package2
 #       ...
-#     aur_packages_state: present|absent  # pick only one to install/uninstall
+#     aur_packages_state: present|latest  # pick only one to install/uninstall
 #   ansible.builtin.import_playbook: function_yay.yml
+#
+# LIMITATIONS:
+# 'absent' for >>aur_packages_state<< doesn't appear to work
 #
 # PREREQUISITES:
 # `ansible-yay` module installed into plugins/modules folder
@@ -24,7 +27,8 @@
 # when using yay module since yay cannot be ran with sudo
 # but will require (and prompt for sudoer password) later.
 # This is a pretty egrious security hole, but the playbook is written such
-# that it should always remove that hole after packages are installed, removed, or failed.
+# that it should always remove that hole after packages are installed, removed
+# or failed.
 #
 # Reference:
 # https://github.com/kewlfft/ansible-aur#create-the-aur_builder-user
@@ -34,7 +38,7 @@
 
   vars:
     passwordless_sudo_user: '{{ ansible_user }}'
-    passwordless_sudo_file: /etc/sudoers.d/11-temp-passwordless-sudo-{{ passwordless_sudo_user }}
+    passwordless_sudo_file: /etc/sudoers
     passwordless_sudo_program: /usr/bin/pacman
     aur_packages:
       - package1
@@ -53,14 +57,57 @@
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
             create: true
-            validate: 'visudo -cf %s'
+            validate: 'visudo -csf %s'
             mode: 0440
             state: present
 
-        # Consider not updating cache since this causes a partial sysupgrade
-        - name: Update yay's cache for AUR
-          yay:
-            update_cache: true
+        - name: Ensure yay is installed
+          become: true
+          ignore_errors: true
+          changed_when: false
+          community.general.pacman:
+            name: yay-bin
+            state: present
+          register: is_yay_installed
+
+        - name: Ensure `yay` (AUR) pkg manager is installed
+          when: is_yay_installed is failed
+          vars:
+            - yay_dir: /tmp/yay-bin/
+          block:
+
+            - name: Ensure yay deps are installed
+              become: true
+              ansible.builtin.package:
+                name:
+                  - git
+                  - base-devel
+                  - sudo
+                state: present
+
+            - name: Create git dir
+              ansible.builtin.file:
+                path: '{{ yay_dir }}'
+                state: directory
+                mode: '0755'
+
+            - name: Clone yay repo
+              ansible.builtin.git:
+                repo: https://aur.archlinux.org/yay-bin.git
+                dest: '{{ yay_dir }}'
+                clone: true
+                update: true
+                force: true
+
+            - name: Install yay
+              ansible.builtin.command:
+                chdir: '{{ yay_dir }}'
+                cmd: makepkg --syncdeps --install --force --noconfirm
+                creates: /usr/bin/yay
+
+        - when: '{{ "absent" in aur_packages_state }}'
+          debug:
+            msg: '"absent" as state for `aur_packages_state` does NOT work'
 
         - name: 'Ensure `{{ aur_packages }}` pkgs are: {{ aur_packages_state }}'
           yay:
@@ -71,10 +118,13 @@
 
       # Always removes this temp security hole even with a previous failure
       always:
-        # Remove the `{{ passwordless_sudo_file }}` file
-        - name: '=== [AUR_FUNCTION_END] REMOVE TEMP SUDOER FILE ==='
+        - name: Cleanup `{{ passwordless_sudo_user }}` user from `{{ passwordless_sudo_file }}`
           become: true
           changed_when: false
-          ansible.builtin.file:
+          ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
+            line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
+            create: true
+            validate: 'visudo -csf %s'
+            mode: 0440
             state: absent

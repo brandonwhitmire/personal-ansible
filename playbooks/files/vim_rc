@@ -52,6 +52,10 @@ Plug 'dense-analysis/ale'
 
 call plug#end() 
 
+" === ansible-vim ===
+
+au BufRead,BufNewFile */playbooks/*.yml set filetype=yaml.ansible
+
 " === UltiSnips Options ===
 
 let g:UltiSnipsExpandTrigger="<tab>"
@@ -81,7 +85,6 @@ nnoremap <CR> :nohlsearch
 :  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber 
 :  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber 
 :augroup END  
-set textwidth=80 
 nnoremap <C-j> :tabnext<CR> 
 nnoremap <C-k> :tabprev<CR> 
 

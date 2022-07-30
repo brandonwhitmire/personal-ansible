@@ -1,0 +1,71 @@
+#!/usr/bin/env ansible-playbook
+#
+# Barebones setup to make a fresh Arch Linux usable
+---
+- name: Install barebone packages to make Arch usable
+  hosts: all
+  tasks:
+
+  - name: Install pacman pkgs
+    become: true
+    ansible.builtin.package:
+      name:
+        - xdg-user-dirs  # common user dirs
+        - xorg  # GUI
+        - xorg-xinit  # start GUI
+        - lightdm  # display manager
+        - lightdm-gtk-greeter  # lightdm greeter GUI
+        - i3-gaps  # tiling window manager
+        - i3blocks  # feed generator for status bar
+        - i3lock  # screenlocker
+        - i3status  # i3 status bar
+        - dmenu  # keyboard-driven program launcher
+        - xterm  # default terminal
+        - ttf-bitstream-vera  # serif and mono
+        - ttf-dejavu  # Bitstream Vera modified w/more Unicode
+        - ttf-croscore  # Helvetica, Times, and Courier
+        - ttf-hack  # mono KDE
+        - grub-customizer  # GUI for GRUB menu
+        - xorg-xhost  # hard dep for grub-customizer
+        - polkit  # hard dep for grub-customizer
+        - dmidecode  # used for checking for virtualization
+      state: present
+
+  - name: Enable services
+    become: true
+    ansible.builtin.service:
+      name: '{{ item }}'
+      state: started
+      enabled: true
+    loop:
+      - lightdm
+
+  - name: Check for Virtualbox virtualization
+    become: true
+    changed_when: false
+    ansible.builtin.shell:
+      cmd: dmidecode | grep -iqE 'virtualbox|vbox'
+    register: is_virtualbox
+
+  - name: Virtualbox-specific actions
+    when: is_virtualbox.rc == 0
+    block:
+
+      - name: Install Virtualbox guest customizations
+        become: true
+        ansible.builtin.package:
+          name: virtualbox-guest-utils
+          state: present
+
+      - name: Enable Virtualbox service
+        become: true
+        ansible.builtin.service:
+          name: vboxservice
+          state: started
+          enabled: true
+
+- name: Install AUR packages
+  vars:
+    aur_packages:
+      - librewolf-bin
+  ansible.builtin.import_playbook: function_yay.yml

@@ -394,6 +394,8 @@ borg_backup () {
         --comment "Autobackup: $TODAY" \
         --exclude '*.img' \
         --exclude '*.iso' \
+        --exclude '*.ova' \
+        --exclude '*.vdi' \
         --exclude $HOME/.local \
         --exclude $HOME/.cache \
         --exclude $HOME/.vagrant.d \
