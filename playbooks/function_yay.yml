@@ -105,9 +105,9 @@
                 cmd: makepkg --syncdeps --install --force --noconfirm
                 creates: /usr/bin/yay
 
-        - when: '{{ "absent" in aur_packages_state }}'
-          debug:
-            msg: '"absent" as state for `aur_packages_state` does NOT work'
+        - when: '"absent" in aur_packages_state'
+          ansible.builtin.fail:
+            msg: '"absent" as state for `aur_packages_state` does NOT work; Uninstall with pacman normally'
 
         - name: 'Ensure `{{ aur_packages }}` pkgs are: {{ aur_packages_state }}'
           yay:

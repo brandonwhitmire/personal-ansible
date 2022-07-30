@@ -85,7 +85,10 @@ ansible -m debug -a 'msg={{ ansible_user }}' all
 
 # Specify hosts manually instead of using an inventory file
 # NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
+ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
+    -i <HOST>, \
+    --extra-vars "ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    <PLAYBOOKS>
 ```
 
 # Testing and Validation
