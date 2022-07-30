@@ -24,7 +24,6 @@
         - ttf-bitstream-vera  # serif and mono
         - ttf-dejavu  # Bitstream Vera modified w/more Unicode
         - ttf-croscore  # Helvetica, Times, and Courier
-        - ttf-hack  # mono KDE
         - grub-customizer  # GUI for GRUB menu
         - xorg-xhost  # hard dep for grub-customizer
         - polkit  # hard dep for grub-customizer
@@ -63,9 +62,3 @@
           name: vboxservice
           state: started
           enabled: true
-
-- name: Install AUR packages
-  vars:
-    aur_packages:
-      - librewolf-bin
-  ansible.builtin.import_playbook: function_yay.yml

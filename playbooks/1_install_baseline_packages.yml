@@ -24,39 +24,37 @@
   - name: Install pacman pkgs
     become: true
     community.general.pacman:
-      # installation takes while so method will show "progress"
-      name: '{{ item }}'
-      update_cache: true
+      name:
+        - firefox  # web browser
+        - chromium  # web browser
+        - gedit  # text editor
+        - flameshot  # screenshot
+        - pkgfile  # pkg search from repos
+        - strace  # debugger
+        - bind-tools  # domain resolving
+        - udisks2  # disk mounting
+        - arandr  # desktop display configurator
+        - base-devel  # meta package for compiling (e.g. AUR)
+        - git  # repos
+        - python  # Python3
+        - python-pip  # pip package installer
+        - numlockx  # numlock on at login
+        - marker  # Markdown editor
+        - libreoffice  # office suite of programs
+        - pulseaudio  # PulseAudio
+        - pasystray  # applet for PulseAudio
+        - pavucontrol  # PulseAudio GUI for volume
+        - packer  # automate VM building
+        - conky  # sysmon
       state: present
-    loop:
-      - firefox  # web browser
-      - chromium  # web browser
-      - gedit  # text editor
-      - flameshot  # screenshot
-      - pkgfile  # pkg search from repos
-      - strace  # debugger
-      - bind-tools  # domain resolving
-      - udisks2  # disk mounting
-      - arandr  # desktop display configurator
-      - base-devel  # meta package for compiling (e.g. AUR)
-      - git  # repos
-      - yay  # AUR installation
-      - python  # Python3
-      - python-pip  # pip package installer
-      - numlockx  # numlock on at login
-      - marker  # Markdown editor
-      - libreoffice  # office suite of programs
-      - pulseaudio  # Pulse Audio
-      - pavucontrol  # PulseAudio GUI for volume
-      - pa-applet  # PulseAudio statusbar applet
-      - packer  # automate VM building
 
 - name: Install AUR pkgs
   vars:
     aur_packages:
       - librewolf-bin  # security-focused web browser
       - optimus-manager  # GPU switcher
-      - informant  # show package-related news to mitigate known installation bugs
+      # - informant  # package intervention news -- breaks automated installs
+      - i3exit  # lock screen blur
   ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
@@ -91,20 +89,20 @@
             line: '\1 -blur 0x100 \2'
             state: present
 
-        - name: Disable default i3 help display in Conky
-          become: true
-          ansible.builtin.replace:
-            backup: true
-            path: /usr/bin/start_conky_maia
-            regexp: '(.*/usr/share/conky/conky1.10_shortcuts_maia.*)'
-            replace: '#\1'
+              #         - name: Disable default i3 help display in Conky
+              #           become: true
+              #           ansible.builtin.replace:
+              #             backup: true
+              #             path: /usr/bin/start_conky_maia
+              #             regexp: '(.*/usr/share/conky/conky1.10_shortcuts_maia.*)'
+              #             replace: '#\1'
 
-        - name: Enable weekly pacman cache cleaner
-          become: true
-          ansible.builtin.service:
-            name: paccache.timer
-            enabled: true
-            state: started
+              #         - name: Enable weekly pacman cache cleaner
+              #           become: true
+              #           ansible.builtin.service:
+              #             name: paccache.timer
+              #             enabled: true
+              #             state: started
 
         - name: Enable pacman options
           become: true
