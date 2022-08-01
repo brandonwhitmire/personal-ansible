@@ -87,7 +87,7 @@ ansible -m debug -a 'msg={{ ansible_user }}' all
 # NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
     -i <HOST>, \
-    --extra-vars "ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
     <PLAYBOOKS>
 ```
 
@@ -108,6 +108,13 @@ Parallel Infrastructure # RARE
 # Troubleshooting and Pitfalls
 
 * Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run "`cd /ansible_controller`" to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via "`./1_run_ansible_controller.sh`".
+
+* Run interactive debugger upon task fail:
+
+```shell
+# append env variable to command or export
+ANSIBLE_ENABLE_TASK_DEBUGGER=True
+```
 
 # Things to Backup
 
