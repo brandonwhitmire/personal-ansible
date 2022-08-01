@@ -6,21 +6,6 @@
   hosts: all
   tasks:
 
-  - name: Remove unwanted pkgs
-    become: true
-    community.general.pacman:
-      name: '{{ item }}'
-      state: absent
-    loop:
-      - palemoon-bin
-
-  - name: Remove unneeded files/dirs
-    ansible.builtin.file:
-      path: '{{ item }}'
-      state: absent
-    loop:
-      - ~/.moonchild productions
-
   - name: Install pacman pkgs
     become: true
     community.general.pacman:

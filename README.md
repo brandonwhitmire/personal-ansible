@@ -130,15 +130,12 @@ This repository was written with the goal of getting a fresh Manjaro installatio
 
 Actions and capabilities to add eventually:
 
-- add robustness for Arch or Manjaro configuration
-  - `yay` manual installation https://github.com/Jguer/yay
-- make steam fixes indempotent by `creates` for cabextract portion
-- create install Ansible playbook
-- parameterize playbooks more by adding variables
-- fix blurlock failure if file doesn't already exist
+
+- fix i3status bar applets to show all
+- create playbooks for:
+  - Ansible
+  - Virtualbox
 - consider migrating requirements_ansible.txt into Dockerfile
-- consider fixing `function_yay.yml` to have empty args for `aur_packages`
-- run shellcheck against `shell_rc`
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 
 # References:

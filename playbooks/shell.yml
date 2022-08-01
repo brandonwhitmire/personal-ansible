@@ -134,7 +134,7 @@
 
         - name: Ensure i3 config dir is present
           ansible.builtin.file:
-            path: ~/.i3/
+            path: ~/.config/i3/
             state: directory
             mode: '0755'
 
@@ -142,7 +142,7 @@
           ansible.builtin.copy:
             force: true
             src: files/i3_rc
-            dest: ~/.i3/config
+            dest: ~/.config/i3/config
             mode: '0644'
 
     - name: === (neo)vim block ===
