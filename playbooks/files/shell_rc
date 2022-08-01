@@ -396,6 +396,7 @@ borg_backup () {
         --exclude '*.iso' \
         --exclude '*.ova' \
         --exclude '*.vdi' \
+        --exclude '*.vmdk' \
         --exclude $HOME/.local \
         --exclude $HOME/.cache \
         --exclude $HOME/.vagrant.d \

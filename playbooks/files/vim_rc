@@ -1,54 +1,55 @@
 " === (Neo)vim plugins list: === 
+
 call plug#begin('~/.vim/plugged')
 
-" Semshi: Syntax highlighting 
-" https://github.com/numirias/semshi
-Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
+    " Semshi: Syntax highlighting 
+    " https://github.com/numirias/semshi
+    Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
 
-" Ansible-Vim: Ansible highlighting
-" https://github.com/pearofducks/ansible-vim
-Plug 'pearofducks/ansible-vim', { 'do': './UltiSnips/generate.sh' }
+    " Ansible-Vim: Ansible highlighting
+    " https://github.com/pearofducks/ansible-vim
+    Plug 'pearofducks/ansible-vim', { 'do': './UltiSnips/generate.sh' }
 
-" IndentLine: Show indentions
-" https://github.com/Yggdroot/indentLine
-Plug 'Yggdroot/indentLine'
+    " IndentLine: Show indentions
+    " https://github.com/Yggdroot/indentLine
+    Plug 'Yggdroot/indentLine'
 
-" Vim-Snippets/UltiSnips: Auto-completion
-" https://github.com/honza/vim-snippets
-Plug 'honza/vim-snippets'
-" https://github.com/SirVer/ultisnips
-Plug 'SirVer/ultisnips'
+    " Vim-Snippets/UltiSnips: Auto-completion
+    " https://github.com/honza/vim-snippets
+    Plug 'honza/vim-snippets'
+    " https://github.com/SirVer/ultisnips
+    Plug 'SirVer/ultisnips'
 
-" ALE: Async Linter engine
-" https://github.com/dense-analysis/ale
-Plug 'dense-analysis/ale' 
+    " ALE: Async Linter engine
+    " https://github.com/dense-analysis/ale
+    Plug 'dense-analysis/ale' 
 
-"" Tree explorer 
-"Plug 'preservim/nerdtree' 
-"" Easy commenting in/out with 'gc' 
-"Plug 'tpope/vim-commentary' 
-"" Fuzzy finder 
-"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
-"" Python indents 
-"Plug 'Vimjas/vim-python-pep8-indent' 
-"" Code completion 
-"Plug 'neoclide/coc.nvim', {'branch': 'release'} 
-"" Closing bracket pairs 
-"Plug 'jiangmiao/auto-pairs' 
-"" Language-specific end-pairs 
-"Plug 'tpope/vim-endwise' 
-"" Auto-close HTML tags (works on files with html extension) 
-"Plug 'alvan/vim-closetag' 
-"" Highlight enclosing HTML tags 
-"Plug 'valloric/matchtagalways' 
-"" Tabs for buffers 
-"Plug 'ap/vim-buftabline' 
-"" Automatic resizing of windows 
-"Plug 'roman/golden-ratio' 
-"" Multiple cursors 
-"Plug 'mg979/vim-visual-multi', {'branch': 'master'} 
-"" Search and replace in whole repo 
-"Plug 'brooth/far.vim' 
+    "" Tree explorer 
+    "Plug 'preservim/nerdtree' 
+    "" Easy commenting in/out with 'gc' 
+    "Plug 'tpope/vim-commentary' 
+    "" Fuzzy finder 
+    "Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
+    "" Python indents 
+    "Plug 'Vimjas/vim-python-pep8-indent' 
+    "" Code completion 
+    "Plug 'neoclide/coc.nvim', {'branch': 'release'} 
+    "" Closing bracket pairs 
+    "Plug 'jiangmiao/auto-pairs' 
+    "" Language-specific end-pairs 
+    "Plug 'tpope/vim-endwise' 
+    "" Auto-close HTML tags (works on files with html extension) 
+    "Plug 'alvan/vim-closetag' 
+    "" Highlight enclosing HTML tags 
+    "Plug 'valloric/matchtagalways' 
+    "" Tabs for buffers 
+    "Plug 'ap/vim-buftabline' 
+    "" Automatic resizing of windows 
+    "Plug 'roman/golden-ratio' 
+    "" Multiple cursors 
+    "Plug 'mg979/vim-visual-multi', {'branch': 'master'} 
+    "" Search and replace in whole repo 
+    "Plug 'brooth/far.vim' 
 
 call plug#end() 
 

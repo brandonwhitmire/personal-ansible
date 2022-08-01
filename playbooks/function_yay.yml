@@ -78,7 +78,7 @@
 
             - name: Ensure yay deps are installed
               become: true
-              ansible.builtin.package:
+              ansible.builtin.pacman:
                 name:
                   - git
                   - base-devel

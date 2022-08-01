@@ -130,11 +130,13 @@ This repository was written with the goal of getting a fresh Manjaro installatio
 
 Actions and capabilities to add eventually:
 
-
+- offline small files into repo (Calibre plugins)
+- add shell key shortcuts (for home/end/delete)
 - fix i3status bar applets to show all
 - create playbooks for:
   - Ansible
   - Virtualbox
+- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - consider migrating requirements_ansible.txt into Dockerfile
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 

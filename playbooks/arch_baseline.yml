@@ -2,13 +2,30 @@
 #
 # Barebones setup to make a fresh Arch Linux usable
 ---
-- name: Install barebone packages to make Arch usable
+- name: Install baseline pkgs
   hosts: all
   tasks:
 
+  - name: Enable pacman options
+    become: true
+    ansible.builtin.replace:
+      backup: true
+      path: /etc/pacman.conf
+      regexp: '#\s*({{ item }}.*)'
+      replace: '\1'
+    loop:
+      - VerbosePkgLists  # show from->to version and download/upgrade sizes
+      - ParallelDownloads  # download more pkgs at concurrently
+
+  - name: Upgrade system
+    become: true
+    community.general.pacman:
+      update_cache: true
+      upgrade: true
+
   - name: Install pacman pkgs
     become: true
-    ansible.builtin.package:
+    ansible.builtin.pacman:
       name:
         - xdg-user-dirs  # common user dirs
         - xorg  # GUI
@@ -28,6 +45,27 @@
         - xorg-xhost  # hard dep for grub-customizer
         - polkit  # hard dep for grub-customizer
         - dmidecode  # used for checking for virtualization
+        - firefox  # web browser
+        - chromium  # web browser
+        - gedit  # text editor
+        - flameshot  # screenshot
+        - pkgfile  # pkg search from repos
+        - strace  # debugger
+        - bind-tools  # domain resolving
+        - udisks2  # disk mounting
+        - arandr  # desktop display configurator
+        - base-devel  # meta package for compiling (e.g. AUR)
+        - git  # repos
+        - python  # Python3
+        - python-pip  # pip package installer
+        - numlockx  # numlock on at login
+        - marker  # Markdown editor
+        - libreoffice  # office suite of programs
+        - pulseaudio  # PulseAudio
+        - pasystray  # applet for PulseAudio
+        - pavucontrol  # PulseAudio GUI for volume
+        - packer  # automate VM building
+        - conky  # sysmon
       state: present
 
   - name: Enable services
@@ -52,7 +90,7 @@
 
       - name: Install Virtualbox guest customizations
         become: true
-        ansible.builtin.package:
+        ansible.builtin.pacman:
           name: virtualbox-guest-utils
           state: present
 
@@ -62,3 +100,9 @@
           name: vboxservice
           state: started
           enabled: true
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - i3exit  # lock screen blur
+  ansible.builtin.import_playbook: function_yay.yml

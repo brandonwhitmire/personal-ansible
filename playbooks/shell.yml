@@ -157,12 +157,13 @@
         - name: Copy default nvim file to `{{ ansible_user }}` profile
           ansible.builtin.copy:
             remote_src: false
-            force: true
             src: files/vim_rc
             dest: ~/.config/nvim/init.vim
+            force: true
             mode: '0644'
 
         - name: Download/Install (neo)vim plugins
+          changed_when: true
           ansible.builtin.command:
             cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
 
@@ -186,18 +187,37 @@
       block:
 
         - name: Template ~/.profile
-          ansible.builtin.template:
-            backup: true
-            src: files/profile.j2
-            dest: ~/.profile
+          ansible.builtin.blockinfile:
+            path: ~/.profile
+            create: true
+            state: present
             mode: '0644'
+            block: |
+              export EDITOR=/usr/bin/nvim
+              export BROWSER={{ default_browser }}
+              export TERMINAL=/usr/bin/alacritty
 
     - name: === mimeapps.list block ===
       block:
 
-        - name: Template ~/.config/mimeapps.list
-          ansible.builtin.template:
-            backup: true
-            src: files/mimeapps.list.j2
-            dest: ~/.config/mimeapps.list
+        - name: Template ~/.profile
+          ansible.builtin.blockinfile:
+            path: ~/.profile
+            create: true
+            state: present
             mode: '0644'
+            block: |
+              [Default Applications]
+              text/html={{ default_browser }}
+              x-scheme-handler/http={{ default_browser }}
+              x-scheme-handler/https={{ default_browser }}
+              x-scheme-handler/ftp={{ default_browser }}
+              x-scheme-handler/chrome={{ default_browser }}
+              application/x-extension-htm={{ default_browser }}
+              application/x-extension-html={{ default_browser }}
+              application/x-extension-shtml={{ default_browser }}
+              application/xhtml+xml={{ default_browser }}
+              application/x-extension-xhtml={{ default_browser }}
+              application/x-extension-xht={{ default_browser }}
+              image/jpeg={{ default_browser }}
+              image/png={{ default_browser }}
