@@ -130,6 +130,10 @@ This repository was written with the goal of getting a fresh Manjaro installatio
 
 Actions and capabilities to add eventually:
 
+- consider interactive vs noninteractive mode for `install-base.sh` script
+- LVM + LUKS
+- fix SSD for `sgdisk` to not blow away other harddrives
+- security (firewall) and others: https://wiki.archlinux.org/title/General_recommendations
 - offline small files into repo (Calibre plugins)
 - add shell key shortcuts (for home/end/delete)
 - fix i3status bar applets to show all
