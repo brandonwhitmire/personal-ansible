@@ -58,7 +58,6 @@
       name: nfs-server
       enabled: true
       state: restarted
-      sleep: 3
 
   - name: Check if libvirt plugin is installed
     ansible.builtin.command:

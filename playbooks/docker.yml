@@ -23,7 +23,6 @@
       name: docker
       enabled: true
       state: restarted
-      sleep: 3
 
   - name: Add `{{ ansible_user }}` to docker group
     become: true
