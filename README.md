@@ -91,6 +91,22 @@ ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
     <PLAYBOOKS>
 ```
 
+
+## Ad-Hoc Commands
+
+Ad-hoc commands are just that -- running commands on valid hosts without needing a task, playbook, role, etc.
+
+```shell
+# Reboot remote host with escalation ("--become" is like "sudo")
+ANSIBLE_INVENTORY_ENABLED="host_list" ansible \
+    -i <HOST>, \
+    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --args 'reboot now' \
+    --become \
+    all 
+# "all" is a necessary host(s) pattern that is all-inclusive
+```
+
 # Testing and Validation
 
 References:
@@ -130,9 +146,8 @@ This repository was written with the goal of getting a fresh Manjaro installatio
 
 Actions and capabilities to add eventually:
 
-- consider interactive vs noninteractive mode for `install-base.sh` script
+- consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup 
 - LVM + LUKS: https://wiki.archlinux.org/title/Install_Arch_Linux_on_LVM
-- fix SSD for `sgdisk` to not blow away other harddrives
 - security (firewall) and others: https://wiki.archlinux.org/title/General_recommendations
 - offline small files into repo (Calibre plugins)
 - add shell key shortcuts (for home/end/delete)

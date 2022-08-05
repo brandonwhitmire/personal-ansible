@@ -81,6 +81,7 @@
   - name: Check for Virtualbox virtualization
     become: true
     changed_when: false
+    ignore_errors: true
     ansible.builtin.shell:
       cmd: dmidecode | grep -iqE 'virtualbox|vbox'
     register: is_virtualbox
