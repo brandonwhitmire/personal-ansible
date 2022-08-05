@@ -22,7 +22,7 @@
     ansible.builtin.service:
       name: docker
       enabled: true
-      state: started
+      state: restarted
 
   - name: Add `{{ ansible_user }}` to docker group
     become: true

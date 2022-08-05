@@ -1,0 +1,123 @@
+#!/usr/bin/env ansible-playbook
+#
+# Barebones setup to make a fresh Arch Linux usable
+---
+- name: Install baseline pkgs
+  hosts: all
+  tasks:
+
+  - name: Enable pacman options
+    become: true
+    ansible.builtin.replace:
+      backup: true
+      path: /etc/pacman.conf
+      regexp: '#\s*({{ item }}.*)'
+      replace: '\1'
+    loop:
+      - VerbosePkgLists  # show from->to version and download/upgrade sizes
+      - ParallelDownloads  # download more pkgs at concurrently
+
+  - name: Upgrade system
+    become: true
+    community.general.pacman:
+      update_cache: true
+      upgrade: true
+
+  - name: Install pacman pkgs
+    become: true
+    ansible.builtin.pacman:
+      name:
+        - xdg-user-dirs  # common user dirs
+        - xorg  # GUI
+        - xorg-xinit  # start GUI
+        - lightdm  # display manager
+        - lightdm-gtk-greeter  # lightdm greeter GUI
+        - i3-gaps  # tiling window manager
+        - i3blocks  # feed generator for status bar
+        - i3lock  # screenlocker
+        - i3status  # i3 status bar
+        - dmenu  # keyboard-driven program launcher
+        - xterm  # default terminal
+        - ttf-bitstream-vera  # serif and mono
+        - ttf-dejavu  # Bitstream Vera modified w/more Unicode
+        - ttf-croscore  # Helvetica, Times, and Courier
+        - grub-customizer  # GUI for GRUB menu
+        - xorg-xhost  # hard dep for grub-customizer
+        - polkit  # hard dep for grub-customizer
+        - dmidecode  # used for checking for virtualization
+        - firefox  # web browser
+        - chromium  # web browser
+        - gedit  # text editor
+        - flameshot  # screenshot
+        - pkgfile  # pkg search from repos
+        - strace  # debugger
+        - bind-tools  # domain resolving
+        - udisks2  # disk mounting
+        - arandr  # desktop display configurator
+        - base-devel  # meta package for compiling (e.g. AUR)
+        - git  # repos
+        - python  # Python3
+        - python-pip  # pip package installer
+        - numlockx  # numlock on at login
+        - marker  # Markdown editor
+        - libreoffice  # office suite of programs
+        - pulseaudio  # PulseAudio
+        - pasystray  # applet for PulseAudio
+        - pavucontrol  # PulseAudio GUI for volume
+        - packer  # automate VM building
+        - conky  # sysmon
+      state: present
+
+  - name: Enable services
+    become: true
+    ansible.builtin.service:
+      name: '{{ item }}'
+      state: started
+      enabled: true
+    loop:
+      - lightdm
+
+  # https://wiki.archlinux.org/index.php/VirtualBox/Install_Arch_Linux_as_a_guest
+  - name: Check for Virtualbox virtualization
+    become: true
+    changed_when: false
+    ignore_errors: true
+    ansible.builtin.shell:
+      cmd: dmidecode | grep -iqE 'virtualbox|vbox'
+    register: is_virtualbox
+
+  - name: Virtualbox-specific actions
+    when: is_virtualbox.rc == 0
+    block:
+
+      - name: Install Virtualbox Guest and NFS customizations
+        become: true
+        ansible.builtin.pacman:
+          name:
+            - virtualbox-guest-utils
+            - nfs-utils
+          state: present
+
+      - name: Enable Guest Additions and NFS services
+        become: true
+        ansible.builtin.service:
+          name: '{{ item }}'
+          state: started
+          enabled: true
+        loop:
+          - vboxservice
+          - rpcbind
+
+      - name: Add `{{ ansible_user }}` to docker group
+        become: true
+        ansible.builtin.user:
+          name: '{{ ansible_user }}'
+          groups: vboxsf
+          append: true
+          state: present
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - i3exit  # lock screen blur
+  ansible.builtin.import_playbook: function_yay.yml

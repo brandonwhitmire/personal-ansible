@@ -13,7 +13,7 @@
           - powerline-fonts
         state: absent
 
-- name: Install powerline fonts via `yay`
+- name: Install necessary AUR packages
   vars:
     aur_packages:
       - spaceship-prompt-git  # terminal eye candy
@@ -24,6 +24,8 @@
 
 - name: Configure baseline shell
   hosts: all
+  vars:
+    - default_browser: /usr/bin/librewolf
   tasks:
 
     - name: Install needed OS pkgs
@@ -42,8 +44,11 @@
           - colordiff  # diff with color
           - borg  # encrypted, de-duplicated backups
           - transmission-cli  # torrent manager
+          - transmission-gtk  # GUI torrent manager client
+          - transmission-remote-gtk  # GUI torrent manager daemon
           - nodejs  # dep for coc.nvim
           - galculator  # default calc
+          - geckodriver  # used by Selenium for Firefox browsers
         state: present
 
     - name: Install needed pip3 pkgs
@@ -53,68 +58,67 @@
           - i3ipc  # soft dep for powerline
           - powerline-status  # terminal beautification
           - neovim  # used by neovim
+          - selenium  # Website automation
+          - requests  # HTTP actions
 
     - name: === zsh block ===
       block:
 
+        # I don't like the Manjaro defaults at all
         - name: Ensure no .zshrc file exists
           ansible.builtin.file:
             path: ~/.zshrc
             state: absent
 
-        - name: Add functionality for bashrc
-          ansible.builtin.blockinfile:
-            path: ~/.bashrc
-            marker: "# {mark} shell_rc"
-            block: "{{ lookup('file', 'files/shell_rc') }}"
-            create: true
+        - name: Overwrite current shell_rc with skeleton, original version
+          become: true
+          ansible.builtin.copy:
+            backup: true
+            force: true
+            remote_src: true
+            src: '/etc/skel/{{ item }}'
+            dest: '~/{{ item }}'
+            owner: '{{ ansible_user }}'
+            group: '{{ ansible_user }}'
             mode: '0644'
-            state: present
+          loop:
+            - .bashrc
 
-        - name: Add functionality for zshrc
+        - name: Add functionality for shells
           ansible.builtin.blockinfile:
-            path: ~/.zshrc
+            path: '~/{{ item }}'
             marker: "# {mark} shell_rc"
             block: "{{ lookup('file', '../files/shell_rc') }}"
             create: true
             mode: '0644'
             state: present
+          loop:
+            - .zshrc
+            - .bashrc
 
-        - name: 'Set default shell to zsh for user: {{ ansible_user }}'
-          become: true
-          ansible.builtin.user:
-            name: '{{ ansible_user }}'
-            shell: /usr/bin/zsh
-
-        - name: 'Set default shell to zsh for user: root'
-          become: true
-          ansible.builtin.user:
-            name: root
-            shell: /usr/bin/zsh
-
-        - name: Copy custom .bashrc to user 'root'
+        - name: Copy custom shell_rc to root
           become: true
           ansible.builtin.copy:
             backup: true
             force: true
             remote_src: true
-            src: '/home/{{ ansible_user }}/.bashrc'
-            dest: /root/.bashrc
+            src: '/home/{{ ansible_user }}/{{ item }}'
+            dest: '/root/{{ item }}'
             owner: root
             group: root
             mode: '0644'
+          loop:
+            - .zshrc
+            - .bashrc
 
-        - name: Copy custom .zshrc to user 'root'
+        - name: 'Set default shell to zsh for user "{{ ansible_user }}" and root'
           become: true
-          ansible.builtin.copy:
-            backup: true
-            force: true
-            remote_src: true
-            src: '/home/{{ ansible_user }}/.zshrc'
-            dest: /root/.zshrc
-            owner: root
-            group: root
-            mode: '0644'
+          ansible.builtin.user:
+            name: '{{ item }}'
+            shell: /usr/bin/zsh
+          loop:
+            - '{{ ansible_user }}'
+            - root
 
     - name: === i3 block ===
       block:
@@ -126,12 +130,11 @@
               - i3-gaps
               - i3blocks
               - i3lock
-              - i3status-manjaro
             state: present
 
         - name: Ensure i3 config dir is present
           ansible.builtin.file:
-            path: ~/.i3/
+            path: ~/.config/i3/
             state: directory
             mode: '0755'
 
@@ -139,7 +142,7 @@
           ansible.builtin.copy:
             force: true
             src: files/i3_rc
-            dest: ~/.i3/config
+            dest: ~/.config/i3/config
             mode: '0644'
 
     - name: === (neo)vim block ===
@@ -154,15 +157,15 @@
         - name: Copy default nvim file to `{{ ansible_user }}` profile
           ansible.builtin.copy:
             remote_src: false
-            force: true
             src: files/vim_rc
             dest: ~/.config/nvim/init.vim
+            force: true
             mode: '0644'
 
-        - name: Install (neo)vim plugins
+        - name: Download/Install (neo)vim plugins
+          changed_when: true
           ansible.builtin.command:
-            cmd: nvim -c 'PlugUpdate | PlugUpgrade | PlugStatus | sleep 3 | q! | q!'
-            creates: ~/.vim/plugged
+            cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
 
     - name: === alacritty block ===
       block:
@@ -179,3 +182,42 @@
                   family: ProFont for Powerline
                   style: Regular
                 size: 16
+
+    - name: === .profile block ===
+      block:
+
+        - name: Template ~/.profile
+          ansible.builtin.blockinfile:
+            path: ~/.profile
+            create: true
+            state: present
+            mode: '0644'
+            block: |
+              export EDITOR=/usr/bin/nvim
+              export BROWSER={{ default_browser }}
+              export TERMINAL=/usr/bin/alacritty
+
+    - name: === mimeapps.list block ===
+      block:
+
+        - name: Template ~/.profile
+          ansible.builtin.blockinfile:
+            path: ~/.profile
+            create: true
+            state: present
+            mode: '0644'
+            block: |
+              [Default Applications]
+              text/html={{ default_browser }}
+              x-scheme-handler/http={{ default_browser }}
+              x-scheme-handler/https={{ default_browser }}
+              x-scheme-handler/ftp={{ default_browser }}
+              x-scheme-handler/chrome={{ default_browser }}
+              application/x-extension-htm={{ default_browser }}
+              application/x-extension-html={{ default_browser }}
+              application/x-extension-shtml={{ default_browser }}
+              application/xhtml+xml={{ default_browser }}
+              application/x-extension-xhtml={{ default_browser }}
+              application/x-extension-xht={{ default_browser }}
+              image/jpeg={{ default_browser }}
+              image/png={{ default_browser }}

@@ -73,18 +73,64 @@ ansible-playbook <PLAYBOOK>
 ansible-inventory --list
 ansible-inventory --graph
 
-# Specify hosts manually instead of using an inventory file
-# NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook --ask-pass --ask-become-pass --user <SSH_USER> --inventory <IP_ADDR>, <PLAYBOOK>
+# Debug mode (this will not perform the actions but emulate as if they were)
+ansible-playbook --check -vvv <PLAYBOOK>
 
 # Debug output for variables
 ansible all -m debug -a "var=hostvars"
 ansible all -m debug -a "var=vars"
+
+# Probe a particular variable, in this case "ansible_user"
+ansible -m debug -a 'msg={{ ansible_user }}' all
+
+# Specify hosts manually instead of using an inventory file
+# NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
+ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
+    -i <HOST>, \
+    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    <PLAYBOOKS>
+```
+
+
+## Ad-Hoc Commands
+
+Ad-hoc commands are just that -- running commands on valid hosts without needing a task, playbook, role, etc.
+
+```shell
+# Reboot remote host with escalation ("--become" is like "sudo")
+ANSIBLE_INVENTORY_ENABLED="host_list" ansible \
+    -i <HOST>, \
+    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --args 'reboot now' \
+    --become \
+    all 
+# "all" is a necessary host(s) pattern that is all-inclusive
+```
+
+# Testing and Validation
+
+References:
+- https://youtu.be/FaXVZ60o8L8?t=1239
+
+```shell
+yamllint
+ansible-playbook --syntax-check
+ansible-lint
+molecule test # integration
+ansible-playbook --check # against target
+Parallel Infrastructure # RARE
 ```
 
 # Troubleshooting and Pitfalls
 
-* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run `cd /ansible_controller` to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via `./1_run_ansible_controller.sh`.
+* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run "`cd /ansible_controller`" to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via "`./1_run_ansible_controller.sh`".
+
+* Run interactive debugger upon task fail:
+
+```shell
+# append env variable to command or export
+ANSIBLE_ENABLE_TASK_DEBUGGER=True
+```
 
 # Things to Backup
 
@@ -94,19 +140,23 @@ This repository was written with the goal of getting a fresh Manjaro installatio
 - Password database
 - EBook collection
 - Music/Audiobook Collection
+- SSH keys
 
 # TODO
 
 Actions and capabilities to add eventually:
 
-- make steam fixes indempotent by `creates` for cabextract portion
-- create install Ansible playbook
-- move `$BROWSER` and `$EDITOR` into `~/.profile`
-- parameterize playbooks more by adding variables
-- fix blurlock failure if file doesn't already exist
+- consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup 
+- LVM + LUKS: https://wiki.archlinux.org/title/Install_Arch_Linux_on_LVM
+- security (firewall) and others: https://wiki.archlinux.org/title/General_recommendations
+- offline small files into repo (Calibre plugins)
+- add shell key shortcuts (for home/end/delete)
+- fix i3status bar applets to show all
+- create playbooks for:
+  - Ansible
+  - Virtualbox
+- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - consider migrating requirements_ansible.txt into Dockerfile
-- consider fixing `function_yay.yml` to have empty args for `aur_packages`
-- run shellcheck against `shell_rc`
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 
 # References:

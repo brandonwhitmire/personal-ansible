@@ -34,6 +34,7 @@ ENV NEW_GUID=$GUID
 # Create /home/${UID} dir and set default shell
 RUN useradd -ms $(which zsh) ${UID}
 RUN echo "${UID} ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers && visudo -c
+RUN mkdir -p /etc/ansible/
 
 # --- unprivileged user ---
 

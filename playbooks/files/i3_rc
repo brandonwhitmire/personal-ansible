@@ -58,20 +58,23 @@ bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness 
 bindsym $mod+F11 exec "xbacklight -dec 10; notify-send 'brightness down'"
 
 # Start Applications
-bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
-bindsym $mod+F1 exec galculator
-bindsym $mod+F2 exec --no-startup-id librewolf
-bindsym $mod+F3 exec --no-startup-id terminal -e 'ranger'
-bindsym $mod+F4 exec "keepassxc ; exec notify-send --expire-time 10000 'KeePassXC Launched (in scratchpad)'"
-bindsym $mod+F5 exec virt-manager
+bindsym $mod+Ctrl+b exec terminal -e /usr/bin/bmenu
+bindsym $mod+F1 exec /usr/bin/galculator
+bindsym $mod+F2 exec "notify-send --expire-time 10000 'Lauching Web Browser' ; /usr/bin/librewolf"
+bindsym $mod+F3 exec --no-startup-id /usr/bin/pcmanfm
+bindsym $mod+F4 exec "notify-send --expire-time 10000 'KeePassXC Launched (in scratchpad)' ; /usr/bin/keepassxc"
+bindsym $mod+F5 exec /usr/bin/virtualbox
+# Screenshots
+bindsym $mod+Print --release exec --no-startup-id /usr/bin/flameshot screen
+bindsym $mod+Shift+Print --release exec --no-startup-id /usr/bin/flameshot gui
+# Help
+bindsym $mod+Shift+h exec xdg-open /usr/share/doc/manjaro/i3_help.pdf
+# Click & Kill Window/Program
+bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
+# Defaults
 bindsym $mod+t exec --no-startup-id pkill picom
 bindsym $mod+Ctrl+t exec --no-startup-id picom -b
 bindsym $mod+Shift+d --release exec "killall dunst ; exec notify-send 'restart dunst'"
-bindsym Print exec --no-startup-id i3-scrot
-bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
-bindsym $mod+Shift+Print --release exec --no-startup-id i3-scrot -s
-bindsym $mod+Shift+h exec xdg-open /usr/share/doc/manjaro/i3_help.pdf
-bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 
 # mouse
 focus_follows_mouse no

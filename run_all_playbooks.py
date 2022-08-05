@@ -24,7 +24,6 @@ def neat_border(char="-", repeat=80):
 neat_border(char='=')
 
 # Show inventory
-# NOTE: this functon returns a tuple
 inventory = ansible_runner.interface.get_inventory(action="list",
                                                    response_format="json",
                                                    quiet=True,

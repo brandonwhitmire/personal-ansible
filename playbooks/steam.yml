@@ -10,16 +10,55 @@
 
   tasks:
 
-    - name: Ensure steam is installed
+    # https://wiki.archlinux.org/title/Official_repositories#multilib
+    - name: Enable pacman multilib
+      become: true
+      ansible.builtin.blockinfile:
+        path: /etc/pacman.conf
+        marker: "# {mark} pacman_multilib_enable"
+        create: true
+        state: present
+        mode: '0644'
+        block: |
+          [multilib]
+          Include = /etc/pacman.d/mirrorlist
+      register: pacman_multilib_enabled
+
+    - name: Upgrade system (required when enabling multilib)
+      when: pacman_multilib_enabled.changed
+      become: true
+      community.general.pacman:
+        update_cache: true
+        upgrade: true
+
+    # https://wiki.archlinux.org/title/Steam#Installation
+    - name: Ensure steam and deps are installed
       become: true
       community.general.pacman:
         name:
           - steam
           - wine
+          - nvidia
+          - ttf-liberation
+          - lib32-systemd
         state: present
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - optimus-manager  # GPU switcher
+  ansible.builtin.import_playbook: function_yay.yml
 
 - hosts: all
   tasks:
+
+    - name: Enable optimus-manager service
+      become: true
+      ansible.builtin.service:
+        name: optimus-manager
+        enabled: true
+        state: started
+
     - name: === AOE2 Block ===
       vars:
         # Leave this so that the files get placed in the user dir and not /root
@@ -47,6 +86,7 @@
           ansible.builtin.get_url:
             url: '{{ vc_redist_url }}'
             dest: '{{ aoe2_dir }}'
+            mode: '0755'
             checksum: sha256:5eea714e1f22f1875c1cb7b1738b0c0b1f02aec5ecb95f0fdb1c5171c6cd93a3
 
         - name: Extract from downloaded file

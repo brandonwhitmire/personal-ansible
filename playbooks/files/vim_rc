@@ -1,46 +1,82 @@
 " === (Neo)vim plugins list: === 
-call plug#begin('~/.vim/plugged') 
-" Tree explorer 
-Plug 'preservim/nerdtree' 
-" Easy commenting in/out with 'gc' 
-Plug 'tpope/vim-commentary' 
-" Fuzzy finder 
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
-" Syntax highlighting 
-Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
-" Python indents 
-Plug 'Vimjas/vim-python-pep8-indent' 
-" Async Linter 
-Plug 'dense-analysis/ale' 
-" Code completion 
-Plug 'neoclide/coc.nvim', {'branch': 'release'} 
-" Closing bracket pairs 
-Plug 'jiangmiao/auto-pairs' 
-" Language-specific end-pairs 
-Plug 'tpope/vim-endwise' 
-" Auto-close HTML tags (works on files with html extension) 
-Plug 'alvan/vim-closetag' 
-" High enclosing HTML tags 
-Plug 'valloric/matchtagalways' 
-" Tabs for buffers 
-Plug 'ap/vim-buftabline' 
-" Automatic resizing of windows 
-Plug 'roman/golden-ratio' 
-" Multiple cursors 
-Plug 'mg979/vim-visual-multi', {'branch': 'master'} 
-" Search and replace in whole repo 
-Plug 'brooth/far.vim' 
-" Ansible highlighting
-Plug 'pearofducks/ansible-vim'
+
+call plug#begin('~/.vim/plugged')
+
+    " Semshi: Syntax highlighting 
+    " https://github.com/numirias/semshi
+    Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
+
+    " Ansible-Vim: Ansible highlighting
+    " https://github.com/pearofducks/ansible-vim
+    Plug 'pearofducks/ansible-vim', { 'do': './UltiSnips/generate.sh' }
+
+    " IndentLine: Show indentions
+    " https://github.com/Yggdroot/indentLine
+    Plug 'Yggdroot/indentLine'
+
+    " Vim-Snippets/UltiSnips: Auto-completion
+    " https://github.com/honza/vim-snippets
+    Plug 'honza/vim-snippets'
+    " https://github.com/SirVer/ultisnips
+    Plug 'SirVer/ultisnips'
+
+    " ALE: Async Linter engine
+    " https://github.com/dense-analysis/ale
+    Plug 'dense-analysis/ale' 
+
+    "" Tree explorer 
+    "Plug 'preservim/nerdtree' 
+    "" Easy commenting in/out with 'gc' 
+    "Plug 'tpope/vim-commentary' 
+    "" Fuzzy finder 
+    "Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
+    "" Python indents 
+    "Plug 'Vimjas/vim-python-pep8-indent' 
+    "" Code completion 
+    "Plug 'neoclide/coc.nvim', {'branch': 'release'} 
+    "" Closing bracket pairs 
+    "Plug 'jiangmiao/auto-pairs' 
+    "" Language-specific end-pairs 
+    "Plug 'tpope/vim-endwise' 
+    "" Auto-close HTML tags (works on files with html extension) 
+    "Plug 'alvan/vim-closetag' 
+    "" Highlight enclosing HTML tags 
+    "Plug 'valloric/matchtagalways' 
+    "" Tabs for buffers 
+    "Plug 'ap/vim-buftabline' 
+    "" Automatic resizing of windows 
+    "Plug 'roman/golden-ratio' 
+    "" Multiple cursors 
+    "Plug 'mg979/vim-visual-multi', {'branch': 'master'} 
+    "" Search and replace in whole repo 
+    "Plug 'brooth/far.vim' 
+
 call plug#end() 
- 
-" === NERDTree Options === 
+
+" === ansible-vim ===
+
+au BufRead,BufNewFile */playbooks/*.yml set filetype=yaml.ansible
+
+" === UltiSnips Options ===
+
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" === IndentLine Options ===
+
+let g:indentLine_defaultGroup = 'SpecialKey'
+
+" === NERDTree Options ===
+
 " Automatically open NERDTree in blank vim 
 " autocmd StdinReadPre * let s:std_in=1 
 " autocmd VimEnter * if argc() == 0 && s:std_in') | NERDTree | endif 
 " Show hidden files by default 
 let NERDTreeShowHidden=1 
+
 " === .vimrc Options === 
+
 " Search case insentive when all lower case 
 set smartcase 
 nnoremap <CR> :nohlsearch 
@@ -50,13 +86,6 @@ nnoremap <CR> :nohlsearch
 :  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber 
 :  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber 
 :augroup END  
-" Python prefs (usually overwritten by plugins) 
-" autocmd BufNewFile,BufRead *.py 
-"     \ set expandtab 
-"     \ set tabstop=4 
-"     \ set softtabstop=4 
-"     \ set shiftwidth=4 
-set textwidth=80 
 nnoremap <C-j> :tabnext<CR> 
 nnoremap <C-k> :tabprev<CR> 
 
@@ -65,24 +94,31 @@ set splitbelow
 set splitright 
 set fillchars=vert:\ 
 
-" Good indetation
+" Good indentation
 set expandtab
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 
 set syntax=on
-" set syntax=sh
-set paste
 set ic
 set nohlsearch
-set paste
 colorscheme torte
 set scrolloff=10
 set mouse=
 set autoindent 
 set number relativenumber 
 
+" Highlight unwanted spaces
+" https://vim.fandom.com/wiki/Highlight_unwanted_spaces
+autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+
+" F5 to insert timestamp
 nmap <F5> o<C-R>=strftime("%F %T %Z -- ")<CR>
 nnoremap <C-h> <C-w>h 
 nnoremap <C-l> <C-w>l

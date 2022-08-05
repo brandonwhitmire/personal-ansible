@@ -1,3 +1,5 @@
+# TODO: fix vpn and magnet commands
+
 # Source manjaro-zsh-configuration
 if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
   source /usr/share/zsh/manjaro-zsh-config
@@ -11,11 +13,6 @@ fi
 # https://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
 # https://opensource.com/article/20/1/bash-scripts-aliases
 
-# --- Environment Variables
-
-export EDITOR="nvim"
-export BROWSER="librewolf"
-
 # --- Powerline Fonts
 
 export USE_POWERLINE="true"
@@ -26,7 +23,7 @@ powerline-daemon --quiet
 
 # https://computingforgeeks.com/best-terminal-shell-prompts-for-zsh-bash-fish/
 # Set Spaceship ZSH as a prompt
-autoload -U promptinit; promptinit
+autoload -U promptinit ; promptinit
 prompt spaceship
 
 # Disabled some unused sections for speedup
@@ -134,52 +131,62 @@ alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 
-alias cp="cp -iv"				# confirm before overwriting something
-alias df='df -h'                # human-readable sizes
-alias du="du -ch"
-alias free='free -m'            # show sizes in MB
-alias np='nano -w PKGBUILD'
+alias cp="cp --interactive --verbose" # confirm before overwriting something
+alias df='df --human-readable' # human-readable sizes
+alias du="du --total --human-readable"
+alias free='free --mebi' # show sizes in mebibytes
+alias np='nano --nowrap PKGBUILD'
 alias more='less'
-alias mkdir='mkdir -pv'
-alias mv='mv -iv'
-alias ln='ln -iv'
-alias rm='gio trash'			# safely "delete" things into Trash:
+alias mkdir='mkdir --parents --verbose'
+alias mv='mv --interactive --verbose'
+alias ln='ln --interactive --verbose'
+alias rm='gio trash' # safely "delete" things into Trash:
 # alias rm='rm -vI --preserve-root'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
 alias killall="killall --verbose"
-alias jobs="jobs -l"
+alias jobs="jobs -l" # no long option for "-l"
+alias exif_view="exiftool"
+alias exif_strip_metadata="exiftool -all="
+alias open="xdg-open"
 
-alias ls='ls -C --color=auto'
-alias ll='ls -laF --color=auto'
-alias l='ls -CF --color=auto'
-alias lt='ls --human-readable --size -1 -S --classify'
-alias ping="ping -c 1"
-alias diff="colordiff -y --suppress-common-lines"
+# some options in "ls" do not have long name versions
+alias ls='ls -C --color=auto' # normal
+alias ll='ls -l --all --classify --color=auto' # long-listing
+alias lt='ls -l -t -all --reverse --human-readable --size -1 --classify --color=auto' # time-sorted
+alias l='ls -l -S --all --reverse --classify --color=auto' # size-sorted
+alias ping="ping -c 1" # no long option for "-c"
+alias diff="colordiff --side-by-side --suppress-common-lines"
 alias pdf="epdfview"
 
 alias vi="$EDITOR"
 alias vim="$EDITOR"
 
-alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias update-grub="sudo grub-mkconfig --output=/boot/grub/grub.cfg"
 
 # --- New Commands 
 
-alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
-alias nsg="ss -antup | grep -v grep | grep -i -e Netid -e"
+# BSD syntax to show every process
+alias psg="ps aux | grep --invert-match 'grep' | grep --ignore-case --regexp 'VSZ' --regexp"
+alias nsg="ss --all --numeric --tcp --udp --processes | grep --invert-match 'grep' | grep --ignore-case --regexp 'Netid' --regexp"
 
-alias cpv='rsync -ah --info=progress2'
-alias hazip="lynx -dump https://icanhazip.com/ | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'"
+alias cpv='rsync --archive --human-readable --info=progress2'
+alias hazip="lynx --dump 'https://icanhazip.com' | grep --only-matching --extended-regexp '([0-9]{1,3}\.){3}[0-9]{1,3}'"
 alias dl="cdd ~/Downloads"
 alias trash="gio list Trash:"
-alias path='echo -e ${PATH//:/\\n}'
+alias path='echo -e ${PATH//:/\\n}' # no long option for "-e"
 alias now='date +"%d-%m-%Y %T"'
-alias iptlist='sudo iptables -vnL --line-numbers'
+alias iptlist='sudo iptables --verbose --numeric --list --line-numbers'
 alias browser="$BROWSER"
 alias reload_background="nitrogen --restore &"
 
 # --- Functions
+
+# Show trashcan
+trashcan () {
+    nohup xdg-open $HOME/.local/share/Trash/files > /dev/null 2>&1 &
+}
 
 # Install packages properly
 install () {
@@ -191,11 +198,11 @@ install () {
 }
 # Removes packages and dependencies (not used by other packages)
 uninstall () {
-        if [[ -z "$1" ]] ; then
-                echo "Please supply a package(s) to UNINSTALL!"
-                exit 1
-        fi
-	sudo pacman -R --cascade --recursive --unneeded "$@"
+    if [[ -z "$1" ]] ; then
+        echo "Please supply a package(s) to UNINSTALL!"
+        exit 1
+    fi
+	sudo pacman -R --recursive --unneeded "$@"
 }
 # Remove unused dependencies
 remove_unused_dependecies () {
@@ -209,13 +216,19 @@ install_yay () {
 	fi
 	yay -S "$@"
 }
+yinstall () {
+	install_yay "$@"
+}
 # Removes AUR packages and dependencies (not used by other packages)
 uninstall_yay () {
-        if [[ -z "$1" ]] ; then
-                echo "Please supply a package(s) to UNINSTALL!"
-                exit 1
-        fi
+    if [[ -z "$1" ]] ; then
+        echo "Please supply a package(s) to UNINSTALL!"
+        exit 1
+    fi
 	yay -R --cascade --recursive --unneeded "$@"
+}
+yuninstall () {
+	uninstall_yay "$@"
 }
 # Show full system information
 systeminfo () {
@@ -227,6 +240,18 @@ systeminfo () {
 }
 sysinfo () {
 	systeminfo
+}
+# Spawn new terminal
+# NOTE: default options are for alacritty terminal
+newterm () {
+	# Use $CWD by default
+	if [[ -z "$1" ]] ; then
+		DIRECTORY="$(pwd)"
+	# if $1 is supplied, use that location instead
+	else
+		DIRECTORY="$1"
+	fi
+	nohup "$TERMINAL" --working-directory "$DIRECTORY" > /dev/null 2>&1 &
 }
 # Kernel Ring Buffer logs for hardware errors (only emergency, alert, critical, error, and warning messages)
 logs_kernel () {
@@ -255,7 +280,23 @@ gpu_integrated () {
 	gpu_used
 	optimus-manager --switch integrated --no-confirm
 }
+# EZ block device mounting
+ez_mount () {
+	if [[ -z "$1" ]] ; then
+        udisksctl mount --block-device "$1"
+    fi
+    udisksctl status
+}
+# EZ block device unmounting
+ez_unmount () {
+	if [[ -z "$1" ]] ; then
+        udisksctl unmount --block-device "$1"
+    fi
+    udisksctl status
+}
 # Mount LUKS device
+# $1: UUID of harddrive (obtain via "sudo fdisk -l")
+# $2: name to crypt open as
 mount_luks_device () {
 	# Help menu
 	if [[ "$1" == "-h" ]] ; then
@@ -267,7 +308,7 @@ mount_luks_device () {
 	# Use preloaded variables
 	if [[ -z "$1" || -z "$2" ]] ; then
 		UUID="eb3382b7-477b-4e93-a103-e4269ec5d0b3"
-		NAME="crypt_HDD"
+		NAME="crypt_hdd"
 		echo "CLI arguments not used..."
 		echo -e "\tUUID: $UUID"
 		echo -e "\tNAME: $NAME"
@@ -277,7 +318,7 @@ mount_luks_device () {
 		NAME="$2"
 	fi
 	# ---
-	DEVICE=$(lsblk -ro NAME,UUID | grep "$UUID" | cut -d ' ' -f 1 )
+	DEVICE=$(lsblk --raw --output NAME,UUID | grep "$UUID" | cut --delimiter ' ' --fields 1 )
 
 	if [[ -z "$UUID" || -z "$DEVICE" || -z "$NAME" ]] ; then
 		echo "These cannot be empty!"
@@ -288,20 +329,20 @@ mount_luks_device () {
 	fi
 
 	# Check if LUKS device mounted
-	udisksctl info -b /dev/mapper/"$NAME" > /dev/null 2>&1
+	udisksctl info --block-device /dev/mapper/"$NAME" > /dev/null 2>&1
 	RET_CODE="$?"
 
 	# Device not mounted ; so mount
 	if [[ "$RET_CODE" == "1" ]] ; then
 		echo "MOUNTING..."
 		sudo cryptsetup open "/dev/$DEVICE" "$NAME"
-		MOUNT=$(udisksctl mount -b /dev/mapper/"$NAME")
+		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
-		ls -laF --color=auto $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
+		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
 	elif [[ "$RET_CODE" == "0" ]] ; then
 		echo "UNMOUNTING..."
-		udisksctl unmount -b /dev/mapper/"$NAME"
+		udisksctl unmount --block-device /dev/mapper/"$NAME"
 		sudo cryptsetup close "$NAME"
 	# Error
 	else
@@ -312,12 +353,11 @@ mount_luks_device () {
 }
 # Encrypted, de-duplicated, & compressed backups
 borg_backup () {
-	# Create/intialize backup
-	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO"
-
-	REPO="/run/media/obb/nix_hdd/borg_backup"
-	# BACKUP_DIRS="/etc /home"
+	REPO_BORG="/run/media/obb/nix_hdd/borg_backup"
 	TODAY="$(date +%Y-%m-%d)"
+
+	# Create/intialize backup
+	# sudo borg --verbose init --encryption=repokey-blake2 "$REPO_BORG"
 
 	# borg program ENVs
 	export BORG_RELOCATED_REPO_ACCESS_IS_OK=no
@@ -326,11 +366,12 @@ borg_backup () {
 	# ---
 
 	# Ensure repo directory is there exists
-	if [[ ! -d "$REPO" ]] ; then
-		echo "ERROR finding the repo: >>$REPO<<"
+	if [[ ! -d "$REPO_BORG" ]] ; then
+		echo "ERROR finding the repo: >>$REPO_BORG<<"
 		return 1
 	fi
 
+    # Useful for manual backups or new name (to backup more than once/day)
 	if [[ -z "$1" ]] ; then
 		EXTRA_TAG="auto"
 	else
@@ -340,9 +381,33 @@ borg_backup () {
 	# ---
 
 	borg --version
+    BREAKLINE
 	echo $TODAY
+    BREAKLINE
 
-	sudo borg --progress create --stats --compression auto,lzma --comment "Automatically backed up on: $TODAY" $REPO::${TODAY}_${EXTRA_TAG} /etc /home
+    # NOTE: sudo required for reading "/etc"
+	sudo borg \
+        create \
+        --progress \
+        --stats \
+        --compression auto,lzma \
+        --comment "Autobackup: $TODAY" \
+        --exclude '*.img' \
+        --exclude '*.iso' \
+        --exclude '*.ova' \
+        --exclude '*.vdi' \
+        --exclude '*.vmdk' \
+        --exclude $HOME/.local \
+        --exclude $HOME/.cache \
+        --exclude $HOME/.vagrant.d \
+        --exclude $HOME/.wine \
+        --exclude $HOME/.yarn \
+        --exclude $HOME/.npm \
+        --exclude $HOME/.gem \
+        --exclude $HOME/.config/chromium \
+        $REPO_BORG::${TODAY}_${EXTRA_TAG} \
+        /etc \
+        $HOME
 
 	# Finish buffering anything from memory to disk
 	sync
@@ -366,35 +431,40 @@ update () {
 }
 # Update pacman mirrors
 update_mirrors () {
-	sudo pacman-mirrors --country United_States
+	sudo pacman-mirrors --country United_States --api --protocol https
+	# https://wiki.manjaro.org/index.php?title=Pacman-mirrors
+	# "Every run of pacman-mirrors requires you to syncronize your database and update your system"
+	update
 }
 # Create and switch to new, random temp directory
 mkt () {
-	cd $(mktemp -d)
+	cd $(mktemp --directory)
 }
 # Switch to and list a directory
 cdd () {
 	if [[ ! -z "$!" ]] ; then
 		cd $1
 	fi
-	ls -laF --color=auto
+	ll
 }
 # ASCII line break of '=' chars by default or $1 arg supplied
 BREAKLINE () {
-        if [[ -z "$1" ]] ; then
-                CHAR="="
-        else
-                CHAR="$1"
-        fi
+    if [[ -z "$1" ]] ; then
+            CHAR="="
+    else
+            CHAR="$1"
+    fi
 
-        printf "$CHAR%.0s" {1..80} ; echo
+    printf "$CHAR%.0s" {1..80} ; echo
 }
 # Download magnets
 download () {
 	# NOTE: This IP address is known to change
+	# and is currently ca1.ovpn
 	MAGNET_VPN="209.58.135.120"
 
 	# Keep .zhistory clean of downloads
+	clean_histfile "download"
 	unset HISTFILE
 	echo "HISTFILE (should be blank b/t quotes): \"$HISTFILE\""
 	
@@ -407,7 +477,7 @@ download () {
 		"^\s*$"
 	)
 	for CLEAN in $CLEANS ; do
-		sed -i "s#$CLEAN##g" ~/.zhistory
+		sed --in-place "s#$CLEAN##g" ~/.zhistory
 	done
 
 	# Requires magnet link (MUST be quoted!)
@@ -432,11 +502,11 @@ download () {
 			"https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz"
 		)
 		pushd ~/.config/transmission-daemon/blocklists > /dev/null
-			"rm" -vf *blocklist*
+			"rm" --verbose --force *blocklist*
 			for BLOCK in $BLOCKS ; do
 				wget --no-verbose "$BLOCK"	
 			done
-			gunzip -d *.gz
+			gunzip --decompress *.gz
 			for FILE in *blocklist* ; do
 				mv $FILE $FILE.bin
 			done
@@ -452,27 +522,27 @@ download () {
 	fi
 
 	# Add and watch downloads
-	MAGNET=$(python3 -c "import urllib.parse;print(urllib.parse.unquote_plus('$1', encoding='utf-8'))" | grep -o "magnet.*")
+	MAGNET=$(python3 -c "import urllib.parse;print(urllib.parse.unquote_plus('$1', encoding='utf-8'))" | grep --only-matching "magnet.*")
 	echo -e "MAGNET:\t$MAGNET"
-	transmission-remote -a "$MAGNET"
+	transmission-remote --add "$MAGNET"
 	sleep 1
-	watch -d -n 2 'transmission-remote -l'
+	watch --differences --interval 2 'transmission-remote -l'
 	echo -e "\nREMOVE TORRENTS:\n\n\ttransmission-remote -tall --remove"	
 }
 vpn () {
 	echo "STARTING proper VPN..."
-	~/scripts/openvpn_configs/1_run_openvpn.sh ~/scripts/openvpn_configs/ca1.ovpn
+	~/scripts/openvpn_configs/1_run_openvpn.sh
 }
 # Search with locate
 search () {
 	echo -e "Don't forget to update:\n\tsudo updatedb"
 	locate "*$@*"
 }
-# Clean zsh (completion) history
-clean_zsh () {
-	[[ -z "$1" ]] && (echo "ERROR" ; exit 1)
-	echo "Cleaning regex \"$1\" out of history..."
-	sed -i "s/$1//g" ~/.zhistory
+# Clean shell history
+clean_histfile () {
+	[[ -z "$1" ]] && (echo 'ERROR: Missing argument "$1" to clean out' ; exit 1)
+	echo "Cleaning regex \"$1\" out of history: $HISTFILE"
+	sed --in-place "/^.*$1.*$/d" "$HISTFILE"
 }
 # Find LAN printer
 search_printer () {
@@ -482,7 +552,7 @@ search_printer () {
 	# Enable avahi-daemon service to use program
 	# sudo systemctl enable --now avahi-daemon.service
 	# avahi-browse -t -d local -c -a --resolve | sed -n '/^=.*Printer/,/txt =/p'
-	avahi-browse --all -t -r | grep -A2 "$PRINTER" | grep "address" | uniq | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}"
+	avahi-browse --all --terminate --resolve | grep --after-context=2 "$PRINTER" | grep "address" | uniq | grep --only-matching --extended-regexp "([0-9]{1,3}\.){3}[0-9]{1,3}"
 
 	# Discover network printers using Bonjour
 	# lpinfo --include-schemes dnssd -v
@@ -491,10 +561,10 @@ search_printer () {
 # Show Clipboard
 show_clipboard () {
 	echo "CTRL+C Clipboard:"
-	clipit -c
+	clipit --clipboard
 	echo
 	echo "Highlight Clipboard (primary):"
-	clipit -p
+	clipit --primary
 }
 # Python3 pprint a file (e.g. JSON)
 pprint () {
@@ -505,25 +575,38 @@ pprint () {
 	echo -e "import pprint\nwith open('$1', 'rt') as file_obj: pprint.pprint(file_obj.readlines())" | python3
 }
 
-# Attempt to configure monitors properly
-set_displays () {
-	echo "Hit button on external monitor to pop info box (wake monitor)"
-	echo -e "\tHit ENTER"
-	read
-	
-	# Force screen on ; wait ; screen off
-	# SLEEP_TIME="2" xset dpms force on ; sleep "$SLEEP_TIME" ; xset dpms force off
+# Force screen on ; wait ; screen off
+# NOTE: wake screen via keyboard or mouse
+screen_off () {
+	SLEEP_TIME="0"
+	xset dpms force on
+	sleep "$SLEEP_TIME"
+	xset dpms force off
+}
 
+# Set/Fix monitor displays
+# For extended displays, run like: "set_displays"
+# For duplicated displays, run like: "set_displays asdfasdf"
+set_displays () {
+	echo "FIX: Hit button on external monitor to pop info box (wake monitor) or reset KVM switch..."
+	
 	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
 	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
 	LAPTOP_MONITOR="$(echo $DISPLAYS | grep -ioE $LAPTOP_KEYWORD)"
 	EXTERNAL_KEYWORD='HDMI-?[0-9\-]+'
 	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
 
-	xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
-		--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
-	#   --output DP-1 --off
-	#   --output HDMI-1 --off
+	# Give no options to activate this mode
+	if [[ -z "$1" ]] ; then
+		echo "[+] Setting EXTENDED Display mode!"
+		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
+			--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
+	# Give any arbitrary option to activate this mode
+	else
+		echo "[+] Setting DUPLICATED Display mode!"
+		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
+			--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal
+	fi
 }
 
 fix_displays () {
@@ -531,5 +614,5 @@ fix_displays () {
 }
 
 lazyssh () {
-	ssh -p 22 obb@192.168.5.200
+	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
 }

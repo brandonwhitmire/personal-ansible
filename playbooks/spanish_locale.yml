@@ -4,12 +4,14 @@
 #
 # Reference:
 # - https://serverfault.com/questions/959026/how-do-i-generate-and-set-the-locale-using-ansible#981742
+# - https://wiki.archlinux.org/title/LightDM#Wrong_locale_displayed
 ---
 - name: Set default language to Spanish
   hosts: all
 
   vars:
-    desired_locale: es_US.UTF-8
+    # desired_locale: en_US.UTF-8  # English
+    desired_locale: es_US.UTF-8  # Spanish
 
   tasks:
 
@@ -34,5 +36,6 @@
             state: present
 
         - name: Configure locale to '{{ desired_locale }}'
+          become: true
           ansible.builtin.command:
             cmd: localectl set-locale LANG={{ desired_locale }}
