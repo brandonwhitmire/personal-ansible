@@ -2,7 +2,7 @@
 
 Ansible playbooks for various setups and configurations.
 
-**Currently, these playbooks are tailored to _Manjaro Linux_, which uses the `pacman` package manager and related utilities.**
+**Currently, these playbooks are tailored to _Arch Linux_, which uses the `pacman` package manager and related utilities.**
 
 # Pre-requisites
 
@@ -134,7 +134,7 @@ ANSIBLE_ENABLE_TASK_DEBUGGER=True
 
 # Things to Backup
 
-This repository was written with the goal of getting a fresh Manjaro installation to a personalized, standard state. For clarity's sake, the following is a rough list of things that should be backed up (usually with `borg`) but will not be added into this repository:
+This repository was written with the goal of getting a fresh installation to a personalized, standard state. For clarity's sake, the following is a rough list of things that should be backed up (usually with `borg`) but will not be added into this repository:
 
 - Web browser bookmarks
 - Password database
