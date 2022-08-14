@@ -146,8 +146,8 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
+- add wifi & networkmanager packages
 - consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup 
-- LVM + LUKS: https://wiki.archlinux.org/title/Install_Arch_Linux_on_LVM
 - security (firewall) and others: https://wiki.archlinux.org/title/General_recommendations
 - offline small files into repo (Calibre plugins)
 - add shell key shortcuts (for home/end/delete)

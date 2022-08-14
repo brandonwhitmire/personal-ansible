@@ -66,6 +66,8 @@
         - pavucontrol  # PulseAudio GUI for volume
         - packer  # automate VM building
         - conky  # sysmon
+        - man-db  # manpages program
+        - man-pages  # actual manpages
       state: present
 
   - name: Enable services
@@ -83,7 +85,7 @@
     changed_when: false
     ignore_errors: true
     ansible.builtin.shell:
-      cmd: dmidecode | grep -iqE 'virtualbox|vbox'
+      cmd: dmidecode | grep --ignore-case --quiet --extended-regexp 'virtualbox|vbox'
     register: is_virtualbox
 
   - name: Virtualbox-specific actions
