@@ -38,7 +38,8 @@
         name:
           - steam
           - wine
-          - nvidia
+          - mesa  # Intel: open-source GPU
+          - nvidia  # Nvidia: closed-source GPU
           - ttf-liberation
           - lib32-systemd
         state: present

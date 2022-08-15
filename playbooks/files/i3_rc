@@ -41,7 +41,7 @@ floating_modifier $mod
 bindsym $mod+Return exec /usr/bin/alacritty
 
 # start program launcher
-bindsym $mod+d exec --no-startup-id dmenu_recency
+bindsym $mod+d exec --no-startup-id dmenu_run
 
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
@@ -60,7 +60,7 @@ bindsym $mod+F11 exec "xbacklight -dec 10; notify-send 'brightness down'"
 # Start Applications
 bindsym $mod+Ctrl+b exec terminal -e /usr/bin/bmenu
 bindsym $mod+F1 exec /usr/bin/galculator
-bindsym $mod+F2 exec "notify-send --expire-time 10000 'Lauching Web Browser' ; /usr/bin/librewolf"
+bindsym $mod+F2 exec "notify-send --expire-time 10000 'Launching Web Browser' ; /usr/bin/librewolf"
 bindsym $mod+F3 exec --no-startup-id /usr/bin/pcmanfm
 bindsym $mod+F4 exec "notify-send --expire-time 10000 'KeePassXC Launched (in scratchpad)' ; /usr/bin/keepassxc"
 bindsym $mod+F5 exec /usr/bin/virtualbox
@@ -269,18 +269,14 @@ bindsym $mod+9 exec --no-startup-id blurlock
 exec --no-startup-id start-pulseaudio-x11
 exec --no-startup-id pa-applet
 exec_always --no-startup-id keepassxc
-exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec_always --no-startup-id nitrogen --restore; sleep 1; picom -b
+exec_always --no-startup-id nitrogen --restore ; sleep 1 ; picom -b
 exec_always --no-startup-id nm-applet
 exec_always --no-startup-id xfce4-power-manager
-exec_always --no-startup-id pamac-tray
 exec_always --no-startup-id blueman-applet
 exec_always --no-startup-id flameshot
 exec --no-startup-id clipit
-exec_always --no-startup-id start_conky_maia
+exec_always --no-startup-id conky --config=/usr/share/conky/conky_solarized
 exec_always --no-startup-id xautolock -time 15 -locker blurlock
-exec_always --no-startup-id ff-theme-util
-exec_always --no-startup-id fix_xcursor
 exec_always --no-startup-id /usr/bin/numlockx on
 
 # Color palette used for the terminal ( ~/.Xresources file )

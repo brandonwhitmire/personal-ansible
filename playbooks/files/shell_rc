@@ -225,7 +225,7 @@ uninstall_yay () {
         echo "Please supply a package(s) to UNINSTALL!"
         exit 1
     fi
-	yay -R --cascade --recursive --unneeded "$@"
+	yay -R --recursive --unneeded "$@"
 }
 yuninstall () {
 	uninstall_yay "$@"

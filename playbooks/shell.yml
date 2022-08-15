@@ -198,11 +198,13 @@
               export TERMINAL=/usr/bin/alacritty
 
     - name: === mimeapps.list block ===
+      vars:
+        mimeapps_file: ~/.config/mimeapps.list
       block:
 
-        - name: Template ~/.profile
+        - name: 'Template {{ mimeapps_file }}'
           ansible.builtin.blockinfile:
-            path: ~/.profile
+            path: '{{ mimeapps_file }}'
             create: true
             state: present
             mode: '0644'

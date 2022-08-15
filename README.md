@@ -98,9 +98,11 @@ Ad-hoc commands are just that -- running commands on valid hosts without needing
 
 ```shell
 # Reboot remote host with escalation ("--become" is like "sudo")
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible \
+ANSIBLE_PIPELINING=true \
+ANSIBLE_INVENTORY_ENABLED="host_list" \
+ansible \
     -i <HOST>, \
-    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
     --args 'reboot now' \
     --become \
     all 
@@ -146,11 +148,8 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
-- add wifi & networkmanager packages
-- consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup 
-- security (firewall) and others: https://wiki.archlinux.org/title/General_recommendations
-- offline small files into repo (Calibre plugins)
-- add shell key shortcuts (for home/end/delete)
+- arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
+- consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup
 - fix i3status bar applets to show all
 - create playbooks for:
   - Ansible
@@ -158,6 +157,7 @@ Actions and capabilities to add eventually:
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - consider migrating requirements_ansible.txt into Dockerfile
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
+- consider ricing Playbook XD
 
 # References:
 

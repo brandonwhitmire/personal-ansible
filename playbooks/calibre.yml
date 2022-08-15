@@ -32,24 +32,23 @@
       community.general.pacman:
         name:
           - calibre  # eBook manager
-          - unzip  # required for Ansible unarchive
         state: present
 
-    - name: 'Check if plugin installed: DeACSM'
+    - name: 'Check if plugin: DeACSM'
       ignore_errors: true
       changed_when: false
       ansible.builtin.shell:
-        cmd: calibre-customize --list-plugins | grep DeACSM | grep -i 'true'
+        cmd: calibre-customize --list-plugins | grep DeACSM | grep -i 'false'
       register: installed_deacsm
 
-    - name: 'Check if plugin installed: DeDRM'
+    - name: 'Check if plugin: DeDRM'
       ignore_errors: true
       changed_when: false
       ansible.builtin.shell:
-        cmd: calibre-customize --list-plugins | grep DeDRM | grep -i 'true'
+        cmd: calibre-customize --list-plugins | grep DeDRM | grep -i 'false'
       register: installed_dedrm
 
-    - name: Show if Calibre plugins are already installed
+    - name: Show if Calibre plugins are already installed & enabled
       ansible.builtin.debug:
         msg:
           - "=== START  :: calibre plugin list output ==="
@@ -61,34 +60,36 @@
       when: installed_deacsm.rc != 0
       block:
 
-        - name: Download DeACSM plugin
-          ansible.builtin.get_url:
-            url: https://github.com/Leseratte10/acsm-calibre-plugin/releases/download/v0.0.15/DeACSM_0.0.15.zip
+        - name: Upload DeACSM plugin
+          ansible.builtin.copy:
+            remote_src: false 
+            src: files/DeACSM_0.0.15.zip
             dest: '{{ temp_working_dir }}'
             mode: '0644'
 
         - name: Install DeACSM plugin
           changed_when: true
           ansible.builtin.command:
-            cmd: 'calibre-customize --add-plugin={{ temp_working_dir }}/DeACSM_0.0.15.zip'
+            cmd: '{{ item }}'
+          loop:
+            - 'calibre-customize --add-plugin={{ temp_working_dir }}/DeACSM_0.0.15.zip'
+            - 'calibre-customize --enable-plugin=DeACSM'
 
     - name: 'Block: DeDRM plugin'
       when: installed_dedrm.rc != 0
       block:
 
-        - name: Download DeDRM plugin
-          ansible.builtin.get_url:
-            url: https://github.com/apprenticeharper/DeDRM_tools/releases/download/v7.2.1/DeDRM_tools_7.2.1.zip
+        - name: Upload DeDRM plugin
+          ansible.builtin.copy:
+            remote_src: false
+            src: files/DeDRM_tools_7.2.1.zip
             dest: '{{ temp_working_dir }}'
             mode: '0644'
-
-        - name: Extract (only) DeDRM tool
-          ansible.builtin.unarchive:
-            remote_src: true
-            src: '{{ temp_working_dir }}/DeDRM_tools_7.2.1.zip'
-            dest: '{{ temp_working_dir }}'
 
         - name: Install DeDRM plugin
           changed_when: true
           ansible.builtin.command:
-            cmd: 'calibre-customize --add-plugin={{ temp_working_dir }}/DeDRM_plugin.zip'
+            cmd: '{{ item }}'
+          loop:
+            - 'calibre-customize --add-plugin={{ temp_working_dir }}/DeDRM_tools_7.2.1.zip'
+            - 'calibre-customize --enable-plugin=DeDRM'
