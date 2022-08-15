@@ -39,7 +39,7 @@
             proto: tcp
             state: enabled
 
-        - name: Set firewall rules - Deny incoming traffic by below
+        - name: Set firewall rules - Deny incoming traffic by default
           become: true
           community.general.ufw:
             default: reject
@@ -59,7 +59,6 @@
     - name: === SYSTEM BLOCK ===
       block:
 
-
         - name: Install pacman pkgs
           become: true
           ansible.builtin.pacman:
@@ -68,14 +67,6 @@
               - nm-connection-editor
               - network-manager-applet
               - networkmanager-openvpn
-
-        - name: Disable services
-          become: true
-          ansible.builtin.service:
-            name: '{{ item }}'
-            enabled: false
-          loop:
-            - dhcpcd
 
         - name: Enable services
           become: true
