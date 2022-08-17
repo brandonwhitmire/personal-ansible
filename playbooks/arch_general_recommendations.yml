@@ -31,20 +31,22 @@
           loop:
             - ufw
 
-        - name: Set firewall rules - SSH
-          become: true
-          community.general.ufw:
-            default: allow
-            port: ssh
-            proto: tcp
-            state: enabled
-
         - name: Set firewall rules - Deny incoming traffic by default
           become: true
           community.general.ufw:
             default: reject
             direction: incoming
-            state: enabled
+            state: '{{ item }}'
+          loop:
+            - reset  # reset firewall to default (no rules)
+            - enabled  # re-enable firewall
+
+        - name: Set firewall rules - SSH
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: tcp
+            port: ssh
 
         # https://wiki.archlinux.org/title/OpenSSH#Deny
         - name: Prevent SSH root login

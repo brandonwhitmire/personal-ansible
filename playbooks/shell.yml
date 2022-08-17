@@ -19,6 +19,7 @@
       - spaceship-prompt-git  # terminal eye candy
       - powerline-fonts-git  # patched fonts for powerline
       - vim-plug  # vim plugin manager
+      - inxi  # more systeminfo
     aur_packages_state: present
   ansible.builtin.import_playbook: function_yay.yml
 
@@ -49,6 +50,8 @@
           - nodejs  # dep for coc.nvim
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
+          - texlive-most  # LaTeX generator dep for vim-latex-live-preview
+          - screenfetch  # display system info
         state: present
 
     - name: Install needed pip3 pkgs
@@ -111,7 +114,7 @@
             - .zshrc
             - .bashrc
 
-        - name: 'Set default shell to zsh for user "{{ ansible_user }}" and root'
+        - name: Set default shell to zsh for user "{{ ansible_user }}" and root
           become: true
           ansible.builtin.user:
             name: '{{ item }}'

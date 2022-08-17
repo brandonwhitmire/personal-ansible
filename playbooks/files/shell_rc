@@ -141,7 +141,7 @@ alias mkdir='mkdir --parents --verbose'
 alias mv='mv --interactive --verbose'
 alias ln='ln --interactive --verbose'
 alias rm='gio trash' # safely "delete" things into Trash:
-# alias rm='rm -vI --preserve-root'
+# alias rm='rm -I --verbose --preserve-root'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
@@ -180,6 +180,22 @@ alias now='date +"%d-%m-%Y %T"'
 alias iptlist='sudo iptables --verbose --numeric --list --line-numbers'
 alias browser="$BROWSER"
 alias reload_background="nitrogen --restore &"
+
+# --- Bindkeys
+
+# https://stackoverflow.com/a/8645267
+# https://www.linuxquestions.org/questions/linux-general-1/insert-and-delete-key-returns-~-in-a-terminal-876401/
+bindkey  "^[[H"   beginning-of-line
+bindkey  "^[[F"   end-of-line
+bindkey  "^[[3~"  delete-char
+
+# --- zsh
+
+setopt append_history # append rather then overwrite
+setopt extended_history # save timestamp
+setopt share_history # share history between terminals
+export HISTFILE=~/.zsh_history
+export SAVEHIST=100000
 
 # --- Functions
 
@@ -487,6 +503,7 @@ download () {
 	fi
 
 	# Naive check to make sure on desired VPN	
+    # TODO: make this more robust
 	if [[ $(hazip) == "$MAGNET_VPN" ]] ; then
 		echo "Already on proper VPN..."
 	else

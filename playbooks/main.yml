@@ -12,3 +12,12 @@
 - ansible.builtin.import_playbook: steam.yml
 # - ansible.builtin.import_playbook: vagrant.yml
 # - ansible.builtin.import_playbook: virtualization.yml
+
+- name: Reboot
+  hosts: all
+  tasks:
+
+    - name: Rebooting
+      become: true
+      ansible.builtin.reboot:
+        reboot_timeout: 30
