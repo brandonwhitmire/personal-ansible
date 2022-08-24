@@ -158,10 +158,12 @@ alias lt='ls -l -t -all --reverse --human-readable --size -1 --classify --color=
 alias l='ls -l -S --all --reverse --classify --color=auto' # size-sorted
 alias ping="ping -c 1" # no long option for "-c"
 alias diff="colordiff --side-by-side --suppress-common-lines"
-alias pdf="epdfview"
+alias pdf="evince"
 
-alias vi="$EDITOR"
-alias vim="$EDITOR"
+#alias vi="$EDITOR"
+#alias vim="$EDITOR"
+alias vi="nvim"
+alias vim="nvim"
 
 alias update-grub="sudo grub-mkconfig --output=/boot/grub/grub.cfg"
 
@@ -198,6 +200,29 @@ export HISTFILE=~/.zsh_history
 export SAVEHIST=100000
 
 # --- Functions
+
+# Burn ISO 9660 files (liveboots) to devices
+# TODO: add more safety checks and confirm device before write
+iso_burn () {
+    LIVEBOOT_ISO="${1}"
+    TARGET_DEVICE="${2}"
+
+    if [[ ! -e "$LIVEBOOT_ISO" ]] ; then
+        echo "Liveboot ISO (9660) file does not exist!: $1"
+        exit 1
+    fi
+
+    echo "Pausing for dramatic effect..."
+    sleep 7
+
+    dd \
+        bs=32M \
+        conv=fsync \
+        oflag=direct \
+        status=progress
+        if="${1}" \
+        of="${2}"
+}
 
 # Show trashcan
 trashcan () {

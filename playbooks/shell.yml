@@ -48,6 +48,7 @@
           - transmission-gtk  # GUI torrent manager client
           - transmission-remote-gtk  # GUI torrent manager daemon
           - nodejs  # dep for coc.nvim
+          - xclip  # dep for vim clipboard
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
           - texlive-most  # LaTeX generator dep for vim-latex-live-preview

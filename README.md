@@ -85,9 +85,10 @@ ansible -m debug -a 'msg={{ ansible_user }}' all
 
 # Specify hosts manually instead of using an inventory file
 # NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
+ANSIBLE_PIPELINING=true \
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
-    -i <HOST>, \
-    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --inventory <HOST>, \
+    --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
     <PLAYBOOKS>
 ```
 
@@ -98,11 +99,10 @@ Ad-hoc commands are just that -- running commands on valid hosts without needing
 
 ```shell
 # Reboot remote host with escalation ("--become" is like "sudo")
-ANSIBLE_PIPELINING=true \
 ANSIBLE_INVENTORY_ENABLED="host_list" \
 ansible \
-    -i <HOST>, \
-    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --inventory <HOST>, \
+    --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
     --args 'reboot now' \
     --become \
     all 
@@ -149,7 +149,7 @@ This repository was written with the goal of getting a fresh installation to a p
 Actions and capabilities to add eventually:
 
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
-- consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup
+- add keyboard shortcuts for Spanish chars
 - fix i3status bar applets to show all
 - create playbooks for:
   - Ansible

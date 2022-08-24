@@ -92,7 +92,7 @@ set iskeyword+=:
 
 " === vim-latexl-live ===
 
-let g:livepreview_previewer = 'epdfview'
+let g:livepreview_previewer = 'evince'
 
 " === airline ===
 

@@ -74,6 +74,7 @@
           - gvfs  # dep for pcmanfm features
           - xfce4-power-manager  # power manager applet
           - unzip  # zip
+          - evince  # PDF viewer
         state: present
 
     - name: === LIGHTDM BLOCK ===
