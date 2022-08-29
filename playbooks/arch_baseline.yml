@@ -218,6 +218,15 @@
   hosts: all
   tasks:
 
+    # Requires dmenu to be installed first
+    - name: Install dmenu history patch
+      become: true
+      ansible.builtin.get_url:
+        url: https://tools.suckless.org/dmenu/scripts/dmenu_run_with_command_history/dmenu_run_history
+        dest: /usr/local/bin/
+        checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
+        mode: '0755'
+
     # Requires i3exit to be installed first
     - name: Blurrier blurlock screen (from i3exit)
       become: true

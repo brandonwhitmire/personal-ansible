@@ -41,7 +41,7 @@ floating_modifier $mod
 bindsym $mod+Return exec /usr/bin/alacritty
 
 # start program launcher
-bindsym $mod+d exec --no-startup-id dmenu_run
+bindsym $mod+d exec --no-startup-id /usr/local/bin/dmenu_run_history
 
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
