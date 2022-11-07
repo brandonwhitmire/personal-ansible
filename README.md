@@ -148,6 +148,7 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
+- switch GTK3 theme to darks: https://wiki.archlinux.org/title/GTK#Dark_theme_variant
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
 - add keyboard shortcuts for Spanish chars
 - fix i3status bar applets to show all

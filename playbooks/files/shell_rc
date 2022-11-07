@@ -43,9 +43,9 @@ export SPACESHIP_EXIT_CODE_PREFIX=""
 # export SPACESHIP_EXIT_CODE_SUFFIX="\n"
 
 # VI MODE
-spaceship_vi_mode_disable  # disable vi mode by default
-export SPACESHIP_VI_MODE_INSERT="[vim]"
-export SPACESHIP_VI_MODE_NORMAL=""
+#spaceship_vi_mode_disable  # disable vi mode by default
+#export SPACESHIP_VI_MODE_INSERT="[vim]"
+#export SPACESHIP_VI_MODE_NORMAL=""
 
 # EXEC_TIME
 export SPACESHIP_EXEC_TIME_ELAPSED="0"
@@ -74,7 +74,7 @@ export SPACESHIP_GIT_PREFIX=""
 # DOCKER
 export SPACESHIP_DOCKER_SYMBOL=""
 
-# --- Shell Options
+# --- zsh Shell Options
 
 setopt dotglob 	# shell expands '*' for dotfiles
 bindkey "^[[1;5C" forward-word 2>/dev/null
@@ -89,6 +89,17 @@ bindkey  "^[[3~"  delete-char
 autoload -Uz compinit
 compinit
 
+setopt append_history # append rather then overwrite
+setopt extended_history # save timestamp
+setopt share_history # share history between terminals
+export HISTFILE=~/.zsh_history
+export SAVEHIST=100000
+
+# https://unix.stackexchange.com/a/30169
+
+bindkey -v
+bindkey '^R' history-incremental-pattern-search-backward
+
 # --- Wrapped Commands
 
 alias grep='grep --colour=auto'
@@ -97,7 +108,7 @@ alias fgrep='fgrep --colour=auto'
 
 # TODO: convert everything to rg or whitelist \grep
 #alias grep='echo "[i] Use ripgrep, which is \'rg\'!"'
-alias find='echo "[i] Use \'fd\'!"'
+#alias find='echo "[i] Use \'fd\'!"'
 
 alias cp="cp --interactive --verbose" # confirm before overwriting something
 alias df='df --human-readable' # human-readable sizes
@@ -150,14 +161,6 @@ alias now='date +"%d-%m-%Y %T"'
 alias iptlist='sudo iptables --verbose --numeric --list --line-numbers'
 alias browser="$BROWSER"
 alias reload_background="nitrogen --restore &"
-
-# --- zsh
-
-setopt append_history # append rather then overwrite
-setopt extended_history # save timestamp
-setopt share_history # share history between terminals
-export HISTFILE=~/.zsh_history
-export SAVEHIST=100000
 
 # --- Functions
 

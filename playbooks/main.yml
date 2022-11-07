@@ -11,7 +11,7 @@
 - ansible.builtin.import_playbook: spanish_locale.yml
 - ansible.builtin.import_playbook: steam.yml
 # - ansible.builtin.import_playbook: vagrant.yml
-# - ansible.builtin.import_playbook: virtualization.yml
+- ansible.builtin.import_playbook: virtualization.yml
 
 - name: Reboot
   hosts: all
@@ -21,4 +21,4 @@
       become: true
       ignore_errors: true
       ansible.builtin.reboot:
-        reboot_timeout: 5
+        reboot_timeout: 60
