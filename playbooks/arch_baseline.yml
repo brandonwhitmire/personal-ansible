@@ -58,6 +58,7 @@
           - git  # repos
           - python  # Python3
           - python-pip  # pip package installer
+          - python-setuptools  # Python3 setuptools
           - numlockx  # numlock on at login
           - marker  # Markdown editor
           - libreoffice  # office suite of programs
@@ -75,6 +76,9 @@
           - xfce4-power-manager  # power manager applet
           - unzip  # zip
           - evince  # PDF viewer
+          - ripgrep  # fast, recursive grep searcher
+          - fd  # faster `find` command
+          - reflector  # update pacman mirrors
         state: present
 
     - name: === LIGHTDM BLOCK ===

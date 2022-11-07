@@ -21,6 +21,15 @@
               - virtualbox
               - virtualbox-host-modules-arch
             state: present
+              
+        # https://wiki.archlinux.org/title/VirtualBox#Accessing_host_USB_devices_in_guest
+        - name: Add user to vboxusers group
+          become: true
+          ansible.builtin.user:
+            name: '{{ ansible_user }}'
+            groups: vboxusers
+            append: true
+            state: present
 
     # https://wiki.archlinux.org/title/QEMU
     - name: === QEMU ===
@@ -34,6 +43,7 @@
               - qemu-full
             state: present
 
+    # !!! === Do NOT DELETE (configures VM guest instead of host) === !!!
     # https://wiki.archlinux.org/index.php/VirtualBox/Install_Arch_Linux_as_a_guest
     - name: Check for Virtualbox virtualization (VM running inside of vbox)
       become: true

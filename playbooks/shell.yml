@@ -16,7 +16,7 @@
 - name: Install necessary AUR packages
   vars:
     aur_packages:
-      - spaceship-prompt-git  # terminal eye candy
+      - spaceship-prompt  # terminal eye candy
       - powerline-fonts-git  # patched fonts for powerline
       - vim-plug  # vim plugin manager
       - inxi  # more systeminfo
@@ -39,7 +39,6 @@
           - neovim  # upgraded text editor
           - ttf-jetbrains-mono  # font
           - powerline  # font
-          - lynx  # terminal-based web browser
           - rsync  # (remote) file syncer
           - glxinfo  # GPU info
           - colordiff  # diff with color
