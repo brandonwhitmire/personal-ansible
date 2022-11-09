@@ -41,12 +41,24 @@
             - reset  # reset firewall to default (no rules)
             - enabled  # re-enable firewall
 
+        - name: Set firewall rules - LAN traffic (RFC1918 networks)
+          become: true
+          community.general.ufw:
+            rule: allow
+            src: '{{ item }}'
+            comment: Allow intra-LAN traffic
+          loop:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+
         - name: Set firewall rules - SSH
           become: true
           community.general.ufw:
             rule: allow
             proto: tcp
             port: ssh
+            comment: Allow SSH traffic
 
         # https://wiki.archlinux.org/title/OpenSSH#Deny
         - name: Prevent SSH root login

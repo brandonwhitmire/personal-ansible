@@ -91,14 +91,14 @@ compinit
 
 setopt append_history # append rather then overwrite
 setopt extended_history # save timestamp
-setopt share_history # share history between terminals
+#setopt share_history # share history between terminals
 export HISTFILE=~/.zsh_history
 export SAVEHIST=100000
 
 # https://unix.stackexchange.com/a/30169
-
+# https://superuser.com/a/533600
 bindkey -v
-bindkey '^R' history-incremental-pattern-search-backward
+bindkey '^r' history-incremental-search-backward
 
 # --- Wrapped Commands
 

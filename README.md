@@ -148,6 +148,8 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
+- virtualization.yml (split off a VBOX or QEMU playbook)
+- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - switch GTK3 theme to darks: https://wiki.archlinux.org/title/GTK#Dark_theme_variant
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
 - add keyboard shortcuts for Spanish chars
@@ -155,7 +157,6 @@ Actions and capabilities to add eventually:
 - create playbooks for:
   - Ansible
   - Virtualbox
-- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - consider migrating requirements_ansible.txt into Dockerfile
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 - consider ricing Playbook XD
