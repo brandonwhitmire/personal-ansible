@@ -1,6 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
 - ansible.builtin.import_playbook: arch_baseline.yml
+- ansible.builtin.import_playbook: arch_general_recommendations.yml
 - ansible.builtin.import_playbook: shell.yml
 - ansible.builtin.import_playbook: docker.yml
 - ansible.builtin.import_playbook: grub.yml
@@ -9,4 +10,15 @@
 - ansible.builtin.import_playbook: nitrogen.yml
 - ansible.builtin.import_playbook: spanish_locale.yml
 - ansible.builtin.import_playbook: steam.yml
-- ansible.builtin.import_playbook: vagrant.yml
+# - ansible.builtin.import_playbook: vagrant.yml
+- ansible.builtin.import_playbook: virtualization.yml
+
+# - name: Reboot
+#   hosts: all
+#   tasks:
+# 
+#     - name: Rebooting
+#       become: true
+#       ignore_errors: true
+#       ansible.builtin.reboot:
+#         reboot_timeout: 60

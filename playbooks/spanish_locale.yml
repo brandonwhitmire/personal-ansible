@@ -15,6 +15,13 @@
 
   tasks:
 
+    - name: Install charmap GUI
+      become: true
+      community.general.pacman:
+        name:
+          - gucharmap
+        state: present
+
     - name: Check original locale
       ansible.builtin.command:
         cmd: localectl status

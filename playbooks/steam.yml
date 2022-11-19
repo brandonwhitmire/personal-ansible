@@ -4,6 +4,7 @@
 #
 # References:
 # - https://wiki.archlinux.org/title/Steam#Proton_Steam-Play
+# - https://wiki.archlinux.org/title/Steam/Troubleshooting#Force_Proton_to_use_Wine_Direct3D_emulation
 ---
 - name: Steam Linux compatibility fixes for games
   hosts: all
@@ -38,7 +39,8 @@
         name:
           - steam
           - wine
-          - nvidia
+          - mesa  # Intel: open-source GPU
+          - nvidia  # Nvidia: closed-source GPU
           - ttf-liberation
           - lib32-systemd
         state: present

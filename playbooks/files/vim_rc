@@ -1,18 +1,45 @@
+" vi: syntax=vim
 " === (Neo)vim plugins list: === 
 
 call plug#begin('~/.vim/plugged')
+
+    " Markdown for Vim
+    " https://github.com/gabrielelana/vim-markdown
+    Plug 'gabrielelana/vim-markdown'
+
+    " IndentLine: Show indentions
+    " https://github.com/Yggdroot/indentLine
+    Plug 'Yggdroot/indentLine'
 
     " Semshi: Syntax highlighting 
     " https://github.com/numirias/semshi
     Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'} 
 
+    " Statusbar
+    " https://github.com/vim-airline/vim-airline
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+
     " Ansible-Vim: Ansible highlighting
     " https://github.com/pearofducks/ansible-vim
     Plug 'pearofducks/ansible-vim', { 'do': './UltiSnips/generate.sh' }
 
-    " IndentLine: Show indentions
-    " https://github.com/Yggdroot/indentLine
-    Plug 'Yggdroot/indentLine'
+    " vim-latex : LaTeX highlighting
+    " https://github.com/vim-latex/vim-latex
+    Plug 'vim-latex/vim-latex'
+
+    " vim-hcl : HCL (Packer) highlighting
+    " https://github.com/jvirtanen/vim-hcl
+    Plug 'jvirtanen/vim-hcl'
+
+    " vim-vimlparser : VimL linter (vim config)
+    " https://github.com/vim-jp/vim-vimlparser
+    Plug 'vim-jp/vim-vimlparser'
+
+    " LaTeX Live-Previewer
+    " https://github.com/xuhdev/vim-latex-live-preview
+    " :LLPStartPreview
+    Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
 
     " Vim-Snippets/UltiSnips: Auto-completion
     " https://github.com/honza/vim-snippets
@@ -53,19 +80,37 @@ call plug#begin('~/.vim/plugged')
 
 call plug#end() 
 
+" === IndentLine Options ===
+
+let g:indentLine_defaultGroup = 'SpecialKey'
+
 " === ansible-vim ===
 
 au BufRead,BufNewFile */playbooks/*.yml set filetype=yaml.ansible
+
+" === vim-latex ===
+
+filetype plugin on
+let g:tex_flavor='latex'
+set iskeyword+=:
+
+" === vim-latexl-live ===
+
+let g:livepreview_previewer = 'evince'
+
+" === airline ===
+
+let g:airline_left_sep  = ''
+let g:airline_right_sep = ''
+let g:airline#extensions#ale#enabled = 1
+let airline#extensions#ale#error_symbol = 'E:'
+let airline#extensions#ale#warning_symbol = 'W:'
 
 " === UltiSnips Options ===
 
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-" === IndentLine Options ===
-
-let g:indentLine_defaultGroup = 'SpecialKey'
 
 " === NERDTree Options ===
 
@@ -79,8 +124,14 @@ let NERDTreeShowHidden=1
 
 " Search case insentive when all lower case 
 set smartcase 
+set hlsearch " highlighting search
+set incsearch " incremental search while typing
 nnoremap <CR> :nohlsearch 
+set showmode
+set showmatch " show matching words
+
 " Relative numbering 
+set number relativenumber 
 :augroup numbertoggle 
 :  autocmd! 
 :  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber 
@@ -95,19 +146,42 @@ set splitright
 set fillchars=vert:\ 
 
 " Good indentation
-set expandtab
-set tabstop=4
+set expandtab " use spaces instead of tabs
+set tabstop=4 " tab width
 set softtabstop=4
-set shiftwidth=4
+set shiftwidth=4 " shift width
+
+" Show partial command
+set showcmd
+" Set the commands to save in history default
+set history=1000
+
+" https://www.freecodecamp.org/news/vimrc-configuration-guide-customize-your-vim-editor/
+" Enable auto completion menu after pressing TAB.
+set wildmenu
+" Make wildmenu behave like similar to Bash completion.
+set wildmode=list:longest
+" There are certain files that we would never want to edit with Vim.
+" Wildmenu will ignore files with these extensions.
+set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx
 
 set syntax=on
 set ic
-set nohlsearch
 colorscheme torte
 set scrolloff=10
 set mouse=
 set autoindent 
-set number relativenumber 
+
+" Cursor
+set cursorline " highlight cursor row
+set cursorcolumn " highlight cursor column
+" https://vim.fandom.com/wiki/Configuring_the_cursor
+highlight Cursor guifg=white guibg=black
+highlight iCursor guifg=white guibg=steelblue
+set guicursor=n-v-c:block-Cursor
+set guicursor+=i:ver100-iCursor
+set guicursor+=n-v-c:blinkon1
+set guicursor+=i:blinkwait2
 
 " Highlight unwanted spaces
 " https://vim.fandom.com/wiki/Highlight_unwanted_spaces

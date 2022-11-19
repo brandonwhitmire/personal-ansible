@@ -1,0 +1,92 @@
+#!/usr/bin/env ansible-playbook
+#
+# Arch Linux general recommendations
+# Reference: https://wiki.archlinux.org/title/General_recommendations
+---
+- name: Configure general recommendations
+  hosts: all
+  tasks:
+
+    # https://wiki.archlinux.org/title/Security
+    - name: === SECURITY BLOCK ===
+      block:
+
+        - name: Install pacman pkgs
+          become: true
+          ansible.builtin.pacman:
+            name:
+              # https://wiki.archlinux.org/title/Microcode
+              - intel-ucode
+              # https://wiki.archlinux.org/title/Uncomplicated_Firewall
+              - ufw
+              - gufw
+            state: present
+
+        - name: Enable services
+          become: true
+          ansible.builtin.service:
+            name: '{{ item }}'
+            enabled: true
+            state: started
+          loop:
+            - ufw
+
+        - name: Set firewall rules - Deny incoming traffic by default
+          become: true
+          community.general.ufw:
+            default: reject
+            direction: incoming
+            state: '{{ item }}'
+          loop:
+            - reset  # reset firewall to default (no rules)
+            - enabled  # re-enable firewall
+
+        - name: Set firewall rules - LAN traffic (RFC1918 networks)
+          become: true
+          community.general.ufw:
+            rule: allow
+            src: '{{ item }}'
+            comment: Allow intra-LAN traffic
+          loop:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+
+        - name: Set firewall rules - SSH
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: tcp
+            port: ssh
+            comment: Allow SSH traffic
+
+        # https://wiki.archlinux.org/title/OpenSSH#Deny
+        - name: Prevent SSH root login
+          become: true
+          ansible.builtin.lineinfile:
+            path: /etc/ssh/sshd_config
+            line: PermitRootLogin no
+            create: true
+            mode: '0440'
+            state: present
+
+    - name: === SYSTEM BLOCK ===
+      block:
+
+        - name: Install pacman pkgs
+          become: true
+          ansible.builtin.pacman:
+            name:
+              - networkmanager
+              - nm-connection-editor
+              - network-manager-applet
+              - networkmanager-openvpn
+
+        - name: Enable services
+          become: true
+          ansible.builtin.service:
+            name: '{{ item }}'
+            enabled: true
+            state: started
+          loop:
+            - NetworkManager

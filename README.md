@@ -85,9 +85,10 @@ ansible -m debug -a 'msg={{ ansible_user }}' all
 
 # Specify hosts manually instead of using an inventory file
 # NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
+ANSIBLE_PIPELINING=true \
 ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
-    -i <HOST>, \
-    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+    --inventory <HOST>, \
+    --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
     <PLAYBOOKS>
 ```
 
@@ -98,9 +99,10 @@ Ad-hoc commands are just that -- running commands on valid hosts without needing
 
 ```shell
 # Reboot remote host with escalation ("--become" is like "sudo")
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible \
-    -i <HOST>, \
-    --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+ANSIBLE_INVENTORY_ENABLED="host_list" \
+ansible \
+    --inventory <HOST>, \
+    --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
     --args 'reboot now' \
     --become \
     all 
@@ -146,18 +148,19 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
-- consider Mitogen (https://github.com/mitogen-hq/mitogen) for Ansible speedup 
-- LVM + LUKS: https://wiki.archlinux.org/title/Install_Arch_Linux_on_LVM
-- security (firewall) and others: https://wiki.archlinux.org/title/General_recommendations
-- offline small files into repo (Calibre plugins)
-- add shell key shortcuts (for home/end/delete)
+- remove lightDM dep and autoboot into i3: https://www.reddit.com/r/i3wm/comments/75k90o/autologin/
+- virtualization.yml (split off a VBOX or QEMU playbook)
+- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
+- switch GTK3 theme to darks: https://wiki.archlinux.org/title/GTK#Dark_theme_variant
+- arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
+- add keyboard shortcuts for Spanish chars
 - fix i3status bar applets to show all
 - create playbooks for:
   - Ansible
   - Virtualbox
-- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - consider migrating requirements_ansible.txt into Dockerfile
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
+- consider ricing Playbook XD
 
 # References:
 

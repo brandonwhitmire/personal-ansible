@@ -1,10 +1,5 @@
 # TODO: fix vpn and magnet commands
 
-# Source manjaro-zsh-configuration
-if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
-  source /usr/share/zsh/manjaro-zsh-config
-fi
-
 # ---
 # CUSTOMIZED
 # ---
@@ -20,52 +15,12 @@ powerline-daemon --quiet
 . /usr/share/powerline/bindings/zsh/powerline.zsh
 
 # --- Spaceship-Prompt Setup
+# TODO: migrate to separate file
+# https://spaceship-prompt.sh/config/intro/
 
-# https://computingforgeeks.com/best-terminal-shell-prompts-for-zsh-bash-fish/
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit ; promptinit
 prompt spaceship
-
-# Disabled some unused sections for speedup
-SPACESHIP_PROMPT_ORDER=(
-  exit_code     # Exit code section
-  exec_time     # Execution time
-  time          # Time stamps section
-  user          # Username section
-  host          # Hostname section
-  dir           # Current directory section
-  git           # Git section (git_branch + git_status)
-  # hg            # Mercurial section (hg_branch  + hg_status)
-  package       # Package version
-  # gradle        # Gradle section
-  # maven         # Maven section
-  # node          # Node.js section
-  # ruby          # Ruby section
-  # elixir        # Elixir section
-  # xcode         # Xcode section
-  # swift         # Swift section
-  # golang        # Go section
-  # php           # PHP section
-  # rust          # Rust section
-  # haskell       # Haskell Stack section
-  # julia         # Julia section
-  docker        # Docker section
-  # aws           # Amazon Web Services section
-  # gcloud        # Google Cloud Platform section
-  venv          # virtualenv section
-  conda         # conda virtualenv section
-  pyenv         # Pyenv section
-  # dotnet        # .NET section
-  # ember         # Ember.js section
-  # kubectl       # Kubectl context section
-  # terraform     # Terraform workspace section
-  # ibmcloud      # IBM Cloud section
-  battery       # Battery level and status
-  line_sep      # Line break
-  jobs          # Background jobs indicator
-  vi_mode       # Vi-mode indicator
-  char          # Prompt character
-)
 
 # https://spaceship-prompt.sh/options/
 # PROMPT
@@ -88,9 +43,9 @@ export SPACESHIP_EXIT_CODE_PREFIX=""
 # export SPACESHIP_EXIT_CODE_SUFFIX="\n"
 
 # VI MODE
-spaceship_vi_mode_disable  # disable vi mode by default
-export SPACESHIP_VI_MODE_INSERT="[vim]"
-export SPACESHIP_VI_MODE_NORMAL=""
+#spaceship_vi_mode_disable  # disable vi mode by default
+#export SPACESHIP_VI_MODE_INSERT="[vim]"
+#export SPACESHIP_VI_MODE_NORMAL=""
 
 # EXEC_TIME
 export SPACESHIP_EXEC_TIME_ELAPSED="0"
@@ -119,17 +74,41 @@ export SPACESHIP_GIT_PREFIX=""
 # DOCKER
 export SPACESHIP_DOCKER_SYMBOL=""
 
-# --- Shell Options
+# --- zsh Shell Options
 
-setopt dotglob 					# shell expands '*' for dotfiles
+setopt dotglob 	# shell expands '*' for dotfiles
 bindkey "^[[1;5C" forward-word 2>/dev/null
 bindkey "^[[1;5D" backward-word 2>/dev/null
+# https://stackoverflow.com/a/8645267
+# https://www.linuxquestions.org/questions/linux-general-1/insert-and-delete-key-returns-~-in-a-terminal-876401/
+bindkey  "^[[H"   beginning-of-line
+bindkey  "^[[F"   end-of-line
+bindkey  "^[[3~"  delete-char
+
+# https://wiki.archlinux.org/title/Zsh#Command_completion
+autoload -Uz compinit
+compinit
+
+setopt append_history # append rather then overwrite
+setopt extended_history # save timestamp
+#setopt share_history # share history between terminals
+export HISTFILE=~/.zsh_history
+export SAVEHIST=100000
+
+# https://unix.stackexchange.com/a/30169
+# https://superuser.com/a/533600
+bindkey -v
+bindkey '^r' history-incremental-search-backward
 
 # --- Wrapped Commands
 
 alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
+
+# TODO: convert everything to rg or whitelist \grep
+#alias grep='echo "[i] Use ripgrep, which is \'rg\'!"'
+#alias find='echo "[i] Use \'fd\'!"'
 
 alias cp="cp --interactive --verbose" # confirm before overwriting something
 alias df='df --human-readable' # human-readable sizes
@@ -141,7 +120,6 @@ alias mkdir='mkdir --parents --verbose'
 alias mv='mv --interactive --verbose'
 alias ln='ln --interactive --verbose'
 alias rm='gio trash' # safely "delete" things into Trash:
-# alias rm='rm -vI --preserve-root'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
@@ -158,10 +136,12 @@ alias lt='ls -l -t -all --reverse --human-readable --size -1 --classify --color=
 alias l='ls -l -S --all --reverse --classify --color=auto' # size-sorted
 alias ping="ping -c 1" # no long option for "-c"
 alias diff="colordiff --side-by-side --suppress-common-lines"
-alias pdf="epdfview"
+alias pdf="evince"
 
-alias vi="$EDITOR"
-alias vim="$EDITOR"
+#alias vi="$EDITOR"
+#alias vim="$EDITOR"
+alias vi="nvim"
+alias vim="nvim"
 
 alias update-grub="sudo grub-mkconfig --output=/boot/grub/grub.cfg"
 
@@ -172,8 +152,9 @@ alias psg="ps aux | grep --invert-match 'grep' | grep --ignore-case --regexp 'VS
 alias nsg="ss --all --numeric --tcp --udp --processes | grep --invert-match 'grep' | grep --ignore-case --regexp 'Netid' --regexp"
 
 alias cpv='rsync --archive --human-readable --info=progress2'
-alias hazip="lynx --dump 'https://icanhazip.com' | grep --only-matching --extended-regexp '([0-9]{1,3}\.){3}[0-9]{1,3}'"
-alias dl="cdd ~/Downloads"
+alias hazip="curl --silent https://wtfismyip.com/text"
+alias hazip_adv="curl --silent https://wtfismyip.com/json"
+alias dl="cdd $(xdg-user-dir DOWNLOAD)"
 alias trash="gio list Trash:"
 alias path='echo -e ${PATH//:/\\n}' # no long option for "-e"
 alias now='date +"%d-%m-%Y %T"'
@@ -182,6 +163,49 @@ alias browser="$BROWSER"
 alias reload_background="nitrogen --restore &"
 
 # --- Functions
+
+# Yes/No Confirmation Prompt
+# https://stackoverflow.com/a/29436423
+# TODO: zsh fix maybe here
+# https://stackoverflow.com/a/49805832
+yes_or_no () {
+    while true ; do
+        read -rp "$* [y/n]: " yn
+        case $yn in
+            [Yy]*)
+                echo "Continuing..."
+                break
+                ;;
+            [Nn]*)
+                echo "[!] Aborted"
+                exit  5
+                ;;
+        esac
+    done
+}
+
+# Burn ISO 9660 files (liveboots) to devices
+# TODO: add more safety checks and confirm device before write
+iso_burn () {
+    LIVEBOOT_ISO="${1}"
+    TARGET_DEVICE="${2}"
+
+    if [[ ! -e "$LIVEBOOT_ISO" ]] ; then
+        echo "Liveboot ISO (9660) file does not exist!: $1"
+        exit 1
+    fi
+
+    echo "Pausing for dramatic effect..."
+    sleep 7
+
+    dd \
+        bs=32M \
+        conv=fsync \
+        oflag=direct \
+        status=progress
+        if="${1}" \
+        of="${2}"
+}
 
 # Show trashcan
 trashcan () {
@@ -225,7 +249,7 @@ uninstall_yay () {
         echo "Please supply a package(s) to UNINSTALL!"
         exit 1
     fi
-	yay -R --cascade --recursive --unneeded "$@"
+	yay -R --recursive --unneeded "$@"
 }
 yuninstall () {
 	uninstall_yay "$@"
@@ -234,7 +258,7 @@ yuninstall () {
 systeminfo () {
 	# Ref: https://forum.manjaro.org/t/howto-provide-system-information/874
 	clear
-	export LANG=C
+    LANG=C
 	screenfetch
 	inxi --admin --verbosity=7 --filter --width
 }
@@ -341,8 +365,10 @@ mount_luks_device () {
 		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
 	elif [[ "$RET_CODE" == "0" ]] ; then
+        yes_or_no "Do you want to unmount?"
 		echo "UNMOUNTING..."
 		udisksctl unmount --block-device /dev/mapper/"$NAME"
+        sleep 2
 		sudo cryptsetup close "$NAME"
 	# Error
 	else
@@ -397,6 +423,7 @@ borg_backup () {
         --exclude '*.ova' \
         --exclude '*.vdi' \
         --exclude '*.vmdk' \
+        --exclude '*.box' \
         --exclude $HOME/.local \
         --exclude $HOME/.cache \
         --exclude $HOME/.vagrant.d \
@@ -430,10 +457,18 @@ update () {
 	BREAKLINE
 }
 # Update pacman mirrors
+# Reference: https://xyne.dev/projects/reflector/
 update_mirrors () {
-	sudo pacman-mirrors --country United_States --api --protocol https
-	# https://wiki.manjaro.org/index.php?title=Pacman-mirrors
-	# "Every run of pacman-mirrors requires you to syncronize your database and update your system"
+    reflector \
+        --country "${ARCH_MIRROR_COUNTRY}" \
+        --ipv4 \
+        --latest 10 \
+        --completion-percent 100 \
+        --protocol https \
+        --sort rate \
+        --threads 5 \
+        --save /etc/pacman.d/mirrorlist
+    echo "Every run of pacman-mirrors requires you to syncronize your database and update your system"
 	update
 }
 # Create and switch to new, random temp directory
@@ -487,6 +522,7 @@ download () {
 	fi
 
 	# Naive check to make sure on desired VPN	
+    # TODO: make this more robust
 	if [[ $(hazip) == "$MAGNET_VPN" ]] ; then
 		echo "Already on proper VPN..."
 	else
