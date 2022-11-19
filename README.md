@@ -148,6 +148,7 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
+- remove lightDM dep and autoboot into i3: https://www.reddit.com/r/i3wm/comments/75k90o/autologin/
 - virtualization.yml (split off a VBOX or QEMU playbook)
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - switch GTK3 theme to darks: https://wiki.archlinux.org/title/GTK#Dark_theme_variant

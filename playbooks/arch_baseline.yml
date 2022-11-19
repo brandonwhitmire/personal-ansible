@@ -85,12 +85,13 @@
       block:
 
         # https://wiki.archlinux.org/title/LightDM#Enabling_autologin
+        # https://wiki.archlinux.org/title/LightDM#Enabling_interactive_passwordless_login
         - name: Configure lightdm to use i3 by default
           become: true
           ansible.builtin.replace:
             path: /etc/lightdm/lightdm.conf
-            regexp: '#user-session=default'
-            replace: 'user-session=i3'
+            regexp: '#autologin-session=default'
+            replace: 'autologin-session=i3'
 
         - name: 'Autologin username {{ ansible_user }}'
           become: true
@@ -131,6 +132,8 @@
           become: true
           ansible.builtin.lineinfile:
             path: /etc/pam.d/lightdm
+            firstmatch: true
+            insertafter: '#%PAM-.*'
             line: auth sufficient pam_succeed_if.so user ingroup nopasswdlogin
             state: present
 
