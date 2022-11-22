@@ -26,14 +26,20 @@
         group: root
         mode: '0644'
 
-    - name: Template autologin for systemd via agetty
+    - name: Systemd unitfile for autologin via agetty
       become: true
-      ansible.builtin.template:
-        src: files/systemd/i3_autologin.j2
-        dest: /etc/systemd/system/getty@tty1.service.d/autologin.conf
+      ansible.builtin.blockinfile:
+        path: /etc/systemd/system/getty@tty1.service.d/autologin.conf
+        marker: "# {mark} .xinitrc"
+        block: |
+          [Service]  
+          ExecStart=  
+          ExecStart=-/sbin/agetty --autologin {{ ansible_user }} --noclear %I 38400 linux
         owner: root
         group: root
         mode: '0644'
+        create: true
+        state: present
 
     - name: Startx i3 upon (auto)login
       ansible.builtin.blockinfile:
@@ -41,17 +47,8 @@
         marker: "# {mark} .xinitrc"
         block: |
           i3
-        create: true
         mode: '0644'
-        state: present
-
-    - name: Ensure i3 is present
-      become: true
-      community.general.pacman:
-        name:
-          - i3-gaps
-          - i3blocks
-          - i3lock
+        create: true
         state: present
 
     - name: Ensure i3 config dir is present
