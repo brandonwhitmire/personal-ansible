@@ -10,11 +10,6 @@ set $mod Mod4
 # Default Terminal
 set $terminal "/usr/bin/alacritty"
 
-# Fibonacci Tiling
-# https://libreddit.spike.codes/r/i3wm/comments/4tw1jn/tip_quasi_alternatingfibonacci_layout/
-# for_window [class=".*"] split toggle
-# kill focused window
-
 # bindsym $mod+Shift+q split toggle kill
 bindsym $mod+Shift+q kill
 
@@ -274,7 +269,7 @@ exec_always --no-startup-id blueman-applet
 exec_always --no-startup-id flameshot
 exec --no-startup-id clipit
 exec_always --no-startup-id conky --config=/usr/share/conky/conky_solarized
-exec_always --no-startup-id xautolock -time 15 -locker blurlock
+exec_always --no-startup-id i3lock -c 000000
 exec_always --no-startup-id /usr/bin/numlockx on
 
 # Color palette used for the terminal ( ~/.Xresources file )

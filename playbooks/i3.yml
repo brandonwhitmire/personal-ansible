@@ -1,0 +1,62 @@
+#!/usr/bin/env ansible-playbook
+#
+# i3 window manager setup
+---
+- name: Setup i3 window manager
+  hosts: all
+  tasks:
+
+    - name: Install i3 pkgs
+      become: true
+      ansible.builtin.package:
+        name:
+          - i3-gaps  # tiling window manager
+          - i3blocks  # feed generator for status bar
+          - i3lock  # screenlocker
+          - i3status  # i3 status bar
+        state: present
+
+    - name: === i3 BLOCK ===
+      block:
+
+        - name: Template autologin for i3
+          become: true
+          ansible.builtin.template:
+            src: files/systemd/i3_autologin.j2
+            dest: /etc/systemd/system/getty@tty1.service.d/autologin.conf
+            owner: root
+            group: root
+            mode: '0644'
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - i3exit  # lock screen blur
+      - dmenu2  # keyboard-driven program launcher
+      - pa-applet-git  # applet for PulseAudio
+      - clipit  # clipboard applet
+  ansible.builtin.import_playbook: function_yay.yml
+
+- name: Post-AUR Installs
+  hosts: all
+  tasks:
+
+    # Requires dmenu to be installed first
+    - name: Install dmenu history patch
+      become: true
+      ansible.builtin.get_url:
+        url: https://tools.suckless.org/dmenu/scripts/dmenu_run_with_command_history/dmenu_run_history
+        dest: /usr/local/bin/
+        checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
+        mode: '0755'
+
+    # Requires i3exit to be installed first
+    - name: Blurrier blurlock screen (from i3exit)
+      become: true
+      ansible.builtin.lineinfile:
+        backup: true
+        backrefs: true
+        path: /usr/bin/blurlock
+        regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
+        line: '\1 -blur 0x100 \2'
+        state: present
