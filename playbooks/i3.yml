@@ -19,7 +19,16 @@
     - name: === i3 BLOCK ===
       block:
 
-        - name: Template autologin for i3
+        - name: Ensure systemd folder for i3 exists
+          become: true
+          ansible.builtin.file:
+            path: /etc/systemd/system/getty@tty1.service.d/
+            state: directory
+            owner: root
+            group: root
+            mode: '0644'
+
+        - name: Template autologin for i3 via systemd via agetty
           become: true
           ansible.builtin.template:
             src: files/systemd/i3_autologin.j2
@@ -27,6 +36,16 @@
             owner: root
             group: root
             mode: '0644'
+
+        - name: Startx i3
+          ansible.builtin.blockinfile:
+            path: ~/.xinitrc
+            marker: "# {mark} .xinitrc"
+            block: |
+              i3
+            create: true
+            mode: '0644'
+            state: present
 
 - name: Install AUR pkgs
   vars:
