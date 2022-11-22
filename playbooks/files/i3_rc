@@ -220,7 +220,7 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 # https://wiki.archlinux.org/title/I3#Shutdown,_reboot,_lock_screen
 set $Locker i3lock --ignore-empty-password --color=444444 && sleep 1
 bindsym $mod+0 mode "$mode_system"
-set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+set $mode_system (l)ock, (e)xit, (s)uspend, (h)ibernate, (r)eboot, (Shift+S)hutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id $Locker, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
