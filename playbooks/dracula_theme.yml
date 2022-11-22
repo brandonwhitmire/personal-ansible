@@ -1,10 +1,10 @@
 #!/usr/bin/env ansible-playbook
 #
-# Set Dracula theme for LightDM
+# Download Dracula theme
 #
 # Reference: https://www.linuxfordevices.com/tutorials/linux/change-lightdm-theme-and-background
 ---
-- name: Install baseline pkgs
+- name: Install Dracula theme
   hosts: all
   vars:
     dracula_filename: Dracula.tar.xz
@@ -24,10 +24,7 @@
         src: '/tmp/{{ dracula_filename }}'
         dest: /usr/share/themes/
 
-    - name: Set theme in greeter config
-      become: true
-      ansible.builtin.lineinfile:
-        path: /etc/lightdm/lightdm-gtk-greeter.conf
-        regexp: '^.*theme-name.*$'
-        state: present
-        line: theme-name=Dracula
+- name: Set theme to Dracula
+  vars:
+    selected_theme: Dracula
+  ansible.builtin.import_playbook: dark_theme.yml

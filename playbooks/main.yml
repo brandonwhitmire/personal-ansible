@@ -3,6 +3,7 @@
 - ansible.builtin.import_playbook: arch_baseline.yml
 - ansible.builtin.import_playbook: arch_general_recommendations.yml
 - ansible.builtin.import_playbook: i3.yml
+- ansible.builtin.import_playbook: dark_theme.yml
 - ansible.builtin.import_playbook: conky.yml
 - ansible.builtin.import_playbook: nitrogen.yml
 - ansible.builtin.import_playbook: shell.yml
