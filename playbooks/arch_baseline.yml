@@ -37,7 +37,8 @@
           - ttf-croscore  # Helvetica, Times, and Courier
           - grub-customizer  # GUI for GRUB menu
           - xorg-xhost  # hard dep for grub-customizer
-          - polkit  # hard dep for grub-customizer
+          - xautolock  # xorg locker
+          - polkit  # privs management
           - dmidecode  # used for checking for virtualization
           - firefox  # web browser
           - chromium  # web browser

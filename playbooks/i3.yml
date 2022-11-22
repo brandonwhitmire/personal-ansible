@@ -67,7 +67,6 @@
 - name: Install AUR pkgs
   vars:
     aur_packages:
-      - i3exit  # lock screen blur
       - dmenu2  # keyboard-driven program launcher
       - pa-applet-git  # applet for PulseAudio
       - clipit  # clipboard applet
@@ -85,14 +84,3 @@
         dest: /usr/local/bin/
         checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
         mode: '0755'
-
-    # Requires i3exit to be installed first
-    - name: Blurrier blurlock screen (from i3exit)
-      become: true
-      ansible.builtin.lineinfile:
-        backup: true
-        backrefs: true
-        path: /usr/bin/blurlock
-        regexp: '(.*) -blur [0-9.]+x[0-9.]+ (.*)'
-        line: '\1 -blur 0x100 \2'
-        state: present
