@@ -9,7 +9,6 @@
   hosts: all
   vars:
     selected_theme: Adwaita-dark
-    gtk3_dir: ~/.config/gtk-3.0
   tasks:
 
     - name: '[gtk2] Create config file'
@@ -33,13 +32,13 @@
 
     - name: '[gtk3] Create directory'
       ansible.builtin.file:
-        dest: '{{ gtk3_dir }}'
+        dest: ~/.config/gtk-3.0/
         state: directory
         mode: '0755'
 
     - name: '[gtk3] Set dark theme file'
       ansible.builtin.blockinfile:
-        path: '{{ gtk3_dir }}/settings.ini'
+        path: ~/.config/gtk-3.0/settings.ini
         marker: '# {mark} gtk3_config'
         block: |
           [Settings]
@@ -75,8 +74,10 @@
         insertbefore: BOF
         marker: '# {mark} qt56_config'
         block: |
+          export GTK2_RC_FILES=/usr/share/themes/{{ selected_theme }}/gtk-2.0/gtkrc
+          export GTK_THEME={{ selected_theme }}
           export QT_QPA_PLATFORMTHEME=gtk2
-          export QT_STYLE_OVERRIDE={{ selected_theme }}
+          export QT_STYLE_OVERRIDE=gtk2
         mode: '0644'
         create: true
         state: present
