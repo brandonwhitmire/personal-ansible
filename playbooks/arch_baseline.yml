@@ -67,7 +67,7 @@
           - netctl  # dep for wifi-menu
           - pcmanfm  # file explorer GUI
           - gvfs  # dep for pcmanfm features
-          - xfce4-power-manager  # power manager applet
+            #- xfce4-power-manager  # power manager applet
           - unzip  # zip
           - evince  # PDF viewer
           - ripgrep  # fast, recursive grep searcher
