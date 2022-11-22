@@ -67,7 +67,6 @@
     - name: === zsh block ===
       block:
 
-        # I don't like the Manjaro defaults at all
         - name: Ensure no .zshrc file exists
           ansible.builtin.file:
             path: ~/.zshrc
@@ -122,31 +121,6 @@
           loop:
             - '{{ ansible_user }}'
             - root
-
-    - name: === i3 block ===
-      block:
-
-        - name: Ensure i3 is present
-          become: true
-          community.general.pacman:
-            name:
-              - i3-gaps
-              - i3blocks
-              - i3lock
-            state: present
-
-        - name: Ensure i3 config dir is present
-          ansible.builtin.file:
-            path: ~/.config/i3/
-            state: directory
-            mode: '0755'
-
-        - name: Copy default i3 file to `{{ ansible_user }}` profile
-          ansible.builtin.copy:
-            force: true
-            src: files/i3_rc
-            dest: ~/.config/i3/config
-            mode: '0644'
 
     - name: === (neo)vim block ===
       block:

@@ -10,11 +10,6 @@ set $mod Mod4
 # Default Terminal
 set $terminal "/usr/bin/alacritty"
 
-# Fibonacci Tiling
-# https://libreddit.spike.codes/r/i3wm/comments/4tw1jn/tip_quasi_alternatingfibonacci_layout/
-# for_window [class=".*"] split toggle
-# kill focused window
-
 # bindsym $mod+Shift+q split toggle kill
 bindsym $mod+Shift+q kill
 
