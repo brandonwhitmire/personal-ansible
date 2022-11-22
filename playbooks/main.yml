@@ -10,5 +10,5 @@
 - ansible.builtin.import_playbook: grub.yml
 - ansible.builtin.import_playbook: calibre.yml
 - ansible.builtin.import_playbook: keepassxc.yml
-  #- ansible.builtin.import_playbook: steam.yml
+- ansible.builtin.import_playbook: steam.yml
 - ansible.builtin.import_playbook: virtualization.yml
