@@ -16,59 +16,56 @@
           - i3status  # i3 status bar
         state: present
 
-    - name: === i3 BLOCK ===
-      block:
+    # https://wiki.archlinux.org/title/Getty#Virtual_console
+    - name: Ensure systemd folder for autologin exists
+      become: true
+      ansible.builtin.file:
+        path: /etc/systemd/system/getty@tty1.service.d/
+        state: directory
+        owner: root
+        group: root
+        mode: '0644'
 
-        # https://wiki.archlinux.org/title/Getty#Virtual_console
-        - name: Ensure systemd folder for autologin exists
-          become: true
-          ansible.builtin.file:
-            path: /etc/systemd/system/getty@tty1.service.d/
-            state: directory
-            owner: root
-            group: root
-            mode: '0644'
+    - name: Template autologin for systemd via agetty
+      become: true
+      ansible.builtin.template:
+        src: files/systemd/i3_autologin.j2
+        dest: /etc/systemd/system/getty@tty1.service.d/autologin.conf
+        owner: root
+        group: root
+        mode: '0644'
 
-        - name: Template autologin for systemd via agetty
-          become: true
-          ansible.builtin.template:
-            src: files/systemd/i3_autologin.j2
-            dest: /etc/systemd/system/getty@tty1.service.d/autologin.conf
-            owner: root
-            group: root
-            mode: '0644'
+    - name: Startx i3 upon (auto)login
+      ansible.builtin.blockinfile:
+        path: ~/.xinitrc
+        marker: "# {mark} .xinitrc"
+        block: |
+          i3
+        create: true
+        mode: '0644'
+        state: present
 
-        - name: Startx i3 upon (auto)login
-          ansible.builtin.blockinfile:
-            path: ~/.xinitrc
-            marker: "# {mark} .xinitrc"
-            block: |
-              i3
-            create: true
-            mode: '0644'
-            state: present
+    - name: Ensure i3 is present
+      become: true
+      community.general.pacman:
+        name:
+          - i3-gaps
+          - i3blocks
+          - i3lock
+        state: present
 
-        - name: Ensure i3 is present
-          become: true
-          community.general.pacman:
-            name:
-              - i3-gaps
-              - i3blocks
-              - i3lock
-            state: present
+    - name: Ensure i3 config dir is present
+      ansible.builtin.file:
+        path: ~/.config/i3/
+        state: directory
+        mode: '0755'
 
-        - name: Ensure i3 config dir is present
-          ansible.builtin.file:
-            path: ~/.config/i3/
-            state: directory
-            mode: '0755'
-
-        - name: Copy default i3 file to `{{ ansible_user }}` profile
-          ansible.builtin.copy:
-            force: true
-            src: files/i3_rc
-            dest: ~/.config/i3/config
-            mode: '0644'
+    - name: Copy default i3 file to `{{ ansible_user }}` profile
+      ansible.builtin.copy:
+        force: true
+        src: files/i3_rc
+        dest: ~/.config/i3/config
+        mode: '0644'
 
 - name: Install AUR pkgs
   vars:
