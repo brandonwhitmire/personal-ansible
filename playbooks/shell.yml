@@ -17,7 +17,7 @@
   vars:
     aur_packages:
       - spaceship-prompt  # terminal eye candy
-      # - powerline-fonts-git  # patched fonts for powerline
+      - powerline-fonts-git  # patched fonts for powerline
       - vim-plug  # vim plugin manager
       - inxi  # more systeminfo
     aur_packages_state: present
@@ -62,9 +62,9 @@
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
           - screenfetch  # display system info
-          - powerline  # vim statusbar
-          - powerline-fonts  # soft dep for powerline
-          - powerline-vim  # soft dep for powerline
+            #- powerline  # vim statusbar
+            #- powerline-fonts  # soft dep for powerline
+            #- powerline-vim  # soft dep for powerline
           - socat  # dep for powerline
           - xorg-xrandr  # dep for powerline
           # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
@@ -78,7 +78,7 @@
           - psutil  # soft dep for powerline
           - pygit2  # soft dep for powerline
           - i3ipc  # soft dep for powerline
-          # - powerline-status  # terminal beautification
+          - powerline-status  # terminal beautification
           - neovim  # used by neovim
           - selenium  # Website automation
           - requests  # HTTP actions

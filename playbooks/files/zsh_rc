@@ -9,7 +9,7 @@ prompt spaceship
 # https://wiki.archlinux.org/title/Powerline#Zsh
 export USE_POWERLINE="true"
 powerline-daemon --quiet
-. /usr/share/powerline/bindings/zsh/powerline.zsh
+. $(find "$HOME" -type f -name powerline.zsh)
 
 # --- zsh Shell Options
 
