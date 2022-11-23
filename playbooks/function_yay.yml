@@ -50,6 +50,15 @@
 
     - block:
 
+        - name: Ensure yay is installed
+          become: true
+          ignore_errors: true
+          changed_when: false
+          community.general.pacman:
+            name: yay-bin
+            state: present
+          register: is_yay_installed
+
         - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`
           become: true
           changed_when: false
@@ -60,15 +69,6 @@
             validate: 'visudo -csf %s'
             mode: 0440
             state: present
-
-        - name: Ensure yay is installed
-          become: true
-          ignore_errors: true
-          changed_when: false
-          community.general.pacman:
-            name: yay-bin
-            state: present
-          register: is_yay_installed
 
         - name: Ensure `yay` (AUR) pkg manager is installed
           when: is_yay_installed is failed
@@ -124,7 +124,7 @@
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
-            create: true
+              #create: true
+              #mode: 0440
             validate: 'visudo -csf %s'
-            mode: 0440
             state: absent

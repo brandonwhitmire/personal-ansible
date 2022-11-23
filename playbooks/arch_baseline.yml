@@ -55,7 +55,7 @@
           - python-pip  # pip package installer
           - python-setuptools  # Python3 setuptools
           - numlockx  # numlock on at login
-          - marker  # Markdown editor
+          - ghostwriter  # Markdown editor
           - libreoffice  # office suite of programs
           - pulseaudio  # PulseAudio
           - pavucontrol  # PulseAudio GUI for volume
@@ -69,7 +69,5 @@
           - gvfs  # dep for pcmanfm features
           - unzip  # zip
           - evince  # PDF viewer
-          - ripgrep  # fast, recursive grep searcher
-          - fd  # faster `find` command
           - reflector  # update pacman mirrors
         state: present

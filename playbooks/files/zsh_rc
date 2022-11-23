@@ -1,104 +1,87 @@
 # TODO: fix vpn and magnet commands
 
-# ---
-# CUSTOMIZED
-# ---
-# https://opensource.com/article/19/7/bash-aliases
-# https://techgage.com/article/using_aliases_in_linux_to_make_life_easier/2/
-# https://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
-# https://opensource.com/article/20/1/bash-scripts-aliases
-
-# --- Powerline Fonts
-
-export USE_POWERLINE="true"
-powerline-daemon --quiet
-. /usr/share/powerline/bindings/zsh/powerline.zsh
-
-# --- Spaceship-Prompt Setup
-# TODO: migrate to separate file
-# https://spaceship-prompt.sh/config/intro/
-
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit ; promptinit
 prompt spaceship
 
-# https://spaceship-prompt.sh/options/
-# PROMPT
-export SPACESHIP_PROMPT_ADD_NEWLINE="false"
+# --- Powerline Fonts
 
-# TIME
-export SPACESHIP_TIME_SHOW="true"
-export SPACESHIP_TIME_PREFIX="["
-export SPACESHIP_TIME_SUFFIX="] "
-
-# BATTERY
-export SPACESHIP_BATTERY_SHOW="always"
-# export SPACESHIP_BATTERY_PREFIX="🔋"
-export SPACESHIP_BATTERY_THRESHOLD="101"
-
-# EXIT_CODE
-export SPACESHIP_EXIT_CODE_SHOW="true"
-export SPACESHIP_EXIT_CODE_SYMBOL="    ⤤ "
-export SPACESHIP_EXIT_CODE_PREFIX=""
-# export SPACESHIP_EXIT_CODE_SUFFIX="\n"
-
-# VI MODE
-#spaceship_vi_mode_disable  # disable vi mode by default
-#export SPACESHIP_VI_MODE_INSERT="[vim]"
-#export SPACESHIP_VI_MODE_NORMAL=""
-
-# EXEC_TIME
-export SPACESHIP_EXEC_TIME_ELAPSED="0"
-export SPACESHIP_EXEC_TIME_PREFIX="in "
-export SPACESHIP_EXEC_TIME_SUFFIX="\n\n"
-
-# USER
-export SPACESHIP_USER_SHOW="always"
-export SPACESHIP_USER_PREFIX=""
-export SPACESHIP_USER_SUFFIX=""
-
-# HOST
-export SPACESHIP_HOST_SHOW_FULL="true"
-export SPACESHIP_HOST_PREFIX="@"
-export SPACESHIP_HOST_SUFFIX=""
-
-# DIR
-export SPACESHIP_DIR_PREFIX=":"
-export SPACESHIP_DIR_TRUNC="0"
-export SPACESHIP_DIR_TRUNC_REPO="false"
-
-# GIT
-export SPACESHIP_GIT_PREFIX=""
-# export SPACESHIP_GIT_SYMBOL="" # 
-
-# DOCKER
-export SPACESHIP_DOCKER_SYMBOL=""
+# https://wiki.archlinux.org/title/Powerline#Zsh
+export USE_POWERLINE="true"
+powerline-daemon --quiet
+. /usr/share/powerline/bindings/zsh/powerline.zsh
 
 # --- zsh Shell Options
 
+# # https://wiki.archlinux.org/title/Zsh#Command_completion
+# autoload -Uz compinit
+# compinit
+# zstyle ':completion:*' menu select
+# zstyle ':completion::complete:*' gain-privileges 1
+# eval "$(zoxide init zsh)"
+# 
+# # https://wiki.archlinux.org/title/Zsh#Key_bindings
+# # create a zkbd compatible hash;
+# # to add other keys to this hash, see: man 5 terminfo
+# typeset -g -A key
+# key[Home]="${terminfo[khome]}"
+# key[End]="${terminfo[kend]}"
+# key[Insert]="${terminfo[kich1]}"
+# key[Backspace]="${terminfo[kbs]}"
+# key[Delete]="${terminfo[kdch1]}"
+# key[Up]="${terminfo[kcuu1]}"
+# key[Down]="${terminfo[kcud1]}"
+# key[Left]="${terminfo[kcub1]}"
+# key[Right]="${terminfo[kcuf1]}"
+# key[PageUp]="${terminfo[kpp]}"
+# key[PageDown]="${terminfo[knp]}"
+# key[Shift-Tab]="${terminfo[kcbt]}"
+# # setup key accordingly
+# [[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"       beginning-of-line
+# [[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"        end-of-line
+# [[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"     overwrite-mode
+# [[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}"  backward-delete-char
+# [[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"     delete-char
+# [[ -n "${key[Up]}"        ]] && bindkey -- "${key[Up]}"         up-line-or-history
+# [[ -n "${key[Down]}"      ]] && bindkey -- "${key[Down]}"       down-line-or-history
+# [[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"       backward-char
+# [[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"      forward-char
+# [[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"     beginning-of-buffer-or-history
+# [[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"   end-of-buffer-or-history
+# [[ -n "${key[Shift-Tab]}" ]] && bindkey -- "${key[Shift-Tab]}"  reverse-menu-complete
+# # Finally, make sure the terminal is in application mode, when zle is
+# # active. Only then are the values from $terminfo valid.
+# if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
+# 	autoload -Uz add-zle-hook-widget
+# 	function zle_application_mode_start { echoti smkx }
+# 	function zle_application_mode_stop { echoti rmkx }
+# 	add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
+# 	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
+# fi
+# 
+# # https://wiki.archlinux.org/title/Zsh#History_search
+# autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+# zle -N up-line-or-beginning-search
+# zle -N down-line-or-beginning-search
+# [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
+# [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
+# 
+# # https://wiki.archlinux.org/title/Zsh#Shift,_Alt,_Ctrl_and_Meta_modifiers
+# key[Control-Left]="${terminfo[kLFT5]}"
+# key[Control-Right]="${terminfo[kRIT5]}"
+# [[ -n "${key[Control-Left]}"  ]] && bindkey -- "${key[Control-Left]}"  backward-word
+# [[ -n "${key[Control-Right]}" ]] && bindkey -- "${key[Control-Right]}" forward-word
+# 
+# # https://wiki.archlinux.org/title/Zsh#pkgfile_%22command_not_found%22_handler
+# source /usr/share/doc/pkgfile/command-not-found.zsh
+
+# Shell options
 setopt dotglob 	# shell expands '*' for dotfiles
-bindkey "^[[1;5C" forward-word 2>/dev/null
-bindkey "^[[1;5D" backward-word 2>/dev/null
-# https://stackoverflow.com/a/8645267
-# https://www.linuxquestions.org/questions/linux-general-1/insert-and-delete-key-returns-~-in-a-terminal-876401/
-bindkey  "^[[H"   beginning-of-line
-bindkey  "^[[F"   end-of-line
-bindkey  "^[[3~"  delete-char
-
-# https://wiki.archlinux.org/title/Zsh#Command_completion
-autoload -Uz compinit
-compinit
-
 setopt append_history # append rather then overwrite
 setopt extended_history # save timestamp
 #setopt share_history # share history between terminals
 export HISTFILE=~/.zsh_history
-export SAVEHIST=100000
-
-# https://unix.stackexchange.com/a/30169
-# https://superuser.com/a/533600
-bindkey -v
-bindkey '^r' history-incremental-search-backward
+export SAVEHIST=10000
 
 # --- Wrapped Commands
 

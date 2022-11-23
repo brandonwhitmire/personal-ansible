@@ -6,18 +6,18 @@
   hosts: all
   tasks:
 
-    - name: Remove pkg conflicts for Powerline fonts
-      become: true
-      community.general.pacman:
-        name:
-          - powerline-fonts
-        state: absent
+    # - name: Remove pkg conflicts for Powerline fonts
+    #   become: true
+    #   community.general.pacman:
+    #     name:
+    #       - powerline-fonts
+    #     state: absent
 
 - name: Install necessary AUR packages
   vars:
     aur_packages:
       - spaceship-prompt  # terminal eye candy
-      - powerline-fonts-git  # patched fonts for powerline
+      # - powerline-fonts-git  # patched fonts for powerline
       - vim-plug  # vim plugin manager
       - inxi  # more systeminfo
     aur_packages_state: present
@@ -33,7 +33,18 @@
       become: true
       community.general.pacman:
         name:
+          - python
+          - python-pip
+          - python-setuptools
           - zsh  # shell
+          - zsh-completions  # zsh completions
+          - zsh-syntax-highlighting  # zsh syntax highlighting
+          - grml-zsh-config  # zsh config used in archiso
+          - pkgfile  # command not found
+          - zoxide  # smarter cd
+          - fzf  # fuzzy finder
+          - ripgrep  # fast, recursive grep searcher
+          - fd  # faster `find` command
           - alacritty  # terminal
           - vim  # text editor
           - neovim  # upgraded text editor
@@ -50,16 +61,24 @@
           - xclip  # dep for vim clipboard
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
-          - texlive-most  # LaTeX generator dep for vim-latex-live-preview
           - screenfetch  # display system info
+          - powerline  # vim statusbar
+          - powerline-fonts  # soft dep for powerline
+          - powerline-vim  # soft dep for powerline
+          - socat  # dep for powerline
+          - xorg-xrandr  # dep for powerline
+          # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
         state: present
 
+    # https://wiki.archlinux.org/title/Powerline
+    # https://powerline.readthedocs.io/en/master/installation.html
     - name: Install needed pip3 pkgs
       ansible.builtin.pip:
         name:
           - psutil  # soft dep for powerline
+          - pygit2  # soft dep for powerline
           - i3ipc  # soft dep for powerline
-          - powerline-status  # terminal beautification
+          # - powerline-status  # terminal beautification
           - neovim  # used by neovim
           - selenium  # Website automation
           - requests  # HTTP actions
@@ -72,33 +91,19 @@
             path: ~/.zshrc
             state: absent
 
-        - name: Overwrite current shell_rc with skeleton, original version
-          become: true
-          ansible.builtin.copy:
-            backup: true
-            force: true
-            remote_src: true
-            src: '/etc/skel/{{ item }}'
-            dest: '~/{{ item }}'
-            owner: '{{ ansible_user }}'
-            group: '{{ ansible_user }}'
-            mode: '0644'
-          loop:
-            - .bashrc
-
         - name: Add functionality for shells
           ansible.builtin.blockinfile:
             path: '~/{{ item }}'
-            marker: "# {mark} shell_rc"
-            block: "{{ lookup('file', '../files/shell_rc') }}"
+            marker: "# {mark} zsh_rc"
+            block: "{{ lookup('file', '../files/zsh_rc') }}"
             create: true
             mode: '0644'
             state: present
           loop:
             - .zshrc
-            - .bashrc
+            # - .bashrc
 
-        - name: Copy custom shell_rc to root
+        - name: Copy custom zsh_rc to root
           become: true
           ansible.builtin.copy:
             backup: true
@@ -111,7 +116,7 @@
             mode: '0644'
           loop:
             - .zshrc
-            - .bashrc
+            # - .bashrc
 
         - name: Set default shell to zsh for user "{{ ansible_user }}" and root
           become: true
@@ -121,6 +126,21 @@
           loop:
             - '{{ ansible_user }}'
             - root
+
+        - name: Rebuild pkgfile cache
+          become: true
+          ansible.builtin.command: 
+            cmd: pkgfile --update
+
+    - name: === Spaceship prompt block ===
+      block:
+        - name: Copy spaceship config
+          ansible.builtin.copy:
+            remote_src: false
+            src: files/spaceship_rc
+            dest: ~/.spaceshiprc.zsh
+            force: true
+            mode: '0644'
 
     - name: === (neo)vim block ===
       block:
@@ -166,13 +186,14 @@
         - name: Template ~/.profile
           ansible.builtin.blockinfile:
             path: ~/.profile
-            create: true
-            state: present
-            mode: '0644'
+            marker: '# {mark} profile_config'
             block: |
               export EDITOR=/usr/bin/nvim
               export BROWSER={{ default_browser }}
               export TERMINAL=/usr/bin/alacritty
+            create: true
+            state: present
+            mode: '0644'
 
     - name: === mimeapps.list block ===
       vars:
@@ -182,9 +203,7 @@
         - name: 'Template {{ mimeapps_file }}'
           ansible.builtin.blockinfile:
             path: '{{ mimeapps_file }}'
-            create: true
-            state: present
-            mode: '0644'
+            marker: '# {mark} mimeapps_list_config'
             block: |
               [Default Applications]
               text/html={{ default_browser }}
@@ -200,3 +219,6 @@
               application/x-extension-xht={{ default_browser }}
               image/jpeg={{ default_browser }}
               image/png={{ default_browser }}
+            create: true
+            state: present
+            mode: '0644'
