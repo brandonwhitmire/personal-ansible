@@ -201,7 +201,10 @@ install () {
 		echo "Please supply a package(s) to INSTALL!"
 		exit 1
 	fi
-	sudo pacman -S "$@"
+	echo -e "[i] Trying official repos\n"
+    sudo pacman -S "$@" ||
+        echo -e "[E] Official repos failed\n\n[i] Trying AUR\n" &&
+        yay -S "$@"
 }
 # Removes packages and dependencies (not used by other packages)
 uninstall () {
@@ -442,7 +445,7 @@ update () {
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
 update_mirrors () {
-    reflector \
+    sudo reflector \
         --country "${ARCH_MIRROR_COUNTRY}" \
         --ipv4 \
         --latest 10 \
@@ -451,7 +454,7 @@ update_mirrors () {
         --sort rate \
         --threads 5 \
         --save /etc/pacman.d/mirrorlist
-    echo "Every run of pacman-mirrors requires you to syncronize your database and update your system"
+    echo -e "\n[i] Every run of pacman-mirrors requires you to syncronize your database and update your system\n"
 	update
 }
 # Create and switch to new, random temp directory

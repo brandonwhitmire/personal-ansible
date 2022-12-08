@@ -4,7 +4,7 @@
 #
 # References:
 # - https://wiki.archlinux.org/title/Steam#Proton_Steam-Play
-# - https://wiki.archlinux.org/title/Steam/Troubleshooting#Force_Proton_to_use_Wine_Direct3D_emulation
+# - https://wiki.archlinux.org/title/Steam/Troubleshooting#Force_Direct3D_emulation
 ---
 - name: Steam Linux compatibility fixes for games
   hosts: all
@@ -41,6 +41,8 @@
           - wine
           - mesa  # Intel: open-source GPU
           - nvidia  # Nvidia: closed-source GPU
+          - nvidia-utils
+          - lib32-nvidia-utils
           - ttf-liberation
           - lib32-systemd
         state: present
@@ -60,6 +62,34 @@
         name: optimus-manager
         enabled: true
         state: started
+
+    # https://github.com/GloriousEggroll/proton-ge-custom#native
+    - name: === Proton GloriousEggroll Block ===
+      vars:
+        - proton_ge_version: GE-Proton7-42
+        - proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_version }}.tar.gz
+        - download_location: /tmp
+        - install_location: ~/.steam/root/compatibilitytools.d/
+      block:
+
+        - name: Download Proton GE Build
+          ansible.builtin.get_url:
+            url: '{{ proton_ge_url }}'
+            dest: '{{ download_location }}'
+
+        - name: Ensure folder exists
+          ansible.builtin.file:
+            path: '{{ install_location }}'
+            owner: '{{ ansible_user }}'
+            group: '{{ ansible_user }}'
+            mode: '0755'
+            state: directory
+
+        - name: Extract Proton GE archive
+          ansible.builtin.unarchive:
+            remote_src: true
+            src: '{{ download_location }}/{{ proton_ge_version }}.tar.gz'
+            dest: '{{ install_location }}'
 
     - name: === AOE2 Block ===
       vars:
