@@ -37,15 +37,23 @@
       become: true
       community.general.pacman:
         name:
-          - steam
+          - lib32-nvidia-utils  # lib32-vulkan-driver: install before 'steam' pkg to prevent steam installing AMD drivers
+          - nvidia-utils  # vulkan-driver: see previous line
+          - nvidia  # Nvidia: closed-source GPU
+          - lib32-systemd
           - wine
           - mesa  # Intel: open-source GPU
-          - nvidia  # Nvidia: closed-source GPU
-          - nvidia-utils
-          - lib32-nvidia-utils
           - ttf-liberation
-          - lib32-systemd
+          - steam
         state: present
+
+    - name: Ensure certain packages are not installed
+      become: true
+      community.general.pacman:
+        name:
+          - lib32-amdvlk
+          - amdvlk
+        state: absent
 
 - name: Install AUR pkgs
   vars:
