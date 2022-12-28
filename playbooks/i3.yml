@@ -1,6 +1,9 @@
 #!/usr/bin/env ansible-playbook
 #
 # i3 window manager setup
+#
+# Boot Sequence:
+# systemd -> agetty (into user) -> zsh (from .zshrc) -> startx (xorg) -> i3
 ---
 - name: Setup i3 window manager
   hosts: all
@@ -33,7 +36,9 @@
         marker: '# {mark} i3_xinitrc'
         block: |
           [Service]  
-          ExecStart=  
+          ExecStart=
+          # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
+          ExecStartPre=-/usr/bin/prime-switch
           ExecStart=-/sbin/agetty --autologin {{ ansible_user }} --noclear %I 38400 linux
         owner: root
         group: root
@@ -46,6 +51,7 @@
         path: ~/.xinitrc
         marker: "# {mark} .xinitrc"
         block: |
+          /usr/bin/prime-offload # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
           i3
         mode: '0644'
         create: true

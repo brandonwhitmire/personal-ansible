@@ -9,7 +9,7 @@ prompt spaceship
 # https://wiki.archlinux.org/title/Powerline#Zsh
 export USE_POWERLINE="true"
 powerline-daemon --quiet
-. $(find "$HOME" -type f -name powerline.zsh)
+. /usr/share/powerline/bindings/zsh/powerline.zsh
 
 # --- zsh Shell Options
 
@@ -445,6 +445,7 @@ update () {
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
 update_mirrors () {
+    echo "[i] Updating package mirrors..."
     sudo reflector \
         --country "${ARCH_MIRROR_COUNTRY}" \
         --ipv4 \
@@ -454,8 +455,9 @@ update_mirrors () {
         --sort rate \
         --threads 5 \
         --save /etc/pacman.d/mirrorlist
+        --verbose
     echo -e "\n[i] Every run of pacman-mirrors requires you to syncronize your database and update your system\n"
-	update
+    sudo pacman -S --refresh --sysupgrade
 }
 # Create and switch to new, random temp directory
 mkt () {
