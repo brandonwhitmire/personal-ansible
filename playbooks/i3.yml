@@ -3,7 +3,7 @@
 # i3 window manager setup
 #
 # Boot Sequence:
-# systemd -> agetty (into user) -> zsh (from .zshrc) -> startx (xorg) -> i3
+# systemd boot -> agetty (autologin into user) -> zsh (sources .zshrc) -> startx (sources .xinitrc) -> i3
 ---
 - name: Setup i3 window manager
   hosts: all
@@ -33,7 +33,7 @@
       become: true
       ansible.builtin.blockinfile:
         path: /etc/systemd/system/getty@tty1.service.d/autologin.conf
-        marker: '# {mark} i3_xinitrc'
+        marker: '# {mark} agetty_autologin'
         block: |
           [Service]  
           ExecStart=
