@@ -641,6 +641,16 @@ lazyssh () {
 	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
 }
 
+enable_wifi () {
+    sudo rfkill unblock wifi
+    rfkill list
+}
+
+disable_wifi () {
+    sudo rfkill block wifi
+    rfkill list
+}
+
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
