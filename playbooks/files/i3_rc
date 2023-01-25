@@ -258,16 +258,17 @@ mode "resize" {
 
 # Autostart applications
 exec --no-startup-id start-pulseaudio-x11
-exec --no-startup-id pa-applet
-exec_always --no-startup-id keepassxc
-exec_always --no-startup-id nitrogen --restore ; sleep 1 ; picom -b
-exec_always --no-startup-id nm-applet
-exec_always --no-startup-id blueman-applet
-exec_always --no-startup-id flameshot
-exec --no-startup-id clipit
-exec_always --no-startup-id conky --config=/usr/share/conky/conky_theme
-exec_always --no-startup-id xautolock -time 15 -locker "$Locker"
-exec_always --no-startup-id /usr/bin/numlockx on
+exec_always --no-startup-id pa-applet  # volume changer applet
+exec_always --no-startup-id keepassxc  # password manager
+exec_always --no-startup-id nitrogen --restore ; sleep 1 ; picom -b  # desktop background manager
+exec_always --no-startup-id nm-applet  # networking applet
+exec_always --no-startup-id blueman-applet  # bluetooth applet
+exec_always --no-startup-id flameshot  # screenshot applet
+exec_always --no-startup-id dunst  # system notifcations
+exec --no-startup-id clipit  # clipboard
+exec_always --no-startup-id conky --config=/usr/share/conky/conky_theme  # sysmon
+exec_always --no-startup-id xautolock -time 15 -locker "$Locker"  # lock screen
+exec_always --no-startup-id /usr/bin/numlockx on  # numlock button state
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:

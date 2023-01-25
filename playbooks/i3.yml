@@ -17,6 +17,7 @@
           - i3blocks  # feed generator for status bar
           - i3lock  # screenlocker
           - i3status  # i3 status bar
+          - dunst  # system notifications
         state: present
 
     # https://wiki.archlinux.org/title/Getty#Virtual_console

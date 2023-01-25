@@ -82,3 +82,14 @@
         state: started
       loop:
         - bluetooth
+
+    - name: Set default systemd service timeout
+      become: true
+      ansible.builtin.blockinfile:
+        path: /etc/systemd/system.conf
+        marker: "# {mark} systemd_timeout"
+        create: true
+        state: present
+        mode: '0644'
+        block: |
+          DefaultTimeoutStopSec=15s

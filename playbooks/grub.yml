@@ -18,14 +18,14 @@
       register: grub_cmdline_check
       changed_when: false
 
-    - name: Insert GRUB splash if missing
+    - name: Add kernel boot parameters (verbose logging, ACPI, etc.)
       become: true
       ansible.builtin.lineinfile:
         backup: true
         backrefs: true
         path: /etc/default/grub
         regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
-        line: '\1 noquiet splash=verbose"'
+        line: '\1 noquiet splash=verbose acpi_backlight=video "'
         state: present
       when: grub_cmdline_check.found == 0
       notify: Update GRUB
@@ -59,6 +59,28 @@
             block: |
               [Service]
               TTYVTDisallocate=no
+
+    # https://wiki.archlinux.org/title/Backlight#xbacklight_returns_:_No_outputs_have_backlight_property
+    # NOTE: this will require a reboot due to adding a user to the proper group
+    - name: First, remove conflicting package/binary
+      become: true
+      ansible.builtin.package:
+        name: xorg-xbacklight
+        state: absent
+
+    - name: Install acpilight pkg
+      become: true
+      ansible.builtin.package:
+        name: acpilight
+        state: present
+
+    - name: Add user to acpilight's "video" group
+      become: true
+      ansible.builtin.user:
+        name: '{{ ansible_user }}'
+        groups: video
+        append: true
+        state: present
 
   handlers:
 
