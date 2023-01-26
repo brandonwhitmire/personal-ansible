@@ -115,3 +115,12 @@
         mode: '0644'
         block: |
           DefaultTimeoutStopSec=15s
+
+    - name: Set Chromium to use GTK theme
+      ansible.builtin.lineinfile:
+        backup: true
+        backrefs: true
+        path: ~/.config/chromium/Default/Preferences
+        regexp: '(.*)"system_theme":0(.*)'
+        line: '\1 "system_theme":1 \2'
+        state: present

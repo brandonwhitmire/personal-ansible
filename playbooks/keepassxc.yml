@@ -31,15 +31,16 @@
         dest: ~/.librewolf/
         mode: '0770'
 
-    - name: Copy keepassxc-proxy binary into /usr/bin/
-      become: true
-      ansible.builtin.copy:
-        remote_src: false
-        src: files/browser/native-messaging-hosts/keepassxc-proxy
-        dest: /usr/bin/keepassxc-proxy
-        owner: root
-        group: root
-        mode: '0755'
+    # NOTE: not necessary?: https://archlinux.org/packages/community/x86_64/keepassxc/
+    #    - name: Copy keepassxc-proxy binary into /usr/bin/
+    #      become: true
+    #      ansible.builtin.copy:
+    #        remote_src: false
+    #        src: files/browser/native-messaging-hosts/keepassxc-proxy
+    #        dest: /usr/bin/keepassxc-proxy
+    #        owner: root
+    #        group: root
+    #        mode: '0755'
 
     - name: Copy keepassxc-proxy systemd unitfile file to /etc/
       become: true
