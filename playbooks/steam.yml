@@ -4,6 +4,8 @@
 #
 # References:
 # - https://wiki.archlinux.org/title/Steam#Proton_Steam-Play
+# - Civ5 launch options: https://www.protondb.com/app/8930#Umnb6VrvAR
+# - Civ6 launch options: https://www.protondb.com/app/289070#GP4yXYME6b
 ---
 - name: Steam Linux compatibility fixes for games
   hosts: all
