@@ -57,3 +57,14 @@
         name: keepassxc-proxy
         enabled: true
         state: started
+
+    - name: Set KeepassXC theme to system (classic)
+      ansible.builtin.blockinfile:
+        path: ~/.config/keepassxc/keepassxc.ini
+        marker: '# {mark} keepassxc_theme'
+        block: |
+          [GUI]
+          ApplicationTheme=classic
+        mode: '0644'
+        create: true
+        state: present

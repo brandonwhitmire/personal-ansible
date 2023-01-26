@@ -641,14 +641,24 @@ lazyssh () {
 	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
 }
 
-enable_wifi () {
+wifi_enable () {
+    echo '[i] Enabling wifi...'
     sudo rfkill unblock wifi
     rfkill list
 }
 
-disable_wifi () {
+wifi_disable () {
+    echo '[i] Disabling wifi...'
     sudo rfkill block wifi
     rfkill list
+}
+
+wifi_scan () {
+    echo '[i] This will *NOT* enable wifi automatically...'
+    nmcli device wifi rescan && \
+        nmcli device wifi list && \
+        echo '[i] Connect via:' && \
+        echo '    nmcli device wifi connect <WIFI_NAME>'
 }
 
 # === AUTOSTART XORG ===

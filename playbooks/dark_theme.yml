@@ -8,7 +8,7 @@
 - name: Set dark theme as default for applications
   hosts: all
   vars:
-    selected_theme: Adwaita-dark
+    selected_theme: Dracula
   tasks:
 
     - name: '[gtk2] Create config file'
@@ -68,7 +68,9 @@
         create: true
         state: present
 
-    - name: '[Qt5/6] Use GTK2 themes'
+    - name: '[Qt5/6] Use GTK themes'
+      vars:
+        gtk_version: gtk2
       ansible.builtin.blockinfile:
         path: ~/.xinitrc
         insertbefore: BOF
@@ -76,8 +78,8 @@
         block: |
           export GTK2_RC_FILES=/usr/share/themes/{{ selected_theme }}/gtk-2.0/gtkrc
           export GTK_THEME={{ selected_theme }}
-          export QT_QPA_PLATFORMTHEME=gtk2
-          export QT_STYLE_OVERRIDE=gtk2
+          export QT_QPA_PLATFORMTHEME={{ gtk_version }}
+          export QT_STYLE_OVERRIDE={{ gtk_version }}
         mode: '0644'
         create: true
         state: present
@@ -85,6 +87,7 @@
 - name: '[Qt5/6] Install AUR pkgs'
   vars:
     aur_packages:
-      - qt5-styleplugins
-      - qt6gtk2
+      - dracula-gtk-theme  # dark theme
+      - qt5-styleplugins  # GUI framework
+      - qt6gtk2  # GUI framework
   ansible.builtin.import_playbook: function_yay.yml

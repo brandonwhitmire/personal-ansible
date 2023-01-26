@@ -23,12 +23,22 @@
         update_cache: true
         upgrade: true
 
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* pkg from 'xorg')
+      become: true
+      ansible.builtin.package:
+        name: xorg  # desktop GUI
+        state: present
+      when: "'acpilight' not in ansible_facts.packages"
+
     - name: Install pacman pkgs
       become: true
       ansible.builtin.pacman:
         name:
           - xdg-user-dirs  # common user dirs
-          - xorg  # GUI
           - xorg-xinit  # start GUI
           - picom  # xorg compositor
           - xterm  # default terminal
@@ -82,6 +92,18 @@
         state: started
       loop:
         - bluetooth
+
+    - name: Disable bluetooth on boot
+      become: true
+      vars:
+        bluetooth_enabled: false
+      ansible.builtin.lineinfile:
+        backup: true
+        backrefs: true
+        path: /etc/bluetooth/main.conf
+        regexp: '^#\s*(AutoEnable)=.*$'
+        line: '\1={{ bluetooth_enabled }}'
+        state: present
 
     - name: Set default systemd service timeout
       become: true
