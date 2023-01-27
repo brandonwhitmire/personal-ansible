@@ -82,11 +82,6 @@
         - download_location: '{{ install_location }}/{{ proton_ge_filename}}'
       block:
 
-        - name: Download Proton GE Build
-          ansible.builtin.get_url:
-            url: '{{ proton_ge_url }}'
-            dest: '{{ download_location }}'
-
         - name: Ensure folder exists
           ansible.builtin.file:
             path: '{{ install_location }}'
@@ -94,6 +89,11 @@
             group: '{{ ansible_user }}'
             mode: '0755'
             state: directory
+
+        - name: Download Proton GE Build
+          ansible.builtin.get_url:
+            url: '{{ proton_ge_url }}'
+            dest: '{{ download_location }}'
 
         - name: Extract Proton GE archive
           ansible.builtin.unarchive:

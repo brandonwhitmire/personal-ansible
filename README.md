@@ -150,7 +150,6 @@ Actions and capabilities to add eventually:
 
 - virtualization.yml (split off a VBOX or QEMU playbook)
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
-- switch GTK3 theme to darks: https://wiki.archlinux.org/title/GTK#Dark_theme_variant
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
 - add keyboard shortcuts for Spanish chars
 - fix i3status bar applets to show all

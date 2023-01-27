@@ -228,5 +228,6 @@
             mode: '0644'
 
         - name: Set default browser via xdg-settings
+          ignore_errors: true
           ansible.builtin.command:
             cmd: xdg-settings set default-web-browser {{ default_browser_name }}.desktop

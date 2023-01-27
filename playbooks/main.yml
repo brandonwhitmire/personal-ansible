@@ -6,11 +6,11 @@
 - ansible.builtin.import_playbook: dark_theme.yml
 - ansible.builtin.import_playbook: conky.yml
 - ansible.builtin.import_playbook: nitrogen.yml
+- ansible.builtin.import_playbook: keepassxc.yml
 - ansible.builtin.import_playbook: shell.yml
 - ansible.builtin.import_playbook: spanish_locale.yml
 - ansible.builtin.import_playbook: docker.yml
 - ansible.builtin.import_playbook: grub.yml
 - ansible.builtin.import_playbook: calibre.yml
-- ansible.builtin.import_playbook: keepassxc.yml
 - ansible.builtin.import_playbook: steam.yml
 - ansible.builtin.import_playbook: virtualization.yml
