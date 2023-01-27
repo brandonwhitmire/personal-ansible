@@ -82,6 +82,7 @@
           - reflector  # update pacman mirrors
           - bluez  # bluetooth
           - pulseaudio-bluetooth  # pulseaudio dep for bluetooth
+          - xf86-input-synaptics  # touchpad
         state: present
 
     - name: Enable services
@@ -124,3 +125,14 @@
         regexp: '(.*)"system_theme":0(.*)'
         line: '\1 "system_theme":1 \2'
         state: present
+
+    # https://wiki.archlinux.org/title/Touchpad_Synaptics#Frequently_used_options
+    - name: Configure touchpad to use sane defaults
+      become: true
+      ansible.builtin.copy:
+        remote_src: false
+        src: files/70-synaptics.conf
+        dest: /etc/X11/xorg.conf.d/
+        mode: '0644'
+        owner: root
+        group: root
