@@ -204,30 +204,32 @@
         mimeapps_file: ~/.config/mimeapps.list
       block:
 
+        # https://stackoverflow.com/a/64850938
         - name: 'Template {{ mimeapps_file }}'
           ansible.builtin.blockinfile:
             path: '{{ mimeapps_file }}'
             marker: '# {mark} mimeapps_list_config'
             block: |
               [Default Applications]
-              text/html={{ default_browser_fullpath }}
-              x-scheme-handler/http={{ default_browser_fullpath }}
-              x-scheme-handler/https={{ default_browser_fullpath }}
-              x-scheme-handler/ftp={{ default_browser_fullpath }}
-              x-scheme-handler/chrome={{ default_browser_fullpath }}
-              application/x-extension-htm={{ default_browser_fullpath }}
-              application/x-extension-html={{ default_browser_fullpath }}
-              application/x-extension-shtml={{ default_browser_fullpath }}
-              application/xhtml+xml={{ default_browser_fullpath }}
-              application/x-extension-xhtml={{ default_browser_fullpath }}
-              application/x-extension-xht={{ default_browser_fullpath }}
-              image/jpeg={{ default_browser_fullpath }}
-              image/png={{ default_browser_fullpath }}
+              text/html={{ default_browser_name }}.desktop
+              x-scheme-handler/http={{ default_browser_name }}.desktop
+              x-scheme-handler/https={{ default_browser_name }}.desktop
+              x-scheme-handler/ftp={{ default_browser_name }}.desktop
+              x-scheme-handler/chrome={{ default_browser_name }}.desktop
+              application/x-extension-htm={{ default_browser_name }}.desktop
+              application/x-extension-html={{ default_browser_name }}.desktop
+              application/x-extension-shtml={{ default_browser_name }}.desktop
+              application/xhtml+xml={{ default_browser_name }}.desktop
+              application/x-extension-xhtml={{ default_browser_name }}.desktop
+              application/x-extension-xht={{ default_browser_name }}.desktop
+              image/jpeg={{ default_browser_name }}.desktop
+              image/png={{ default_browser_name }}.desktop
             create: true
             state: present
             mode: '0644'
 
-        - name: Set default browser via xdg-settings
-          ignore_errors: true
-          ansible.builtin.command:
-            cmd: xdg-settings set default-web-browser {{ default_browser_name }}.desktop
+              # NOTE: no longer needed?
+              #        - name: Set default browser via xdg-settings
+              #          ignore_errors: true
+              #          ansible.builtin.command:
+              #            cmd: xdg-settings set default-web-browser {{ default_browser_name }}.desktop
