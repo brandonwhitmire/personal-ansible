@@ -20,7 +20,7 @@ source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring
 
 # https://wiki.archlinux.org/title/Zsh#pacman_-F_%22command_not_found%22_handler
 function command_not_found_handler {
-    [[ -d '/var/lib/pacman/sync/' ]] || sudo pacman -F --refresh  # update database cache if missing
+    [[ -e '/var/lib/pacman/sync/core.files' ]] || sudo pacman -F --refresh  # update database cache if missing
     local purple='\e[1;35m' bright='\e[0;1m' green='\e[1;32m' reset='\e[0m'
     printf 'zsh: command not found: %s\n' "$1"
     local entries=(
@@ -173,9 +173,9 @@ install () {
 		echo "Please supply a package(s) to INSTALL!"
 		exit 1
 	fi
-	echo -e "[i] Trying official repos\n"
+	echo -e "[i] Trying official repos"
     sudo pacman -S "$@" ||
-        echo -e "[E] Official repos failed\n\n[i] Trying AUR\n" &&
+        echo -e "[E] Official repos failed\n\n[i] Trying AUR" &&
         yay -S "$@"
 }
 # Removes packages and dependencies (not used by other packages)

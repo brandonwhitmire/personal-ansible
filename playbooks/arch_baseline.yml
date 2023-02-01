@@ -19,8 +19,8 @@
 
     - name: Check if kernel needs update
       ansible.builtin.shell:
-        # when the local kernel version does not match the remote version
-        # the kernel will need to updated and a manual reboot required
+        # When the local kernel version does not match the remote version,
+        # the kernel will need to be updated and a manual reboot will be required
         cmd: "[[ $(pacman -Q linux | awk '{print $2}') != $(pacman -S --info linux | grep -E '[0-9].arch' | awk '{print $3}') ]]"
       register: kernel_needs_update
       changed_when: false
@@ -120,7 +120,7 @@
     - name: Disable bluetooth on boot
       become: true
       vars:
-        bluetooth_enabled: false
+        bluetooth_enabled: 'false'
       ansible.builtin.lineinfile:
         backup: true
         backrefs: true

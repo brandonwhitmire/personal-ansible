@@ -118,13 +118,11 @@
 
       # Always removes this temp security hole even with a previous failure
       always:
-        - name: Cleanup `{{ passwordless_sudo_user }}` user from `{{ passwordless_sudo_file }}`
+        - name: === [AUR_FUNCTION_END] Cleanup `{{ passwordless_sudo_user }}` user from `{{ passwordless_sudo_file }}` ===
           become: true
           changed_when: false
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
-              #create: true
-              #mode: 0440
             validate: 'visudo -csf %s'
             state: absent

@@ -6,13 +6,6 @@
   hosts: all
   tasks:
 
-    # - name: Remove pkg conflicts for Powerline fonts
-    #   become: true
-    #   community.general.pacman:
-    #     name:
-    #       - powerline-fonts
-    #     state: absent
-
 - name: Install necessary AUR packages
   vars:
     aur_packages:
@@ -65,9 +58,6 @@
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
           - screenfetch  # display system info
-            #- powerline  # vim statusbar
-            #- powerline-fonts  # soft dep for powerline
-            #- powerline-vim  # soft dep for powerline
           - socat  # dep for powerline
           - xorg-xrandr  # dep for powerline
           # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
@@ -89,11 +79,6 @@
     - name: === zsh block ===
       block:
 
-        - name: Ensure no .zshrc file exists
-          ansible.builtin.file:
-            path: ~/.zshrc
-            state: absent
-
         - name: Add functionality for shells
           ansible.builtin.blockinfile:
             path: '~/{{ item }}'
@@ -110,7 +95,6 @@
           become: true
           ansible.builtin.copy:
             backup: true
-            force: true
             remote_src: true
             src: '/home/{{ ansible_user }}/{{ item }}'
             dest: '/root/{{ item }}'
@@ -130,10 +114,11 @@
             - '{{ ansible_user }}'
             - root
 
-        - name: Rebuild pkgfile cache
+        - name: Build pkgfile cache (first time only)
           become: true
           ansible.builtin.command: 
             cmd: pkgfile --update
+            creates: /var/cache/pkgfile/core.files
 
     - name: === Spaceship prompt block ===
       block:
@@ -162,8 +147,15 @@
             force: true
             mode: '0644'
 
-        - name: Download/Install (neo)vim plugins
-          changed_when: true
+        - name: Check if the plugins folder is empty
+          changed_when: false
+          ansible.builtin.find:
+            file_type: any
+            paths: ~/.vim/plugged/
+          register: plugin_files
+
+        - name: Download/Install (neo)vim plugins (first time only)
+          when: plugin_files.matched <= 0
           ansible.builtin.command:
             cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
 
@@ -229,9 +221,3 @@
             create: true
             state: present
             mode: '0644'
-
-              # NOTE: no longer needed?
-              #        - name: Set default browser via xdg-settings
-              #          ignore_errors: true
-              #          ansible.builtin.command:
-              #            cmd: xdg-settings set default-web-browser {{ default_browser_name }}.desktop
