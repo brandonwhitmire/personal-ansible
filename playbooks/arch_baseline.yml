@@ -103,6 +103,7 @@
           - evince  # PDF viewer
           - reflector  # update pacman mirrors
           - bluez  # bluetooth
+          - bluez-utils  # bluetooth utils
           - pulseaudio-bluetooth  # pulseaudio dep for bluetooth
           - xf86-input-synaptics  # touchpad
           - android-file-transfer  # access files from Android device
