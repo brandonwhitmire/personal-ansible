@@ -60,6 +60,7 @@
           - screenfetch  # display system info
           - socat  # dep for powerline
           - xorg-xrandr  # dep for powerline
+          - ansible-lint  # linter for Ansible
           # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
         state: present
 
