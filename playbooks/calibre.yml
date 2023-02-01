@@ -62,7 +62,7 @@
 
         - name: Upload DeACSM plugin
           ansible.builtin.copy:
-            remote_src: false 
+            remote_src: false
             src: files/DeACSM_0.0.15.zip
             dest: '{{ temp_working_dir }}'
             mode: '0644'

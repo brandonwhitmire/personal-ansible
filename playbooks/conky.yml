@@ -10,7 +10,7 @@
 
     - name: Install conky
       become: true
-      ansible.builtin.pacman:
+      community.general.pacman:
         name:
           - conky  # sysmon
         state: present

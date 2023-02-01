@@ -17,18 +17,50 @@
         - VerbosePkgLists  # show from->to version and download/upgrade sizes
         - ParallelDownloads  # download more pkgs at concurrently
 
+    - name: Check if kernel needs update
+      ansible.builtin.shell:
+        # When the local kernel version does not match the remote version,
+        # the kernel will need to be updated and a reboot will be required
+        cmd: "[[ $(pacman -Q linux | awk '{print $2}') != $(pacman -S --info linux | grep -E '[0-9].arch' | awk '{print $3}') ]]"
+      register: kernel_needs_update
+      changed_when: false
+
+    - ansible.builtin.fail:
+        msg:
+          - "Kernel versions are mismatched (local version VS. remote version)"
+          - "To mitigate strange errors with package or module versions..."
+          - "Update keyring, system, and reboot:"
+          - "sudo bash -c 'pacman -Sy --noconfirm archlinux-keyring && pacman -Syyu --noconfirm && reboot'"
+      when: kernel_needs_update.rc != 0
+
+    - name: Update keyring
+      become: true
+      community.general.pacman:
+        name: archlinux-keyring
+        state: latest
+
     - name: Upgrade system
       become: true
       community.general.pacman:
         update_cache: true
         upgrade: true
 
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* from 'xorg')
+      become: true
+      ansible.builtin.package:
+        name: xorg  # desktop GUI
+        state: present
+      when: "'acpilight' not in ansible_facts.packages"
+
     - name: Install pacman pkgs
       become: true
-      ansible.builtin.pacman:
+      community.general.pacman:
         name:
           - xdg-user-dirs  # common user dirs
-          - xorg  # GUI
           - xorg-xinit  # start GUI
           - picom  # xorg compositor
           - xterm  # default terminal
@@ -55,7 +87,7 @@
           - python-pip  # pip package installer
           - python-setuptools  # Python3 setuptools
           - numlockx  # numlock on at login
-          - marker  # Markdown editor
+          - ghostwriter  # Markdown editor
           - libreoffice  # office suite of programs
           - pulseaudio  # PulseAudio
           - pavucontrol  # PulseAudio GUI for volume
@@ -69,7 +101,75 @@
           - gvfs  # dep for pcmanfm features
           - unzip  # zip
           - evince  # PDF viewer
-          - ripgrep  # fast, recursive grep searcher
-          - fd  # faster `find` command
           - reflector  # update pacman mirrors
+          - bluez  # bluetooth
+          - bluez-utils  # bluetooth utils
+          - pulseaudio-bluetooth  # pulseaudio dep for bluetooth
+          - xf86-input-synaptics  # touchpad
+          - android-file-transfer  # access files from Android device
+        state: present
+
+    - name: Enable services
+      become: true
+      ansible.builtin.service:
+        name: '{{ item }}'
+        enabled: true
+        state: started
+      loop:
+        - bluetooth
+
+    - name: Disable bluetooth on boot
+      become: true
+      vars:
+        bluetooth_enabled: 'false'
+      ansible.builtin.lineinfile:
+        backup: true
+        backrefs: true
+        path: /etc/bluetooth/main.conf
+        regexp: '^#\s*(AutoEnable)=.*$'
+        line: '\1={{ bluetooth_enabled }}'
+        state: present
+
+    - name: Set default systemd service timeout
+      become: true
+      ansible.builtin.blockinfile:
+        path: /etc/systemd/system.conf
+        marker: "# {mark} systemd_timeout"
+        create: true
+        state: present
+        mode: '0644'
+        block: |
+          DefaultTimeoutStopSec=15s
+
+    - name: Set Chromium to use GTK theme
+      ignore_errors: true
+      ansible.builtin.lineinfile:
+        backup: true
+        backrefs: true
+        path: ~/.config/chromium/Default/Preferences
+        regexp: '(.*)"system_theme":0(.*)'
+        line: '\1 "system_theme":1 \2'
+        state: present
+
+    # https://wiki.archlinux.org/title/Touchpad_Synaptics#Frequently_used_options
+    - name: Configure touchpad to use sane defaults
+      become: true
+      ansible.builtin.copy:
+        remote_src: false
+        src: files/70-synaptics.conf
+        dest: /etc/X11/xorg.conf.d/
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Change default sudo prompt timeout
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/sudo_prompt_timeout
+        line: Defaults timestamp_timeout=15
+        create: true
+        validate: 'visudo -csf %s'
+        mode: '0440'
+        owner: root
+        group: root
         state: present

@@ -13,7 +13,7 @@
 
         - name: Install pacman pkgs
           become: true
-          ansible.builtin.pacman:
+          community.general.pacman:
             name:
               # https://wiki.archlinux.org/title/Microcode
               - intel-ucode
@@ -75,7 +75,7 @@
 
         - name: Install pacman pkgs
           become: true
-          ansible.builtin.pacman:
+          community.general.pacman:
             name:
               - networkmanager
               - nm-connection-editor

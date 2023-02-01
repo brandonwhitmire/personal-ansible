@@ -1,0 +1,99 @@
+# --- Spaceship-Prompt Setup ---
+# https://spaceship-prompt.sh/config/intro/
+# https://spaceship-prompt.sh/options/
+
+SPACESHIP_PROMPT_ORDER=(
+  exit_code      # Exit code section
+  exec_time      # Execution time
+  time           # Time stamps section
+  user           # Username section
+  dir            # Current directory section
+  host           # Hostname section
+  git            # Git section (git_branch + git_status)
+  #hg             # Mercurial section (hg_branch  + hg_status)
+  package        # Package version
+  #node           # Node.js section
+  #bun            # Bun section
+  #deno           # Deno section
+  #ruby           # Ruby section
+  python         # Python section
+  #elm            # Elm section
+  #elixir         # Elixir section
+  #xcode          # Xcode section
+  #swift          # Swift section
+  #golang         # Go section
+  #perl           # Perl section
+  #php            # PHP section
+  #rust           # Rust section
+  #haskell        # Haskell Stack section
+  #scala          # Scala section
+  #java           # Java section
+  #lua            # Lua section
+  #dart           # Dart section
+  #julia          # Julia section
+  #crystal        # Crystal section
+  docker         # Docker section
+  docker_compose # Docker section
+  #aws            # Amazon Web Services section
+  #gcloud         # Google Cloud Platform section
+  venv           # virtualenv section
+  conda          # conda virtualenv section
+  #dotnet         # .NET section
+  #ocaml          # OCaml section
+  #vlang          # V section
+  #kubectl        # Kubectl context section
+  ansible        # Ansible section
+  terraform      # Terraform workspace section
+  #pulumi         # Pulumi stack section
+  #ibmcloud       # IBM Cloud section
+  nix_shell      # Nix shell
+  gnu_screen     # GNU Screen section
+  async          # Async jobs indicator
+  line_sep       # Line break
+  battery        # Battery level and status
+  jobs           # Background jobs indicator
+  sudo           # Sudo indicator
+  char           # Prompt character
+)
+
+# PROMPT
+export SPACESHIP_PROMPT_ADD_NEWLINE="false"
+export SPACESHIP_PROMPT_SEPARATE_LINE="false"
+
+# EXIT_CODE
+export SPACESHIP_EXIT_CODE_SHOW="true"
+export SPACESHIP_EXIT_CODE_SYMBOL="✘ "
+#export SPACESHIP_EXIT_CODE_PREFIX="in "
+#export SPACESHIP_EXIT_CODE_SUFFIX="\n"
+
+# EXEC_TIME
+export SPACESHIP_EXEC_TIME_ELAPSED="0"
+export SPACESHIP_EXEC_TIME_PREFIX="in "
+
+# ASYNC
+export SPACESHIP_ASYNC_SYMBOL=""
+
+# TIME
+export SPACESHIP_TIME_SHOW="true"
+export SPACESHIP_TIME_PREFIX="\n["
+export SPACESHIP_TIME_SUFFIX="] "
+
+# BATTERY
+export SPACESHIP_BATTERY_SHOW="always"
+# export SPACESHIP_BATTERY_PREFIX="🔋"
+# export SPACESHIP_BATTERY_THRESHOLD="101"
+
+# USER
+export SPACESHIP_USER_SHOW="always"
+export SPACESHIP_USER_PREFIX=""
+export SPACESHIP_USER_SUFFIX=""
+
+# HOST
+export SPACESHIP_HOST_SHOW_FULL="true"
+export SPACESHIP_HOST_PREFIX="@"
+export SPACESHIP_HOST_SUFFIX=""
+
+# DIR
+export SPACESHIP_DIR_PREFIX=":"
+export SPACESHIP_DIR_TRUNC="0"
+export SPACESHIP_DIR_TRUNC_REPO="false"

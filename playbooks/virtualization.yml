@@ -35,7 +35,7 @@
                   - virtualbox
                   - virtualbox-host-modules-arch
                 state: present
-                  
+
             # https://wiki.archlinux.org/title/VirtualBox#Accessing_host_USB_devices_in_guest
             - name: Add user to vboxusers group
               become: true
@@ -74,7 +74,7 @@
 
         - name: Install Virtualbox Guest and NFS customizations
           become: true
-          ansible.builtin.pacman:
+          community.general.pacman:
             name:
               - virtualbox-guest-utils
               - nfs-utils
@@ -96,4 +96,12 @@
             name: '{{ ansible_user }}'
             groups: vboxsf
             append: true
+            state: present
+
+        # https://wiki.archlinux.org/title/VirtualBox/Install_Arch_Linux_as_a_guest#Launch_the_VirtualBox_guest_services
+        - name: Run VBox guest services on start
+          ansible.builtin.lineinfile:
+            path: ~/.config/i3/config
+            line: exec_always VBoxClient-all
+            create: true
             state: present

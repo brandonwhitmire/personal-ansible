@@ -1,104 +1,59 @@
 # TODO: fix vpn and magnet commands
 
-# ---
-# CUSTOMIZED
-# ---
-# https://opensource.com/article/19/7/bash-aliases
-# https://techgage.com/article/using_aliases_in_linux_to_make_life_easier/2/
-# https://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
-# https://opensource.com/article/20/1/bash-scripts-aliases
-
-# --- Powerline Fonts
-
-export USE_POWERLINE="true"
-powerline-daemon --quiet
-. /usr/share/powerline/bindings/zsh/powerline.zsh
-
-# --- Spaceship-Prompt Setup
-# TODO: migrate to separate file
-# https://spaceship-prompt.sh/config/intro/
-
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit ; promptinit
 prompt spaceship
 
-# https://spaceship-prompt.sh/options/
-# PROMPT
-export SPACESHIP_PROMPT_ADD_NEWLINE="false"
+# --- Powerline Fonts
 
-# TIME
-export SPACESHIP_TIME_SHOW="true"
-export SPACESHIP_TIME_PREFIX="["
-export SPACESHIP_TIME_SUFFIX="] "
-
-# BATTERY
-export SPACESHIP_BATTERY_SHOW="always"
-# export SPACESHIP_BATTERY_PREFIX="🔋"
-export SPACESHIP_BATTERY_THRESHOLD="101"
-
-# EXIT_CODE
-export SPACESHIP_EXIT_CODE_SHOW="true"
-export SPACESHIP_EXIT_CODE_SYMBOL="    ⤤ "
-export SPACESHIP_EXIT_CODE_PREFIX=""
-# export SPACESHIP_EXIT_CODE_SUFFIX="\n"
-
-# VI MODE
-#spaceship_vi_mode_disable  # disable vi mode by default
-#export SPACESHIP_VI_MODE_INSERT="[vim]"
-#export SPACESHIP_VI_MODE_NORMAL=""
-
-# EXEC_TIME
-export SPACESHIP_EXEC_TIME_ELAPSED="0"
-export SPACESHIP_EXEC_TIME_PREFIX="in "
-export SPACESHIP_EXEC_TIME_SUFFIX="\n\n"
-
-# USER
-export SPACESHIP_USER_SHOW="always"
-export SPACESHIP_USER_PREFIX=""
-export SPACESHIP_USER_SUFFIX=""
-
-# HOST
-export SPACESHIP_HOST_SHOW_FULL="true"
-export SPACESHIP_HOST_PREFIX="@"
-export SPACESHIP_HOST_SUFFIX=""
-
-# DIR
-export SPACESHIP_DIR_PREFIX=":"
-export SPACESHIP_DIR_TRUNC="0"
-export SPACESHIP_DIR_TRUNC_REPO="false"
-
-# GIT
-export SPACESHIP_GIT_PREFIX=""
-# export SPACESHIP_GIT_SYMBOL="" # 
-
-# DOCKER
-export SPACESHIP_DOCKER_SYMBOL=""
+# https://wiki.archlinux.org/title/Powerline#Zsh
+export USE_POWERLINE="true"
+powerline-daemon --quiet
+. /usr/share/powerline/bindings/zsh/powerline.zsh
 
 # --- zsh Shell Options
 
+# https://wiki.archlinux.org/title/Zsh#Fish-like_syntax_highlighting_and_autosuggestions
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+# https://wiki.archlinux.org/title/Zsh#pacman_-F_%22command_not_found%22_handler
+function command_not_found_handler {
+    [[ -e '/var/lib/pacman/sync/core.files' ]] || sudo pacman -F --refresh  # update database cache if missing
+    local purple='\e[1;35m' bright='\e[0;1m' green='\e[1;32m' reset='\e[0m'
+    printf 'zsh: command not found: %s\n' "$1"
+    local entries=(
+        ${(f)"$(/usr/bin/pacman -F --machinereadable -- "/usr/bin/$1")"}
+    )
+    if (( ${#entries[@]} ))
+    then
+        printf "${bright}$1${reset} may be found in the following packages:\n"
+        local pkg
+        for entry in "${entries[@]}"
+        do
+            # (repo package version file)
+            local fields=(
+                ${(0)entry}
+            )
+            if [[ "$pkg" != "${fields[2]}" ]]
+            then
+                printf "${purple}%s/${bright}%s ${green}%s${reset}\n" "${fields[1]}" "${fields[2]}" "${fields[3]}"
+            fi
+            printf '    /%s\n' "${fields[4]}"
+            pkg="${fields[2]}"
+        done
+    fi
+    return 127
+}
+
+# Shell options
 setopt dotglob 	# shell expands '*' for dotfiles
-bindkey "^[[1;5C" forward-word 2>/dev/null
-bindkey "^[[1;5D" backward-word 2>/dev/null
-# https://stackoverflow.com/a/8645267
-# https://www.linuxquestions.org/questions/linux-general-1/insert-and-delete-key-returns-~-in-a-terminal-876401/
-bindkey  "^[[H"   beginning-of-line
-bindkey  "^[[F"   end-of-line
-bindkey  "^[[3~"  delete-char
-
-# https://wiki.archlinux.org/title/Zsh#Command_completion
-autoload -Uz compinit
-compinit
-
 setopt append_history # append rather then overwrite
 setopt extended_history # save timestamp
 #setopt share_history # share history between terminals
 export HISTFILE=~/.zsh_history
-export SAVEHIST=100000
-
-# https://unix.stackexchange.com/a/30169
-# https://superuser.com/a/533600
-bindkey -v
-bindkey '^r' history-incremental-search-backward
+export SAVEHIST=10000
 
 # --- Wrapped Commands
 
@@ -218,7 +173,10 @@ install () {
 		echo "Please supply a package(s) to INSTALL!"
 		exit 1
 	fi
-	sudo pacman -S "$@"
+	echo -e "[i] Trying official repos"
+    sudo pacman -S "$@" ||
+        echo -e "[E] Official repos failed\n\n[i] Trying AUR" &&
+        yay -S "$@"
 }
 # Removes packages and dependencies (not used by other packages)
 uninstall () {
@@ -459,7 +417,8 @@ update () {
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
 update_mirrors () {
-    reflector \
+    echo "[i] Updating package mirrors..."
+    sudo reflector \
         --country "${ARCH_MIRROR_COUNTRY}" \
         --ipv4 \
         --latest 10 \
@@ -468,8 +427,9 @@ update_mirrors () {
         --sort rate \
         --threads 5 \
         --save /etc/pacman.d/mirrorlist
-    echo "Every run of pacman-mirrors requires you to syncronize your database and update your system"
-	update
+        --verbose
+    echo -e "\n[i] Every run of pacman-mirrors requires you to syncronize your database and update your system\n"
+    sudo pacman -S --refresh --sysupgrade
 }
 # Create and switch to new, random temp directory
 mkt () {
@@ -651,6 +611,26 @@ fix_displays () {
 
 lazyssh () {
 	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
+}
+
+wifi_enable () {
+    echo '[i] Enabling wifi...'
+    sudo rfkill unblock wifi
+    rfkill list
+}
+
+wifi_disable () {
+    echo '[i] Disabling wifi...'
+    sudo rfkill block wifi
+    rfkill list
+}
+
+wifi_scan () {
+    echo '[i] This will *NOT* enable wifi automatically...'
+    nmcli device wifi rescan && \
+        nmcli device wifi list && \
+        echo '[i] Connect via:' && \
+        echo '    nmcli device wifi connect <WIFI_NAME>'
 }
 
 # === AUTOSTART XORG ===

@@ -6,13 +6,6 @@
   hosts: all
   tasks:
 
-    - name: Remove pkg conflicts for Powerline fonts
-      become: true
-      community.general.pacman:
-        name:
-          - powerline-fonts
-        state: absent
-
 - name: Install necessary AUR packages
   vars:
     aur_packages:
@@ -26,14 +19,28 @@
 - name: Configure baseline shell
   hosts: all
   vars:
-    - default_browser: /usr/bin/librewolf
+    - default_browser_name: librewolf
+    - default_browser_fullpath: /usr/bin/{{ default_browser_name }}
   tasks:
 
     - name: Install needed OS pkgs
       become: true
       community.general.pacman:
         name:
+          - python
+          - python-pip
+          - python-setuptools
           - zsh  # shell
+          - zsh-completions  # zsh command completions
+          - zsh-syntax-highlighting  # zsh syntax highlighting
+          - zsh-autosuggestions  # finish commands from history
+          - zsh-history-substring-search  # autosearch via history
+          - grml-zsh-config  # zsh config used in archiso (liveboot ISO)
+          - pkgfile  # command not found
+          - zoxide  # smarter cd
+          - fzf  # fuzzy finder
+          - ripgrep  # fast, recursive grep searcher
+          - fd  # faster `find` command
           - alacritty  # terminal
           - vim  # text editor
           - neovim  # upgraded text editor
@@ -50,14 +57,20 @@
           - xclip  # dep for vim clipboard
           - galculator  # default calc
           - geckodriver  # used by Selenium for Firefox browsers
-          - texlive-most  # LaTeX generator dep for vim-latex-live-preview
           - screenfetch  # display system info
+          - socat  # dep for powerline
+          - xorg-xrandr  # dep for powerline
+          - ansible-lint  # linter for Ansible
+          # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
         state: present
 
+    # https://wiki.archlinux.org/title/Powerline
+    # https://powerline.readthedocs.io/en/master/installation.html
     - name: Install needed pip3 pkgs
       ansible.builtin.pip:
         name:
           - psutil  # soft dep for powerline
+          - pygit2  # soft dep for powerline
           - i3ipc  # soft dep for powerline
           - powerline-status  # terminal beautification
           - neovim  # used by neovim
@@ -67,42 +80,22 @@
     - name: === zsh block ===
       block:
 
-        - name: Ensure no .zshrc file exists
-          ansible.builtin.file:
-            path: ~/.zshrc
-            state: absent
-
-        - name: Overwrite current shell_rc with skeleton, original version
-          become: true
-          ansible.builtin.copy:
-            backup: true
-            force: true
-            remote_src: true
-            src: '/etc/skel/{{ item }}'
-            dest: '~/{{ item }}'
-            owner: '{{ ansible_user }}'
-            group: '{{ ansible_user }}'
-            mode: '0644'
-          loop:
-            - .bashrc
-
         - name: Add functionality for shells
           ansible.builtin.blockinfile:
             path: '~/{{ item }}'
-            marker: "# {mark} shell_rc"
-            block: "{{ lookup('file', '../files/shell_rc') }}"
+            marker: "# {mark} zsh_rc"
+            block: "{{ lookup('file', '../files/zsh_rc') }}"
             create: true
             mode: '0644'
             state: present
           loop:
             - .zshrc
-            - .bashrc
+            # - .bashrc
 
-        - name: Copy custom shell_rc to root
+        - name: Copy custom zsh_rc to root
           become: true
           ansible.builtin.copy:
             backup: true
-            force: true
             remote_src: true
             src: '/home/{{ ansible_user }}/{{ item }}'
             dest: '/root/{{ item }}'
@@ -111,7 +104,7 @@
             mode: '0644'
           loop:
             - .zshrc
-            - .bashrc
+            # - .bashrc
 
         - name: Set default shell to zsh for user "{{ ansible_user }}" and root
           become: true
@@ -121,6 +114,22 @@
           loop:
             - '{{ ansible_user }}'
             - root
+
+        - name: Build pkgfile cache (first time only)
+          become: true
+          ansible.builtin.command:
+            cmd: pkgfile --update
+            creates: /var/cache/pkgfile/core.files
+
+    - name: === Spaceship prompt block ===
+      block:
+        - name: Copy spaceship config
+          ansible.builtin.copy:
+            remote_src: false
+            src: files/spaceship_rc
+            dest: ~/.spaceshiprc.zsh
+            force: true
+            mode: '0644'
 
     - name: === (neo)vim block ===
       block:
@@ -139,8 +148,15 @@
             force: true
             mode: '0644'
 
-        - name: Download/Install (neo)vim plugins
-          changed_when: true
+        - name: Check if the plugins folder is empty
+          changed_when: false
+          ansible.builtin.find:
+            file_type: any
+            paths: ~/.vim/plugged/
+          register: plugin_files
+
+        - name: Download/Install (neo)vim plugins (first time only)
+          when: plugin_files.matched <= 0
           ansible.builtin.command:
             cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
 
@@ -159,44 +175,68 @@
                   family: ProFont for Powerline
                   style: Regular
                 size: 16
+              scrolling:
+                # How many lines of scrollback to keep,
+                # '0' will disable scrolling.
+                history: 10000
 
-    - name: === .profile block ===
+                # Number of lines the viewport will move for every line
+                # scrolled when scrollback is enabled (history > 0).
+                multiplier: 3
+
+                # Faux Scrolling
+                #
+                # The `faux_multiplier` setting controls the number
+                # of lines the terminal should scroll when the alternate
+                # screen buffer is active. This is used to allow mouse
+                # scrolling for applications like `man`.
+                #
+                # To disable this completely, set `faux_multiplier` to 0.
+                faux_multiplier: 3
+
+    - name: === /etc/environment block ===
       block:
 
-        - name: Template ~/.profile
+        - name: Template /etc/environment
+          become: true
           ansible.builtin.blockinfile:
-            path: ~/.profile
+            path: /etc/environment
+            marker: '# {mark} environment_config'
+            block: |
+              export EDITOR=/usr/bin/nvim
+              export BROWSER={{ default_browser_fullpath }}
+              export TERMINAL=/usr/bin/alacritty
             create: true
             state: present
             mode: '0644'
-            block: |
-              export EDITOR=/usr/bin/nvim
-              export BROWSER={{ default_browser }}
-              export TERMINAL=/usr/bin/alacritty
+            owner: root
+            group: root
 
     - name: === mimeapps.list block ===
       vars:
         mimeapps_file: ~/.config/mimeapps.list
       block:
 
+        # https://stackoverflow.com/a/64850938
         - name: 'Template {{ mimeapps_file }}'
           ansible.builtin.blockinfile:
             path: '{{ mimeapps_file }}'
+            marker: '# {mark} mimeapps_list_config'
+            block: |
+              [Default Applications]
+              text/html={{ default_browser_name }}.desktop
+              x-scheme-handler/http={{ default_browser_name }}.desktop
+              x-scheme-handler/https={{ default_browser_name }}.desktop
+              x-scheme-handler/ftp={{ default_browser_name }}.desktop
+              x-scheme-handler/chrome={{ default_browser_name }}.desktop
+              application/x-extension-htm={{ default_browser_name }}.desktop
+              application/x-extension-html={{ default_browser_name }}.desktop
+              application/x-extension-shtml={{ default_browser_name }}.desktop
+              application/xhtml+xml={{ default_browser_name }}.desktop
+              application/x-extension-xhtml={{ default_browser_name }}.desktop
+              application/x-extension-xht={{ default_browser_name }}.desktop
+              image/jpeg={{ default_browser_name }}.desktop
+              image/png={{ default_browser_name }}.desktop
             create: true
             state: present
             mode: '0644'
-            block: |
-              [Default Applications]
-              text/html={{ default_browser }}
-              x-scheme-handler/http={{ default_browser }}
-              x-scheme-handler/https={{ default_browser }}
-              x-scheme-handler/ftp={{ default_browser }}
-              x-scheme-handler/chrome={{ default_browser }}
-              application/x-extension-htm={{ default_browser }}
-              application/x-extension-html={{ default_browser }}
-              application/x-extension-shtml={{ default_browser }}
-              application/xhtml+xml={{ default_browser }}
-              application/x-extension-xhtml={{ default_browser }}
-              application/x-extension-xht={{ default_browser }}
-              image/jpeg={{ default_browser }}
-              image/png={{ default_browser }}
