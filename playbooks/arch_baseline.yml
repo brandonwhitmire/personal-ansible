@@ -105,6 +105,7 @@
           - bluez  # bluetooth
           - pulseaudio-bluetooth  # pulseaudio dep for bluetooth
           - xf86-input-synaptics  # touchpad
+          - android-file-transfer  # access files from Android device
         state: present
 
     - name: Enable services
@@ -159,3 +160,16 @@
         mode: '0644'
         owner: root
         group: root
+
+    - name: Change default sudo prompt timeout
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/sudo_prompt_timeout
+        line: Defaults timestamp_timeout=15
+        create: true
+        validate: 'visudo -csf %s'
+        mode: '0440'
+        owner: root
+        group: root
+        state: present
+

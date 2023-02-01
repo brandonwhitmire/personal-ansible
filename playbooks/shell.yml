@@ -38,9 +38,11 @@
           - python-pip
           - python-setuptools
           - zsh  # shell
-          - zsh-completions  # zsh completions
+          - zsh-completions  # zsh command completions
           - zsh-syntax-highlighting  # zsh syntax highlighting
-          - grml-zsh-config  # zsh config used in archiso
+          - zsh-autosuggestions  # finish commands from history
+          - zsh-history-substring-search  # autosearch via history
+          - grml-zsh-config  # zsh config used in archiso (liveboot ISO)
           - pkgfile  # command not found
           - zoxide  # smarter cd
           - fzf  # fuzzy finder
