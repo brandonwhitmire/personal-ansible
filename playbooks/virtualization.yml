@@ -35,7 +35,7 @@
                   - virtualbox
                   - virtualbox-host-modules-arch
                 state: present
-                  
+
             # https://wiki.archlinux.org/title/VirtualBox#Accessing_host_USB_devices_in_guest
             - name: Add user to vboxusers group
               become: true
@@ -74,7 +74,7 @@
 
         - name: Install Virtualbox Guest and NFS customizations
           become: true
-          ansible.builtin.pacman:
+          community.general.pacman:
             name:
               - virtualbox-guest-utils
               - nfs-utils

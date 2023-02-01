@@ -137,7 +137,7 @@
             mode: '0755'
             checksum: sha256:5eea714e1f22f1875c1cb7b1738b0c0b1f02aec5ecb95f0fdb1c5171c6cd93a3
 
-        # NOTE: cabextract requires elevation 
+        # NOTE: cabextract requires elevation
         - name: Extract from downloaded file
           become: true
           ansible.builtin.command:
@@ -145,7 +145,7 @@
             chdir: '{{ aoe2_dir }}'
             creates: a10
 
-        # NOTE: cabextract requires elevation 
+        # NOTE: cabextract requires elevation
         - name: Extract from extracted file
           become: true
           ansible.builtin.command:
@@ -161,7 +161,7 @@
             group: '{{ ansible_user }}'
             recurse: true
             state: directory
-          
+
         # Crash after Splash: https://www.protondb.com/app/813780#eoQwQT6ngx
         - name: Move 1/2 file to fix crash after splash screen
           become: true

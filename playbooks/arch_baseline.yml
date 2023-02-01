@@ -20,7 +20,7 @@
     - name: Check if kernel needs update
       ansible.builtin.shell:
         # When the local kernel version does not match the remote version,
-        # the kernel will need to be updated and a manual reboot will be required
+        # the kernel will need to be updated and a reboot will be required
         cmd: "[[ $(pacman -Q linux | awk '{print $2}') != $(pacman -S --info linux | grep -E '[0-9].arch' | awk '{print $3}') ]]"
       register: kernel_needs_update
       changed_when: false
@@ -49,7 +49,7 @@
       ansible.builtin.package_facts:
         manager: auto
 
-    - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* pkg from 'xorg')
+    - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* from 'xorg')
       become: true
       ansible.builtin.package:
         name: xorg  # desktop GUI
@@ -58,7 +58,7 @@
 
     - name: Install pacman pkgs
       become: true
-      ansible.builtin.pacman:
+      community.general.pacman:
         name:
           - xdg-user-dirs  # common user dirs
           - xorg-xinit  # start GUI
@@ -172,4 +172,3 @@
         owner: root
         group: root
         state: present
-

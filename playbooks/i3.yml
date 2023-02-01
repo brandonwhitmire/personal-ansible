@@ -36,7 +36,7 @@
         path: /etc/systemd/system/getty@tty1.service.d/autologin.conf
         marker: '# {mark} agetty_autologin'
         block: |
-          [Service]  
+          [Service]
           ExecStart=
           # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
           ExecStartPre=-/usr/bin/prime-switch

@@ -8,12 +8,12 @@
   hosts: all
   tasks:
 
-  - name: Install KeepassXC password manager and required packages
-    become: true
-    community.general.pacman:
-      name:
-        - keepassxc
-      state: present
+    - name: Install KeepassXC password manager and required packages
+      become: true
+      community.general.pacman:
+        name:
+          - keepassxc
+        state: present
 
 - name: Install AUR pkgs
   vars:
