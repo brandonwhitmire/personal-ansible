@@ -318,7 +318,7 @@ mount_luks_device () {
 	if [[ "$RET_CODE" == "1" ]] ; then
 		echo "MOUNTING..."
 		sudo cryptsetup open "/dev/$DEVICE" "$NAME"
-		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
+		MOUNT=$(sudo udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
 		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
