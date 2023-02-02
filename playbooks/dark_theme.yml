@@ -89,5 +89,6 @@
     aur_packages:
       - dracula-gtk-theme  # dark theme
       - qt5-styleplugins  # GUI framework
-      - qt6gtk2  # GUI framework
+      # REMOVED: https://wiki.archlinux.org/title/Uniform_look_for_Qt_and_GTK_applications_#QGtkStyle
+      # - qt6gtk2  # GUI framework
   ansible.builtin.import_playbook: function_yay.yml
