@@ -33,11 +33,11 @@
           - "sudo bash -c 'pacman -Sy --noconfirm archlinux-keyring && pacman -Syyu --noconfirm && reboot'"
       when: kernel_needs_update.rc != 0
 
-    - name: Update keyring
-      become: true
-      community.general.pacman:
-        name: archlinux-keyring
-        state: latest
+    #    - name: Update keyring
+    #      become: true
+    #      community.general.pacman:
+    #        name: archlinux-keyring
+    #        state: latest
 
     - name: Upgrade system
       become: true

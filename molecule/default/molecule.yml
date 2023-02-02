@@ -5,8 +5,9 @@ driver:
   name: docker
 platforms:
   - name: instance
-    image: manjarolinux/base
-    pre_build_image: true
+    image: archlinux
+    pre_build_image: false
+    dockerfile: archlinux.dockerfile
 provisioner:
   name: ansible
 verifier:
