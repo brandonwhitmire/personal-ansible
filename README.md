@@ -172,6 +172,7 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
+- molecule testing to use Vagrant: https://github.com/ansible-community/molecule-vagrant
 - virtualization.yml (split off a VBOX or QEMU playbook)
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
