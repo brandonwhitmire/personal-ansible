@@ -43,7 +43,7 @@
       become: true
       community.general.pacman:
         update_cache: true
-        upgrade: true
+        # upgrade: true
 
     - name: Gather the package facts
       ansible.builtin.package_facts:

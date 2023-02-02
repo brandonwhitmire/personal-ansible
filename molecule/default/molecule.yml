@@ -1,14 +1,40 @@
 ---
+# Vagrant:
+# https://github.com/ansible-community/molecule-vagrant/blob/main/README.rst
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: vagrant
+  provision: true
+  provider:
+    name: virtualbox
+  default_box: 'archlinux/archlinux'
 platforms:
   - name: instance
-    image: archlinux
-    pre_build_image: false
-    dockerfile: archlinux.dockerfile
+    hostname: archvagrant.local
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
+      - network_name: private_network
+        ip: 192.168.56.100
+      - network_name: forwarded_port
+        host: 2222
+        guest: 22
+    config_options:
+      ssh.keep_alive: true
+      ssh.remote_user: 'vagrant'
+    box: 'archlinux/archlinux'
+    memory: 8092
+    cpus: 2
+    # REQUIRES: driver -> provision: true
+    instance_raw_config_args:
+      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
+      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
 provisioner:
   name: ansible
+  env:
+    PY_COLORS: '1'
+    ANSIBLE_FORCE_COLOR: '1'
 verifier:
   name: ansible

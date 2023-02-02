@@ -128,15 +128,23 @@ Parallel Infrastructure # RARE
 Molecule is an automated testing framework for Ansible.
 
 ```shell
+# === PRE-REQUISITES ===
+
+# NOTE: these are ran from the root of the git repo
 # Setup virtualenv with Molecule and its dependencies installed
 python3 -m venv venv
 source activate venv/bin/activate
 pip3 install --upgrade setuptools pip
-pip3 install molecule molecule-plugins ansible ansible-core ansible-lint docker
-ansible-galaxy install mnussbaum.ansible_yay
+pip3 install molecule molecule-plugins ansible ansible-core ansible-lint docker python-vagrant
 
-# TEST via Molecule
-molecule destroy
+# Add Ansible module for 'yay' (AUR) actions
+# NOTE: this might already be in the repo
+mkdir --parents library
+wget --output-document=library/yay https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
+
+# === TEST ===
+
+molecule destroy  # cleanup any leftover artifacts
 
 molecule test  # builds and test everything -- then close down the environment
 
