@@ -17,39 +17,11 @@
         - VerbosePkgLists  # show from->to version and download/upgrade sizes
         - ParallelDownloads  # download more pkgs at concurrently
 
-    - name: Update package caches
-      changed_when: false
+    - name: Update keyring
       become: true
-      ansible.builtin.shell:
-        cmd: "pacman -F --refresh --refresh"
-
-    - name: Check if kernel needs update
-      changed_when: false
-      ansible.builtin.shell:
-        # When the local kernel version does not match the remote version,
-        # the kernel will need to be updated and a reboot will be required
-        cmd: "[[ $(pacman -Q linux | awk '{print $2}') != $(pacman -S --info linux | grep -E '[0-9].arch' | awk '{print $3}') ]]"
-      register: kernel_needs_update
-
-    - ansible.builtin.fail:
-        msg:
-          - "Kernel versions are mismatched (local version VS. remote version)"
-          - "To mitigate strange errors with package or module versions..."
-          - "Update keyring, system, and reboot:"
-          - "sudo bash -c 'pacman -Sy --noconfirm archlinux-keyring && pacman -Syyu --noconfirm && reboot'"
-      when: kernel_needs_update.rc != 0
-
-    #    - name: Update keyring
-    #      become: true
-    #      community.general.pacman:
-    #        name: archlinux-keyring
-    #        state: latest
-
-        #    - name: Upgrade system
-        #      become: true
-        #      community.general.pacman:
-        #        update_cache: true
-        # upgrade: true
+      community.general.pacman:
+        name: archlinux-keyring
+        state: latest
 
     - name: Gather the package facts
       ansible.builtin.package_facts:

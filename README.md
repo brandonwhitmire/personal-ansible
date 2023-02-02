@@ -125,7 +125,7 @@ Parallel Infrastructure # RARE
 
 ## Molecule
 
-Molecule is an automated testing framework for Ansible.
+Molecule is an automated testing framework for Ansible, which includes validatin, setting up infrastructure, and running plays.
 
 ```shell
 # === PRE-REQUISITES ===
@@ -135,7 +135,7 @@ Molecule is an automated testing framework for Ansible.
 python3 -m venv venv
 source activate venv/bin/activate
 pip3 install --upgrade setuptools pip
-pip3 install molecule molecule-plugins ansible ansible-core ansible-lint docker python-vagrant
+pip3 install molecule molecule-plugins ansible ansible-core ansible-lint yamllint docker python-vagrant
 
 # Add Ansible module for 'yay' (AUR) actions aka function_yay.yml
 # NOTE: this might already be in the repo
@@ -149,10 +149,6 @@ molecule converge  # same as 'test' but leaves the environment running
 
 molecule test  # roughly: destroy -> converge -> destroy
 ```
-
-### References:
-
-- https://molecule.readthedocs.io/en/latest/examples.html
 
 # Troubleshooting and Pitfalls
 
@@ -179,7 +175,6 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
-- molecule testing to use Vagrant: https://github.com/ansible-community/molecule-vagrant
 - virtualization.yml (split off a VBOX or QEMU playbook)
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations

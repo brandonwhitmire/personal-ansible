@@ -1,6 +1,8 @@
 ---
+# Molecule docs:
+# - https://molecule.readthedocs.io/en/latest/examples.html
 # Vagrant:
-# https://github.com/ansible-community/molecule-vagrant/blob/main/README.rst
+# - https://github.com/ansible-community/molecule-vagrant/blob/main/README.rst
 dependency:
   name: galaxy
 driver:
@@ -10,7 +12,7 @@ driver:
     name: virtualbox
   default_box: 'archlinux/archlinux'
 platforms:
-  - name: instance
+  - name: test_instance
     hostname: archvagrant.local
     interfaces:
       - auto_config: true
@@ -33,9 +35,19 @@ platforms:
       - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
 provisioner:
   name: ansible
-  # https://www.jeffgeerling.com/blog/2020/getting-colorized-output-molecule-and-ansible-on-github-actions-ci
   env:
+    # https://www.jeffgeerling.com/blog/2020/getting-colorized-output-molecule-and-ansible-on-github-actions-ci
     PY_COLORS: '1'
     ANSIBLE_FORCE_COLOR: '1'
+    # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-timeout
+    # ANSIBLE_TIMEOUT: 180
+    # ANSIBLE_PERSISTENT_COMMAND_TIMEOUT: 180
+    # ANSIBLE_PERSISTENT_CONNECT_RETRY_TIMEOUT: 120
+    # ANSIBLE_CONFIG: 'ansible.cfg'
+  config_options:
+    defaults:
+      vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault_pass"
 verifier:
   name: ansible
+# lint: |
+#   ansible-lint
