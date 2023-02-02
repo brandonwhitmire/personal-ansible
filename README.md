@@ -137,7 +137,7 @@ source activate venv/bin/activate
 pip3 install --upgrade setuptools pip
 pip3 install molecule molecule-plugins ansible ansible-core ansible-lint docker python-vagrant
 
-# Add Ansible module for 'yay' (AUR) actions
+# Add Ansible module for 'yay' (AUR) actions aka function_yay.yml
 # NOTE: this might already be in the repo
 mkdir --parents library
 wget --output-document=library/yay https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
@@ -145,10 +145,9 @@ wget --output-document=library/yay https://raw.githubusercontent.com/mnussbaum/a
 # === TEST ===
 
 molecule destroy  # cleanup any leftover artifacts
-
-molecule test  # builds and test everything -- then close down the environment
-
 molecule converge  # same as 'test' but leaves the environment running
+
+molecule test  # roughly: destroy -> converge -> destroy
 ```
 
 ### References:
