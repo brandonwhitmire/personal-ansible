@@ -12,5 +12,8 @@
 - ansible.builtin.import_playbook: docker.yml
 - ansible.builtin.import_playbook: grub.yml
 - ansible.builtin.import_playbook: calibre.yml
-- ansible.builtin.import_playbook: steam.yml
 - ansible.builtin.import_playbook: virtualization.yml
+- ansible.builtin.import_playbook: vagrant.yml
+# NOTE: steam must be at the end since it upgrades the system,
+# which breaks some other things until a reboot is completed
+- ansible.builtin.import_playbook: steam.yml

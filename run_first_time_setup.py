@@ -114,5 +114,6 @@ if __name__ == "__main__":
                     f"ansible-vault encrypt_string --name 'ansible_ssh_password' '{ansible_ssh_password}'",
                     shell=True,
                     timeout=5).decode())
+            file.write("\n")
             file.write("ansible_become_pass: '{{ ansible_ssh_password }}'")
         print("\n")

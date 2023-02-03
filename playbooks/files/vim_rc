@@ -196,3 +196,5 @@ autocmd BufWinLeave * call clearmatches()
 nmap <F5> o<C-R>=strftime("%F %T %Z -- ")<CR>
 nnoremap <C-h> <C-w>h 
 nnoremap <C-l> <C-w>l
+
+let g:python3_host_prog = '/usr/bin/python3'

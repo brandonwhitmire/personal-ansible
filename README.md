@@ -123,6 +123,33 @@ ansible-playbook --check # against target
 Parallel Infrastructure # RARE
 ```
 
+## Molecule
+
+Molecule is an automated testing framework for Ansible, which includes validatin, setting up infrastructure, and running plays.
+
+```shell
+# === PRE-REQUISITES ===
+
+# NOTE: these are ran from the root of the git repo
+# Setup virtualenv with Molecule and its dependencies installed
+python3 -m venv venv
+source activate venv/bin/activate
+pip3 install --upgrade setuptools pip
+pip3 install molecule molecule-plugins ansible ansible-core ansible-lint yamllint docker python-vagrant
+
+# Add Ansible module for 'yay' (AUR) actions aka function_yay.yml
+# NOTE: this might already be in the repo
+mkdir --parents library
+wget --output-document=library/yay https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
+
+# === TEST ===
+
+molecule destroy  # cleanup any leftover artifacts
+molecule converge  # same as 'test' but leaves the environment running
+
+molecule test  # roughly: destroy -> converge -> destroy
+```
+
 # Troubleshooting and Pitfalls
 
 * Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run "`cd /ansible_controller`" to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via "`./1_run_ansible_controller.sh`".

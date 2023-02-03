@@ -72,6 +72,13 @@
       when: is_virtualbox.rc == 0
       block:
 
+        - name: Remove conflicting package
+          become: true
+          community.general.pacman:
+            name:
+              - virtualbox-guest-utils-nox
+            state: absent
+
         - name: Install Virtualbox Guest and NFS customizations
           become: true
           community.general.pacman:
