@@ -132,22 +132,20 @@ Molecule is an automated testing framework for Ansible, which includes validatin
 
 # NOTE: these are ran from the root of the git repo
 # Setup virtualenv with Molecule and its dependencies installed
-python3 -m venv venv
+python3 -m venv "$(git rev-parse --show-toplevel)/venv"
 source activate venv/bin/activate
-pip3 install --upgrade setuptools pip
+pip3 install --requirements "$(git rev-parse --show-toplevel)/requirements.txt"
 pip3 install molecule molecule-plugins ansible ansible-core ansible-lint yamllint docker python-vagrant
-
-# Add Ansible module for 'yay' (AUR) actions aka function_yay.yml
-# NOTE: this might already be in the repo
-mkdir --parents library
-wget --output-document=library/yay https://raw.githubusercontent.com/mnussbaum/ansible-yay/master/yay
 
 # === TEST ===
 
-molecule destroy  # cleanup any leftover artifacts
-molecule converge  # same as 'test' but leaves the environment running
+# cleanup any leftover artifacts
+molecule destroy
+# same as 'test' but leaves the environment running
+molecule converge
 
-molecule test  # roughly: destroy -> converge -> destroy
+# roughly: destroy -> converge -> destroy
+molecule test
 ```
 
 # Troubleshooting and Pitfalls
@@ -175,6 +173,9 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
+- `molecule` command completion: 
+  - https://github.com/ansible-community/molecule/issues/2028
+  - https://click.palletsprojects.com/en/8.0.x/shell-completion/
 - virtualization.yml (split off a VBOX or QEMU playbook)
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations

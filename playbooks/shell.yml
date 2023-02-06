@@ -25,7 +25,7 @@
 
     - name: Install needed OS pkgs
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - python  # the legend
           - python-pip  # install pkgs from PyPI

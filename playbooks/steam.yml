@@ -29,14 +29,14 @@
     - name: Upgrade system (required when enabling multilib)
       when: pacman_multilib_enabled.changed
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         update_cache: true
         upgrade: true
 
     # https://wiki.archlinux.org/title/Steam#Installation
     - name: Ensure steam and deps are installed
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - lib32-nvidia-utils  # lib32-vulkan-driver: install before 'steam' pkg to prevent steam installing AMD drivers
           - nvidia-utils  # vulkan-driver: see previous line
@@ -50,7 +50,7 @@
 
     - name: Ensure certain packages are not installed
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - lib32-amdvlk
           - amdvlk
@@ -117,7 +117,7 @@
 
         - name: Install necessary pkgs
           become: true
-          community.general.pacman:
+          ansible.builtin.package:
             name:
               - cabextract
             state: present

@@ -1,13 +1,26 @@
 #!/usr/bin/env ansible-playbook
 #
-# Barebones setup to make a fresh Arch Linux usable
+# Barebones setup to make a fresh box usable
 ---
 - name: Install baseline pkgs
   hosts: all
   tasks:
 
+    # Arch Linux is the default distro; Kali is secondarily supported
+    # Arch: https://archlinux.org/packages/ | https://aur.archlinux.org/
+    # Kali: https://pkg.kali.org
+    - name: Set some variables for different distro usage
+      ansible.builtin.set_fact:
+        is_arch_linux: '{{ true if (ansible_facts["distribution"] == "ArchLinux") else false }}'
+    - name: Set some variables for different distro usage
+      ansible.builtin.set_fact:
+        pkg_xorg_xinit: '{{ "xorg-xinit" if (is_arch_linux) else "xinit" }}'
+        pkg_font_dejavu: '{{ "ttf-dejavu" if (is_arch_linux) else "fonts-dejavu" }}'
+        pkg_font_croscore: '{{ "ttf-croscore" if (is_arch_linux) else "fonts-croscore" }}'
+
     - name: Enable pacman options
       become: true
+      when: is_arch_linux
       ansible.builtin.replace:
         backup: true
         path: /etc/pacman.conf
@@ -17,8 +30,9 @@
         - VerbosePkgLists  # show from->to version and download/upgrade sizes
         - ParallelDownloads  # download more pkgs at concurrently
 
-    - name: Update keyring
+    - name: Update Arch Linux keyring
       become: true
+      when: is_arch_linux
       community.general.pacman:
         name: archlinux-keyring
         state: latest
@@ -34,17 +48,17 @@
         state: present
       when: "'acpilight' not in ansible_facts.packages"
 
-    - name: Install pacman pkgs
+    - name: Install baseline pkgs
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - xdg-user-dirs  # common user dirs
-          - xorg-xinit  # start GUI
+          - '{{ pkg_xorg_xinit }}'  # start GUI
           - picom  # xorg compositor
           - xterm  # default terminal
           - ttf-bitstream-vera  # serif and mono
-          - ttf-dejavu  # Bitstream Vera modified w/more Unicode
-          - ttf-croscore  # Helvetica, Times, and Courier
+          - '{{ pkg_font_dejavu }}'  # Bitstream Vera modified w/more Unicode
+          - '{{ pkg_font_croscore }}'  # Helvetica, Times, and Courier
           - grub-customizer  # GUI for GRUB menu
           - xorg-xhost  # hard dep for grub-customizer
           - xautolock  # xorg locker

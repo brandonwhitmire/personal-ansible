@@ -29,7 +29,7 @@
 
     - name: Install needed OS pkgs
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - calibre  # eBook manager
         state: present

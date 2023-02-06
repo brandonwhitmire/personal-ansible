@@ -54,7 +54,7 @@
           become: true
           ignore_errors: true
           changed_when: false
-          community.general.pacman:
+          ansible.builtin.package:
             name: yay-bin
             state: present
           register: is_yay_installed
@@ -78,7 +78,7 @@
 
             - name: Ensure yay deps are installed
               become: true
-              community.general.pacman:
+              ansible.builtin.package:
                 name:
                   - git
                   - base-devel

@@ -7,31 +7,23 @@ dependency:
   name: galaxy
 driver:
   name: vagrant
+  # https://molecule.readthedocs.io/en/latest/examples.html#parallel-usage-example
+  parallel: true  # It is currently only available for use with the Docker driver.
   provision: true
   provider:
     name: virtualbox
 platforms:
-  - name: arch_instance
-    box: 'archlinux/archlinux'
-    hostname: archvagrant.local
-      #    interfaces:
-      #      - auto_config: true
-      #        network_name: private_network
-      #        type: dhcp
-      #      - network_name: private_network
-      #        ip: 192.168.56.100
-      #      - network_name: forwarded_port
-      #        host: 2222
-      #        guest: 22
-    config_options:
-      ssh.remote_user: 'vagrant'
-      ssh.keep_alive: true
-    memory: 4096
-    cpus: 2
-    # REQUIRES: driver -> provision: true
-    instance_raw_config_args:
-      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
-      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
+  #  - name: arch_instance
+  #    box: 'archlinux/archlinux'
+  #    hostname: archvagrant.local
+  #    config_options:
+  #      ssh.remote_user: 'vagrant'
+  #      ssh.keep_alive: true
+  #    memory: 4096
+  #    cpus: 2
+  #    instance_raw_config_args:  # REQUIRES: driver -> provision: true
+  #      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
+  #      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
   - name: kali_instance
     box: 'kalilinux/rolling'
     hostname: kalivagrant.local
@@ -40,6 +32,10 @@ platforms:
       ssh.keep_alive: true
     memory: 4096
     cpus: 2
+    provider_raw_config_args:
+      - 'gui = false'  # prevent VM GUI from displaying
+    #    instance_raw_config_args:  # REQUIRES: driver -> provision: true
+    #      - 'vm.provision :shell, inline: "apt update --yes && apt full-upgrade --yes"'
 provisioner:
   name: ansible
   env:

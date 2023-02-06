@@ -10,7 +10,7 @@
 
     - name: Install KeepassXC password manager and required packages
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - keepassxc
         state: present

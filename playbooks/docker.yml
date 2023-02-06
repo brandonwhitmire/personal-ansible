@@ -11,7 +11,7 @@
 
     - name: Install needed OS pkgs
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - docker
           - docker-compose

@@ -30,7 +30,7 @@
 
             - name: Install virtualbox pkgs
               become: true
-              community.general.pacman:
+              ansible.builtin.package:
                 name:
                   - virtualbox
                   - virtualbox-host-modules-arch
@@ -63,7 +63,7 @@
 
             - name: Install qemu pkgs
               become: true
-              community.general.pacman:
+              ansible.builtin.package:
                 name:
                   - qemu-full
                 state: present
@@ -74,14 +74,14 @@
 
         - name: Remove conflicting package
           become: true
-          community.general.pacman:
+          ansible.builtin.package:
             name:
               - virtualbox-guest-utils-nox
             state: absent
 
         - name: Install Virtualbox Guest and NFS customizations
           become: true
-          community.general.pacman:
+          ansible.builtin.package:
             name:
               - virtualbox-guest-utils
               - nfs-utils
