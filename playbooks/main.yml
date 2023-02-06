@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- ansible.builtin.import_playbook: arch_baseline.yml
+- ansible.builtin.import_playbook: baseline.yml
 - ansible.builtin.import_playbook: arch_general_recommendations.yml
 - ansible.builtin.import_playbook: i3.yml
 - ansible.builtin.import_playbook: dark_theme.yml

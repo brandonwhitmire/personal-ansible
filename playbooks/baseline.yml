@@ -59,8 +59,6 @@
           - ttf-bitstream-vera  # serif and mono
           - '{{ pkg_font_dejavu }}'  # Bitstream Vera modified w/more Unicode
           - '{{ pkg_font_croscore }}'  # Helvetica, Times, and Courier
-          - grub-customizer  # GUI for GRUB menu
-          - xorg-xhost  # hard dep for grub-customizer
           - xautolock  # xorg locker
           - polkit  # privs management
           - dmidecode  # used for checking for virtualization
