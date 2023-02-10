@@ -44,14 +44,6 @@ sudo systemctl enable --now sshd # SSH permanently on
 ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 ```
 
-### Playbook Precedence
-
-Most playbooks are written such that they are indepedent from each other and should not require anything installed beforehand (other than what is mentioned above). However, this assumption only follows if the playbook `1_install_baseline_packages.yml` has been previously ran. This will install numerous packages, but especially those that are required for the remaining playbooks.
-
-> e.g. #1: The `python-pip` OS-level package is required to install Python3 modules, but this package is not included in all playbooks that install Python3 modules since this would add an undue burden to all current and future playbooks.
-
-> e.g. #2: The `unzip` is included in the Calibre playbook since that package is specifically required to run the Ansible `unarchive` module, which is only used in that respective playbook... the `unzip` package would get moved into `1_install_baseline_packages.yml` if its usage becomes more prevalent in more than one or so playbooks.
-
 # Quick Start
 
 Using the Dockerized Ansible controller to configure target nodes:
@@ -135,17 +127,25 @@ Molecule is an automated testing framework for Ansible, which includes validatin
 python3 -m venv "$(git rev-parse --show-toplevel)/venv"
 source activate venv/bin/activate
 pip3 install --requirements "$(git rev-parse --show-toplevel)/requirements.txt"
-pip3 install molecule molecule-plugins ansible ansible-core ansible-lint yamllint docker python-vagrant
 
 # === TEST ===
 
+# END-to-END
+# roughly: destroy -> create -> converge -> destroy
+molecule test
+
 # cleanup any leftover artifacts
 molecule destroy
+
 # same as 'test' but leaves the environment running
 molecule converge
 
-# roughly: destroy -> converge -> destroy
-molecule test
+# basically: converge on a specific platform
+# NOTE: might require "create" subcommand first to build instance(s)
+molecule create
+
+molecule test --destroy never --platform-name arch_instance
+molecule test --destroy never --platform-name kali_instance
 ```
 
 # Troubleshooting and Pitfalls
@@ -173,18 +173,15 @@ This repository was written with the goal of getting a fresh installation to a p
 
 Actions and capabilities to add eventually:
 
-- `molecule` command completion: 
-  - https://github.com/ansible-community/molecule/issues/2028
-  - https://click.palletsprojects.com/en/8.0.x/shell-completion/
+- fix `group_vars` duplication
 - virtualization.yml (split off a VBOX or QEMU playbook)
 - hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
 - arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
 - add keyboard shortcuts for Spanish chars
 - fix i3status bar applets to show all
 - create playbooks for:
-  - Ansible
-  - Virtualbox
-- consider migrating requirements_ansible.txt into Dockerfile
+  - Ansible (add `sshpass` as dependency)
+
 - automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
 - consider ricing Playbook XD
 

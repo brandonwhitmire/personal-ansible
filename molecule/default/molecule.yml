@@ -13,17 +13,17 @@ driver:
   provider:
     name: virtualbox
 platforms:
-  #  - name: arch_instance
-  #    box: 'archlinux/archlinux'
-  #    hostname: archvagrant.local
-  #    config_options:
-  #      ssh.remote_user: 'vagrant'
-  #      ssh.keep_alive: true
-  #    memory: 4096
-  #    cpus: 2
-  #    instance_raw_config_args:  # REQUIRES: driver -> provision: true
-  #      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
-  #      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
+  - name: arch_instance
+    box: 'archlinux/archlinux'
+    hostname: archvagrant.local
+    config_options:
+      ssh.remote_user: 'vagrant'
+      ssh.keep_alive: true
+    memory: 4096
+    cpus: 2
+    instance_raw_config_args:  # REQUIRES: driver -> provision: true
+      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
+      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
   - name: kali_instance
     box: 'kalilinux/rolling'
     hostname: kalivagrant.local

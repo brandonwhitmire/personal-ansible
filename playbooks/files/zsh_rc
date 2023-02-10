@@ -633,6 +633,10 @@ wifi_scan () {
         echo '    nmcli device wifi connect <WIFI_NAME>'
 }
 
+# molecule subcommands tab-completion
+which molecule >/dev/null 2>&1 && \
+    eval "$(_MOLECULE_COMPLETE=zsh_source molecule)"
+
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx

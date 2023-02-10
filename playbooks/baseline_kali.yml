@@ -6,36 +6,11 @@
   hosts: all
   tasks:
 
-    # Arch Linux is the default distro; Kali is secondarily supported
-    # Arch: https://archlinux.org/packages/ | https://aur.archlinux.org/
-    # Kali: https://pkg.kali.org
-    - name: Set some variables for different distro usage
-      ansible.builtin.set_fact:
-        is_arch_linux: '{{ true if (ansible_facts["distribution"] == "ArchLinux") else false }}'
-    - name: Set some variables for different distro usage
-      ansible.builtin.set_fact:
-        pkg_xorg_xinit: '{{ "xorg-xinit" if (is_arch_linux) else "xinit" }}'
-        pkg_font_dejavu: '{{ "ttf-dejavu" if (is_arch_linux) else "fonts-dejavu" }}'
-        pkg_font_croscore: '{{ "ttf-croscore" if (is_arch_linux) else "fonts-croscore" }}'
-
-    - name: Enable pacman options
+    - name: Update apt cache if the last is more than 3600 seconds ago
       become: true
-      when: is_arch_linux
-      ansible.builtin.replace:
-        backup: true
-        path: /etc/pacman.conf
-        regexp: '#\s*({{ item }}.*)'
-        replace: '\1'
-      loop:
-        - VerbosePkgLists  # show from->to version and download/upgrade sizes
-        - ParallelDownloads  # download more pkgs at concurrently
-
-    - name: Update Arch Linux keyring
-      become: true
-      when: is_arch_linux
-      community.general.pacman:
-        name: archlinux-keyring
-        state: latest
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
 
     - name: Gather the package facts
       ansible.builtin.package_facts:
@@ -53,29 +28,28 @@
       ansible.builtin.package:
         name:
           - xdg-user-dirs  # common user dirs
-          - '{{ pkg_xorg_xinit }}'  # start GUI
+          - xinit  # start GUI
           - picom  # xorg compositor
           - xterm  # default terminal
           - ttf-bitstream-vera  # serif and mono
-          - '{{ pkg_font_dejavu }}'  # Bitstream Vera modified w/more Unicode
-          - '{{ pkg_font_croscore }}'  # Helvetica, Times, and Courier
+          - fonts-dejavu  # Bitstream Vera modified w/more Unicode
+          - fonts-croscore  # Helvetica, Times, and Courier
           - xautolock  # xorg locker
-          - polkit  # privs management
+          - policykit-1  # privs management
           - dmidecode  # used for checking for virtualization
-          - firefox  # web browser
+          - firefox-esr  # web browser
           - chromium  # web browser
           - gedit  # text editor
           - flameshot  # screenshot
-          - pkgfile  # pkg search from repos
+          # - pkgfile  # pkg search from repos
           - strace  # debugger
-          - bind-tools  # domain resolving
+          - bind9  # domain resolving
           - udisks2  # disk mounting
           - arandr  # desktop display configurator
-          - base-devel  # meta package for compiling (e.g. AUR)
           - git  # repos
-          - python  # Python3
-          - python-pip  # pip package installer
-          - python-setuptools  # Python3 setuptools
+          - python3  # Python3
+          - python3-pip  # pip package installer
+          - python3-setuptools  # Python3 setuptools
           - numlockx  # numlock on at login
           - ghostwriter  # Markdown editor
           - libreoffice  # office suite of programs
@@ -83,7 +57,7 @@
           - pavucontrol  # PulseAudio GUI for volume
           - packer  # automate VM building
           - man-db  # manpages program
-          - man-pages  # actual manpages
+          - manpages  # actual manpages
           - blueman  # Bluetooth
           - dialog  # for wifi-menu
           - netctl  # dep for wifi-menu
@@ -91,11 +65,8 @@
           - gvfs  # dep for pcmanfm features
           - unzip  # zip
           - evince  # PDF viewer
-          - reflector  # update pacman mirrors
           - bluez  # bluetooth
-          - bluez-utils  # bluetooth utils
-          - pulseaudio-bluetooth  # pulseaudio dep for bluetooth
-          - xf86-input-synaptics  # touchpad
+          - xserver-xorg-input-synaptics  # touchpad
           - android-file-transfer  # access files from Android device
         state: present
 

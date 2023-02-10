@@ -6,18 +6,6 @@
   hosts: all
   tasks:
 
-    # Arch Linux is the default distro; Kali is secondarily supported
-    # Arch: https://archlinux.org/packages/ | https://aur.archlinux.org/
-    # Kali: https://pkg.kali.org
-    - name: Set some variables for different distro usage
-      ansible.builtin.set_fact:
-        is_arch_linux: '{{ true if (ansible_facts["distribution"] == "ArchLinux") else false }}'
-    - name: Set some variables for different distro usage
-      ansible.builtin.set_fact:
-        pkg_xorg_xinit: '{{ "xorg-xinit" if (is_arch_linux) else "xinit" }}'
-        pkg_font_dejavu: '{{ "ttf-dejavu" if (is_arch_linux) else "fonts-dejavu" }}'
-        pkg_font_croscore: '{{ "ttf-croscore" if (is_arch_linux) else "fonts-croscore" }}'
-
     - name: Enable pacman options
       become: true
       when: is_arch_linux
@@ -53,12 +41,12 @@
       ansible.builtin.package:
         name:
           - xdg-user-dirs  # common user dirs
-          - '{{ pkg_xorg_xinit }}'  # start GUI
+          - xorg-xinit  # start GUI
           - picom  # xorg compositor
           - xterm  # default terminal
           - ttf-bitstream-vera  # serif and mono
-          - '{{ pkg_font_dejavu }}'  # Bitstream Vera modified w/more Unicode
-          - '{{ pkg_font_croscore }}'  # Helvetica, Times, and Courier
+          - ttf-dejavu  # Bitstream Vera modified w/more Unicode
+          - ttf-croscore  # Helvetica, Times, and Courier
           - xautolock  # xorg locker
           - polkit  # privs management
           - dmidecode  # used for checking for virtualization
