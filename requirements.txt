@@ -6,8 +6,8 @@ ansible-lint  # ansible-specific linter
 # https://molecule.readthedocs.io/en/latest/installation.html#pip
 molecule  # test suite for Ansible
 molecule-plugins  # provider plugins
-molecule-plugins[ansible]  # unnecessary but explicit
-molecule-plugins[vagrant]  # unnecessary but explicit 
+#molecule-plugins[ansible]  # unnecessary but explicit
+#molecule-plugins[vagrant]  # unnecessary but explicit 
 molecule-plugins[docker]  # necessary
 
 # Dependencies for various Runners

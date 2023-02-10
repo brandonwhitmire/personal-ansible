@@ -66,7 +66,7 @@
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
             create: true
-            validate: 'visudo -csf %s'
+            validate: 'visudo --check --strict --file=%s'
             mode: 0440
             state: present
 
@@ -124,5 +124,5 @@
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
-            validate: 'visudo -csf %s'
+            validate: 'visudo --check --strict --file=%s'
             state: absent

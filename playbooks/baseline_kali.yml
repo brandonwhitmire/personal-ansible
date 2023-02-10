@@ -158,7 +158,7 @@
         path: /etc/sudoers.d/sudo_prompt_timeout
         line: Defaults timestamp_timeout=15
         create: true
-        validate: 'visudo -csf %s'
+        validate: 'visudo --check --strict --file=%s'
         mode: '0440'
         owner: root
         group: root

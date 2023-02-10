@@ -75,7 +75,7 @@
     # https://github.com/GloriousEggroll/proton-ge-custom#native
     - name: === Proton GloriousEggroll Block ===
       vars:
-        - proton_ge_version: GE-Proton7-42
+        - proton_ge_version: GE-Proton7-49
         - proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
         - proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
         - install_location: ~/.steam/root/compatibilitytools.d/
@@ -90,7 +90,7 @@
             mode: '0755'
             state: directory
 
-        - name: Download Proton GE Build
+        - name: 'Download Proton GE version: {{ proton_ge_version }}'
           ansible.builtin.get_url:
             url: '{{ proton_ge_url }}'
             dest: '{{ download_location }}'
