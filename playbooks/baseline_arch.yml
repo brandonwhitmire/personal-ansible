@@ -8,7 +8,6 @@
 
     - name: Enable pacman options
       become: true
-      when: is_arch_linux
       ansible.builtin.replace:
         backup: true
         path: /etc/pacman.conf
@@ -20,7 +19,6 @@
 
     - name: Update Arch Linux keyring
       become: true
-      when: is_arch_linux
       community.general.pacman:
         name: archlinux-keyring
         state: latest

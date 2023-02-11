@@ -35,7 +35,6 @@
 ---
 - name: '=== [AUR_FUNCTION_START] Add/Remove >>AUR<< packages ==='
   hosts: all
-
   vars:
     passwordless_sudo_user: '{{ ansible_user }}'
     passwordless_sudo_file: /etc/sudoers
@@ -45,10 +44,9 @@
       - package2
       - package3
     aur_packages_state: present
-
   tasks:
-
-    - block:
+    - when: ansible_facts["distribution"] == "Archlinux"
+      block:
 
         - name: Ensure yay is installed
           become: true
@@ -110,7 +108,7 @@
             msg: '"absent" as state for `aur_packages_state` does NOT work; Uninstall with pacman normally'
 
         - name: 'Ensure `{{ aur_packages }}` pkgs are: {{ aur_packages_state }}'
-          yay:
+          ansible.legacy.yay:
             name:
               - '{{ item }}'
             state: '{{ aur_packages_state }}'

@@ -27,10 +27,10 @@
       become: true
       ansible.builtin.package:
         name:
-          - python  # the legend
-          - python-pip  # install pkgs from PyPI
-          - python-setuptools  # build packages
-          - python-pynvim  # python3 for neovim
+          # - python  # the legend
+          # - python-pip  # install pkgs from PyPI
+          # - python-setuptools  # build packages
+          # - python-pynvim  # python3 for neovim
           - zsh  # shell
           - zsh-completions  # zsh command completions
           - zsh-syntax-highlighting  # zsh syntax highlighting

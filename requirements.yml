@@ -1,0 +1,4 @@
+# Ansible Galaxy Collections Requirements File
+---
+collections:
+  - name: kewlfft.aur

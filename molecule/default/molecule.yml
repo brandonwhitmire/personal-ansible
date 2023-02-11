@@ -22,8 +22,7 @@ platforms:
     memory: 4096
     cpus: 2
     instance_raw_config_args:  # REQUIRES: driver -> provision: true
-      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
-      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
+      - 'vm.provision :shell, inline: "pacman -S --noconfirm python sudo"'
   - name: kali_instance
     box: 'kalilinux/rolling'
     hostname: kalivagrant.local
@@ -34,19 +33,14 @@ platforms:
     cpus: 2
     provider_raw_config_args:
       - 'gui = false'  # prevent VM GUI from displaying
-    #    instance_raw_config_args:  # REQUIRES: driver -> provision: true
-    #      - 'vm.provision :shell, inline: "apt update --yes && apt full-upgrade --yes"'
+    # instance_raw_config_args:  # REQUIRES: driver -> provision: true
+    #   - 'vm.provision :shell, inline: "apt update --yes && apt full-upgrade --yes"'
 provisioner:
   name: ansible
   env:
     # https://www.jeffgeerling.com/blog/2020/getting-colorized-output-molecule-and-ansible-on-github-actions-ci
     PY_COLORS: '1'
     ANSIBLE_FORCE_COLOR: '1'
-    # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-timeout
-    # ANSIBLE_TIMEOUT: 180
-    # ANSIBLE_PERSISTENT_COMMAND_TIMEOUT: 180
-    # ANSIBLE_PERSISTENT_CONNECT_RETRY_TIMEOUT: 120
-    # ANSIBLE_CONFIG: 'ansible.cfg'
   config_options:
     defaults:
       vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault_pass"

@@ -122,11 +122,11 @@ Molecule is an automated testing framework for Ansible, which includes validatin
 ```shell
 # === PRE-REQUISITES ===
 
-# NOTE: these are ran from the root of the git repo
 # Setup virtualenv with Molecule and its dependencies installed
 python3 -m venv "$(git rev-parse --show-toplevel)/venv"
 source activate venv/bin/activate
 pip3 install --requirements "$(git rev-parse --show-toplevel)/requirements.txt"
+ansible-galaxy collection install --requirements-file "$(git rev-parse --show-toplevel)/requirements.yml"
 
 # === TEST ===
 
