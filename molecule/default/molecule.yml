@@ -21,13 +21,18 @@ platforms:
       ssh.remote_user: 'vagrant'
       ssh.keep_alive: true
     instance_raw_config_args:  # REQUIRES: driver -> provision: true
-      - 'vm.provision :shell, inline: "pacman -S \
+      # https://developer.hashicorp.com/vagrant/docs/provisioning/shell
+      # NOTE: because Arch Linux is a rolling distro, package versions can
+      # quickly go out-of-date. This performs a full system upgrade and reboots,
+      # which is necessary if the kernel versions differ. This can impact future
+      # package installations in weird ways such as mismatched versions for
+      # kernel modules (e.g. in the case of iptables/ufw, when first installed).
+      - 'vm.provision :shell, reboot: "true", inline: "pacman -S \
                                          --refresh --sysupgrade --noconfirm \
                                            archlinux-keyring \
-                                           python && \
-                                       systemctl reboot --reboot-argument=now" '
-  - name: kaliinstance
-    hostname: kaliinstance.local
+                                           sudo \
+                                           python" '
+  - name: kali-instance
     box: 'kalilinux/rolling'
     cpus: 2
     memory: 4096
@@ -37,6 +42,7 @@ platforms:
     provider_raw_config_args:
       - 'gui = false'  # prevent VM GUI from displaying
     instance_raw_config_args:  # REQUIRES: driver -> provision: true
+      # https://developer.hashicorp.com/vagrant/docs/provisioning/shell
       - 'vm.provision :shell, inline: "echo COMMANDS ARE CURRENTLY SKIPPED || \
                                        apt update --yes && \
                                        apt full-upgrade --yes" '
@@ -47,9 +53,6 @@ provisioner:
     PY_COLORS: '1'
     ANSIBLE_FORCE_COLOR: '1'
     ANSIBLE_PYTHON_INTERPRETER: '/usr/bin/python3'
-    ANSIBLE_TIMEOUT: 300
-    ANSIBLE_PERSISTENT_COMMAND_TIMEOUT: 300
-    ANSIBLE_PERSISTENT_CONNECT_RETRY_TIMEOUT: 15
   config_options:
     defaults:
       # Not used but prevents vault descryption errors

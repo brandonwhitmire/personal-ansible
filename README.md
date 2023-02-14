@@ -169,11 +169,11 @@ Molecule has an incredible number of layers that can make things difficult to tr
 
 #### Vagrant-Specific (at the Driver layer)
 
-Although Molecule can be good at outputting useful errors, sometimes vague errors regarding `ssh` are displayed without error output. In these cases, try reading all logs for the Driver (i.e. Vagrant in this case). There have been package manager issues that have caused these `ssh` "errors" that could only be discerned from reading the `vagrant.out` log (yes -- not the `vagrant.err` log as would be expected).
+Although Molecule can be good at outputting useful errors, sometimes vague errors regarding `ssh` are displayed without error output when internal VM commands are ran. In these cases, try reading all logs for the Driver (i.e. Vagrant in this case). There have been package manager issues that have caused these `ssh` "errors" that could only be discerned from reading the `vagrant.out` log (yes -- not the `vagrant.err` log as would be expected).
 
 ```shell
-cat ~/.cache/molecule/ansible/*/vagrant.{out,err}
-cat ~/.cache/molecule/ansible/*/vagrant.out
+# Follow both Vagrant logs while VM provisions and builds
+tail --follow ~/.cache/molecule/ansible/*/vagrant.{out,err}
 ```
 
 # Troubleshooting and Pitfalls
