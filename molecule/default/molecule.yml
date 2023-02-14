@@ -27,11 +27,19 @@ platforms:
       # which is necessary if the kernel versions differ. This can impact future
       # package installations in weird ways such as mismatched versions for
       # kernel modules (e.g. in the case of iptables/ufw, when first installed).
-      - 'vm.provision :shell, reboot: "true", inline: "pacman -S \
-                                         --refresh --sysupgrade --noconfirm \
-                                           archlinux-keyring \
-                                           sudo \
-                                           python" '
+      - 'vm.provision :shell, reboot: "true", inline:
+          "
+            pacman -S \
+              --refresh \
+              --refresh \
+              --sysupgrade \
+              --noconfirm \
+                archlinux-keyring \
+                base \
+                base-devel \
+                python
+          "
+        '
   - name: kali-instance
     box: 'kalilinux/rolling'
     cpus: 2
@@ -43,9 +51,13 @@ platforms:
       - 'gui = false'  # prevent VM GUI from displaying
     instance_raw_config_args:  # REQUIRES: driver -> provision: true
       # https://developer.hashicorp.com/vagrant/docs/provisioning/shell
-      - 'vm.provision :shell, inline: "echo COMMANDS ARE CURRENTLY SKIPPED || \
-                                       apt update --yes && \
-                                       apt full-upgrade --yes" '
+      - 'vm.provision :shell, inline:
+          "
+            apt \
+              update \
+                --yes
+          "
+        '
 provisioner:
   name: ansible
   env:
@@ -53,6 +65,7 @@ provisioner:
     PY_COLORS: '1'
     ANSIBLE_FORCE_COLOR: '1'
     ANSIBLE_PYTHON_INTERPRETER: '/usr/bin/python3'
+    ANSIBLE_LOG_PATH: '/tmp/ansible.molecule.log'
   config_options:
     defaults:
       # Not used but prevents vault descryption errors

@@ -85,7 +85,7 @@
           - android-file-transfer  # access files from Android device
         state: present
 
-    - name: Enable services
+    - name: Enable baseline services
       become: true
       ansible.builtin.service:
         name: '{{ item }}'

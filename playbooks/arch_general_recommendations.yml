@@ -22,14 +22,12 @@
               - gufw
             state: present
 
-        - name: Enable services
+        - name: Enable ufw (firewall) service
           become: true
           ansible.builtin.service:
-            name: '{{ item }}'
+            name: ufw
             enabled: true
             state: started
-          loop:
-            - ufw
 
         - name: Set firewall rules - Deny incoming traffic by default
           become: true
@@ -82,11 +80,9 @@
               - network-manager-applet
               - networkmanager-openvpn
 
-        - name: Enable services
+        - name: Enable NetworkManager service
           become: true
           ansible.builtin.service:
-            name: '{{ item }}'
+            name: NetworkManager
             enabled: true
             state: started
-          loop:
-            - NetworkManager

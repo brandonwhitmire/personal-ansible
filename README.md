@@ -117,7 +117,7 @@ Parallel Infrastructure # RARE
 
 ## Molecule
 
-Molecule is an automated testing framework for Ansible, which includes validatin, setting up infrastructure, and running plays.
+Molecule is an automated testing framework for Ansible, which includes validation, setting up infrastructure, and running plays.
 
 ```shell
 # === PRE-REQUISITES ===
@@ -141,8 +141,6 @@ molecule destroy && molecule reset
 molecule converge
 
 # basically: converge on a specific platform
-# NOTE: might require "create" subcommand first to build instance(s)
-molecule create
 
 molecule test --destroy never --platform-name arch-instance
 molecule test --destroy never --platform-name kali-instance
@@ -174,6 +172,13 @@ Although Molecule can be good at outputting useful errors, sometimes vague error
 ```shell
 # Follow both Vagrant logs while VM provisions and builds
 tail --follow ~/.cache/molecule/ansible/*/vagrant.{out,err}
+```
+
+```shell
+# Follow Ansible logs while configuring
+# NOTE: molecule.yml has this environment variable ANSIBLE_LOG_PATH,
+# which places the Ansible log file in the below location
+tail --follow /tmp/ansible.molecule.log
 ```
 
 # Troubleshooting and Pitfalls

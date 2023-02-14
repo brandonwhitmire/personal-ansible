@@ -105,10 +105,12 @@
 
         - when: '"absent" in aur_packages_state'
           ansible.builtin.fail:
-            msg: '"absent" as state for `aur_packages_state` does NOT work; Uninstall with pacman normally'
+            msg:
+              - '"absent" as state for `aur_packages_state` does NOT work'
+              - 'Uninstall with pacman normally'
 
-        - name: 'Ensure `{{ aur_packages }}` pkgs are: {{ aur_packages_state }}'
-          ansible.legacy.yay:
+        - name: 'Ensure {{ aur_packages }} pkgs are: {{ aur_packages_state }}'
+          kewlfft.aur.aur:
             name:
               - '{{ item }}'
             state: '{{ aur_packages_state }}'
