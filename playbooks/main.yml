@@ -15,13 +15,20 @@
 - ansible.builtin.import_playbook: arch_general_recommendations.yml
   when: ansible_facts["distribution"] == "Archlinux"
 
+- ansible.builtin.import_playbook: i3_arch.yml
+  when: ansible_facts["distribution"] == "Archlinux"
+
 # === KALI LINUX ===
 
 # Kali: https://pkg.kali.org
 - ansible.builtin.import_playbook: baseline_kali.yml
   when: ansible_facts["distribution"] == "Kali"
 
-- ansible.builtin.import_playbook: i3.yml
+- ansible.builtin.import_playbook: i3_kali.yml
+  when: ansible_facts["distribution"] == "Kali"
+
+# ---
+
 - ansible.builtin.import_playbook: dark_theme.yml
 - ansible.builtin.import_playbook: conky.yml
 - ansible.builtin.import_playbook: nitrogen.yml

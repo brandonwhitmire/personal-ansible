@@ -1,0 +1,94 @@
+#!/usr/bin/env ansible-playbook
+#
+# i3 window manager setup
+#
+# Boot Sequence:
+# systemd boot -> agetty (autologin into user) -> zsh (sources .zshrc) -> startx (sources .xinitrc) -> i3
+---
+- name: Setup i3 window manager
+  hosts: all
+  tasks:
+
+    - name: Install i3 pkgs
+      become: true
+      ansible.builtin.package:
+        name:
+          - i3
+            #          - i3lock  # screenlocker
+            #          - i3-gaps  # tiling window manager
+            #          - i3blocks  # feed generator for status bar
+            #          - i3status  # i3 status bar
+          - dunst  # system notifications
+        state: present
+
+    # https://wiki.archlinux.org/title/Getty#Virtual_console
+    - name: Ensure systemd folder for autologin exists
+      become: true
+      ansible.builtin.file:
+        path: /etc/systemd/system/getty@tty1.service.d/
+        owner: root
+        group: root
+        mode: '0644'
+        state: directory
+
+    - name: Systemd unitfile for autologin via agetty
+      become: true
+      ansible.builtin.blockinfile:
+        path: /etc/systemd/system/getty@tty1.service.d/autologin.conf
+        marker: '# {mark} agetty_autologin'
+        block: |
+          [Service]
+          ExecStart=
+          # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
+          ExecStartPre=-/usr/bin/prime-switch
+          ExecStart=-/sbin/agetty --autologin {{ ansible_user }} --noclear %I 38400 linux
+        owner: root
+        group: root
+        mode: '0644'
+        create: true
+        state: present
+
+    - name: Startx i3 upon (auto)login
+      ansible.builtin.blockinfile:
+        path: ~/.xinitrc
+        marker: "# {mark} .xinitrc"
+        block: |
+          /usr/bin/prime-offload # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
+          i3
+        mode: '0644'
+        create: true
+        state: present
+
+    - name: Ensure i3 config dir is present
+      ansible.builtin.file:
+        path: ~/.config/i3/
+        state: directory
+        mode: '0755'
+
+    - name: Copy default i3 file to `{{ ansible_user }}` profile
+      ansible.builtin.copy:
+        force: true
+        src: files/i3_rc
+        dest: ~/.config/i3/config
+        mode: '0644'
+
+- name: Install AUR pkgs
+  vars:
+    aur_packages:
+      - dmenu2  # keyboard-driven program launcher
+      - pa-applet-git  # applet for PulseAudio
+      - clipit  # clipboard applet
+  ansible.builtin.import_playbook: function_yay.yml
+
+- name: Post-AUR Installs
+  hosts: all
+  tasks:
+
+    # Requires dmenu to be installed first
+    - name: Install dmenu history patch
+      become: true
+      ansible.builtin.get_url:
+        url: https://tools.suckless.org/dmenu/scripts/dmenu_run_with_command_history/dmenu_run_history
+        dest: /usr/local/bin/
+        checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
+        mode: '0755'
