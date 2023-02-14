@@ -21,6 +21,7 @@
   vars:
     - default_browser_name: librewolf
     - default_browser_fullpath: /usr/bin/{{ default_browser_name }}
+    - default_image_viewer: deepin-image-viewer
   tasks:
 
     - name: Install needed OS pkgs
@@ -63,6 +64,7 @@
           - xorg-xrandr  # dep for powerline
           - ansible-lint  # linter for Ansible
           # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
+          - deepin-image-viewer  # simple image viewer
         state: present
 
     # https://wiki.archlinux.org/title/Powerline
@@ -236,8 +238,8 @@
               application/xhtml+xml={{ default_browser_name }}.desktop
               application/x-extension-xhtml={{ default_browser_name }}.desktop
               application/x-extension-xht={{ default_browser_name }}.desktop
-              image/jpeg={{ default_browser_name }}.desktop
-              image/png={{ default_browser_name }}.desktop
+              image/jpeg={{ default_image_viewer }}.desktop
+              image/png={{ default_image_viewer }}.desktop
             create: true
             state: present
             mode: '0644'

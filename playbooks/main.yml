@@ -6,12 +6,16 @@
       ansible.builtin.debug:
         msg: 'TARGET OS: {{ ansible_facts["distribution"] }}'
 
+# === ARCH LINUX ===
+
 # Arch: https://archlinux.org/packages/ | https://aur.archlinux.org/
 - ansible.builtin.import_playbook: baseline_arch.yml
   when: ansible_facts["distribution"] == "Archlinux"
 
 - ansible.builtin.import_playbook: arch_general_recommendations.yml
   when: ansible_facts["distribution"] == "Archlinux"
+
+# === KALI LINUX ===
 
 # Kali: https://pkg.kali.org
 - ansible.builtin.import_playbook: baseline_kali.yml

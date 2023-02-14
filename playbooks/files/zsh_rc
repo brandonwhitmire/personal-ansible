@@ -61,6 +61,8 @@ alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 
+alias rg='--hidden --ignore-case --color auto'
+
 # TODO: convert everything to rg or whitelist \grep
 #alias grep='echo "[i] Use ripgrep, which is \'rg\'!"'
 #alias find='echo "[i] Use \'fd\'!"'
@@ -633,9 +635,13 @@ wifi_scan () {
         echo '    nmcli device wifi connect <WIFI_NAME>'
 }
 
-# molecule subcommands tab-completion
-which molecule >/dev/null 2>&1 && \
+# Molecule subcommands tab-completion
+which molecule > /dev/null 2>&1 && \
     eval "$(_MOLECULE_COMPLETE=zsh_source molecule)"
+
+# FZF: fuzzy finder bindings and completions
+source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh
 
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login

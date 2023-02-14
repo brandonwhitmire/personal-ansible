@@ -124,8 +124,8 @@ Molecule is an automated testing framework for Ansible, which includes validatin
 
 # Setup virtualenv with Molecule and its dependencies installed
 python3 -m venv "$(git rev-parse --show-toplevel)/venv"
-source activate venv/bin/activate
-pip3 install --requirements "$(git rev-parse --show-toplevel)/requirements.txt"
+source venv/bin/activate
+pip3 install --requirement "$(git rev-parse --show-toplevel)/requirements.txt"
 ansible-galaxy collection install --requirements-file "$(git rev-parse --show-toplevel)/requirements.yml"
 
 # === TEST ===
@@ -134,8 +134,8 @@ ansible-galaxy collection install --requirements-file "$(git rev-parse --show-to
 # roughly: destroy -> create -> converge -> destroy
 molecule test
 
-# cleanup any leftover artifacts
-molecule destroy
+# cleanup any leftover instances, artifacts, and temp dirs
+molecule destroy && molecule reset
 
 # same as 'test' but leaves the environment running
 molecule converge
@@ -144,8 +144,36 @@ molecule converge
 # NOTE: might require "create" subcommand first to build instance(s)
 molecule create
 
-molecule test --destroy never --platform-name arch_instance
-molecule test --destroy never --platform-name kali_instance
+molecule test --destroy never --platform-name arch-instance
+molecule test --destroy never --platform-name kali-instance
+```
+
+## Molecule Errors
+
+The simplest step is to use Ansible-like command options such as enabling debug and verbosity output when running the `molecule` command:
+
+```shell
+molecule --debug -vvvvv <SUBCOMMAND> ...
+```
+
+### Hierarchy of Abstraction Layers
+
+Molecule has an incredible number of layers that can make things difficult to troubleshoot. This list might not include all that one would need to consider. Rough hierarchy of molecule layers from **high**- to **low**-level:
+
+- Molecule
+- Driver (e.g. Vagrant or Docker)
+- Ansible
+- SSH
+- Python3
+- OS-specific commands (e.g. package managers)
+
+#### Vagrant-Specific (at the Driver layer)
+
+Although Molecule can be good at outputting useful errors, sometimes vague errors regarding `ssh` are displayed without error output. In these cases, try reading all logs for the Driver (i.e. Vagrant in this case). There have been package manager issues that have caused these `ssh` "errors" that could only be discerned from reading the `vagrant.out` log (yes -- not the `vagrant.err` log as would be expected).
+
+```shell
+cat ~/.cache/molecule/ansible/*/vagrant.{out,err}
+cat ~/.cache/molecule/ansible/*/vagrant.out
 ```
 
 # Troubleshooting and Pitfalls
