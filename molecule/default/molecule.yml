@@ -27,16 +27,15 @@ platforms:
       # which is necessary if the kernel versions differ. This can impact future
       # package installations in weird ways such as mismatched versions for
       # kernel modules (e.g. in the case of iptables/ufw, when first installed).
-      - 'vm.provision :shell, reboot: "true", inline:
+      # - 'vm.provision :shell, reboot: "true", inline:
+      - 'vm.provision :shell, inline:
           "
-            pacman -S \
+            pacman \
+              -S \
               --refresh \
               --refresh \
               --sysupgrade \
               --noconfirm \
-                archlinux-keyring \
-                base \
-                base-devel \
                 python
           "
         '
@@ -53,9 +52,10 @@ platforms:
       # https://developer.hashicorp.com/vagrant/docs/provisioning/shell
       - 'vm.provision :shell, inline:
           "
-            apt \
-              update \
+            apt
+              install \
                 --yes
+                  python3
           "
         '
 provisioner:
@@ -70,5 +70,7 @@ provisioner:
     defaults:
       # Not used but prevents vault descryption errors
       vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault_pass"
+  playbooks:
+    prepare: prepare.yml
 verifier:
   name: ansible
