@@ -67,6 +67,8 @@
           - libreoffice  # office suite of programs
           - pulseaudio  # PulseAudio
           - pavucontrol  # PulseAudio GUI for volume
+          - vlc  # multimedia player
+          - rhythmbox  # iTunes-like music player
           - packer  # automate VM building
           - man-db  # manpages program
           - man-pages  # actual manpages

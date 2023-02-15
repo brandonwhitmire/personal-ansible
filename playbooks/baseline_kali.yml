@@ -6,11 +6,11 @@
   hosts: all
   tasks:
 
-    - name: Update apt cache if the last is more than 3600 seconds ago
-      become: true
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 3600
+    #    - name: Update apt cache if the last is more than 3600 seconds ago
+    #      become: true
+    #      ansible.builtin.apt:
+    #        update_cache: true
+    #        cache_valid_time: 3600
 
     - name: Gather the package facts
       ansible.builtin.package_facts:
