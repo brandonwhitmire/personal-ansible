@@ -70,7 +70,11 @@ provisioner:
     defaults:
       # Not used but prevents vault descryption errors
       vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault_pass"
+      stdout_callback: debug
+      stderr_callback: debug
   playbooks:
     prepare: prepare.yml
 verifier:
   name: ansible
+# lint: |
+#   ansible-lint

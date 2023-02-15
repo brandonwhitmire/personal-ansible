@@ -20,7 +20,7 @@
   hosts: all
   vars:
     - default_browser_name: librewolf
-    - default_browser_fullpath: /usr/bin/{{ default_browser_name }}
+    - default_browser_fullpath: '/usr/bin/{{ default_browser_name }}'
     - default_image_viewer: deepin-image-viewer
   tasks:
 
@@ -33,35 +33,28 @@
           # - python-setuptools  # build packages
           # - python-pynvim  # python3 for neovim
           - zsh  # shell
-          - zsh-completions  # zsh command completions
           - zsh-syntax-highlighting  # zsh syntax highlighting
           - zsh-autosuggestions  # finish commands from history
-          - zsh-history-substring-search  # autosearch via history
-          - grml-zsh-config  # zsh config used in archiso (liveboot ISO)
-          - pkgfile  # command not found
           - zoxide  # smarter cd
           - fzf  # fuzzy finder
           - ripgrep  # fast, recursive grep searcher
-          - fd  # faster `find` command
-          - alacritty  # terminal
+          - fd-find  # faster `find` command
+          - alacritty  # terminal !!! BROKEN !!!
           - vim  # text editor
           - neovim  # upgraded text editor
-          - ttf-jetbrains-mono  # font
           - powerline  # font
           - rsync  # (remote) file syncer
-          - glxinfo  # GPU info
+          - mesa-utils  # contains glxinfo  # GPU info
           - colordiff  # diff with color
-          - borg  # encrypted, de-duplicated backups
+          - borgbackup2  # encrypted, de-duplicated backups
           - transmission-cli  # torrent manager
           - transmission-gtk  # GUI torrent manager client
           - transmission-remote-gtk  # GUI torrent manager daemon
           - nodejs  # dep for coc.nvim
           - xclip  # dep for vim clipboard
           - galculator  # default calc
-          - geckodriver  # used by Selenium for Firefox browsers
           - screenfetch  # display system info
           - socat  # dep for powerline
-          - xorg-xrandr  # dep for powerline
           - ansible-lint  # linter for Ansible
           # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
           - deepin-image-viewer  # simple image viewer
@@ -109,7 +102,7 @@
             - .zshrc
             # - .bashrc
 
-        - name: Set default shell to zsh for user "{{ ansible_user }}" and root
+        - name: 'Set default shell to zsh for users root and {{ ansible_user }}'
           become: true
           ansible.builtin.user:
             name: '{{ item }}'
@@ -117,12 +110,6 @@
           loop:
             - '{{ ansible_user }}'
             - root
-
-        - name: Build pkgfile cache (first time only)
-          become: true
-          ansible.builtin.command:
-            cmd: pkgfile --update
-            creates: /var/cache/pkgfile/core.files
 
     - name: === Spaceship prompt block ===
       block:
@@ -143,7 +130,7 @@
             state: directory
             mode: '0755'
 
-        - name: Copy default nvim file to `{{ ansible_user }}` profile
+        - name: 'Copy default nvim file to profile: {{ ansible_user }}'
           ansible.builtin.copy:
             remote_src: false
             src: files/vim_rc
@@ -158,10 +145,17 @@
             paths: ~/.vim/plugged/
           register: plugin_files
 
+        # https://github.com/junegunn/vim-plug#unix-linux
+        - name: Install vim-plug
+          when: plugin_files.matched <= 0
+          ansible.builtin.command:
+            cmd: sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
         - name: Download/Install (neo)vim plugins (first time only)
           when: plugin_files.matched <= 0
           ansible.builtin.command:
-            cmd: nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins | PlugStatus | sleep 3 | q! | q!'
+            cmd: "nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins |
+              PlugStatus | sleep 3 | q! | q!'"
 
     - name: === alacritty block ===
       block:

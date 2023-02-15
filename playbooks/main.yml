@@ -18,6 +18,9 @@
 - ansible.builtin.import_playbook: i3_arch.yml
   when: ansible_facts["distribution"] == "Archlinux"
 
+- ansible.builtin.import_playbook: shell_arch.yml
+  when: ansible_facts["distribution"] == "Archlinux"
+
 # === KALI LINUX ===
 
 # Kali: https://pkg.kali.org
@@ -27,13 +30,15 @@
 - ansible.builtin.import_playbook: i3_kali.yml
   when: ansible_facts["distribution"] == "Kali"
 
+- ansible.builtin.import_playbook: shell_kali.yml
+  when: ansible_facts["distribution"] == "Kali"
+
 # ---
 
 - ansible.builtin.import_playbook: dark_theme.yml
 - ansible.builtin.import_playbook: conky.yml
 - ansible.builtin.import_playbook: nitrogen.yml
 - ansible.builtin.import_playbook: keepassxc.yml
-- ansible.builtin.import_playbook: shell.yml
 - ansible.builtin.import_playbook: spanish_locale.yml
 - ansible.builtin.import_playbook: docker.yml
 - ansible.builtin.import_playbook: grub.yml

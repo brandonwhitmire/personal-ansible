@@ -636,6 +636,8 @@ wifi_scan () {
 }
 
 # Molecule subcommands tab-completion
+# TODO: this only works when manually source AFTER
+# entering a Python virtual environment
 which molecule > /dev/null 2>&1 && \
     eval "$(_MOLECULE_COMPLETE=zsh_source molecule)"
 

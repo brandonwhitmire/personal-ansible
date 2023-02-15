@@ -130,17 +130,14 @@ ansible-galaxy collection install --requirements-file "$(git rev-parse --show-to
 
 # === TEST ===
 
-# END-to-END
-# roughly: destroy -> create -> converge -> destroy
-molecule test
-
 # cleanup any leftover instances, artifacts, and temp dirs
 molecule destroy && molecule reset
 
 # same as 'test' but leaves the environment running
+# to test new changes or additions
 molecule converge
 
-# basically: converge on a specific platform
+# END-to-END: converge on a specific platform
 
 molecule test --destroy never --platform-name arch-instance
 molecule test --destroy never --platform-name kali-instance

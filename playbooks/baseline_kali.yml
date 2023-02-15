@@ -41,7 +41,6 @@
           - chromium  # web browser
           - gedit  # text editor
           - flameshot  # screenshot
-          # - pkgfile  # pkg search from repos
           - strace  # debugger
           - bind9  # domain resolving
           - udisks2  # disk mounting

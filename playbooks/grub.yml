@@ -70,6 +70,7 @@
 
     - name: Install acpilight pkg
       become: true
+      when: ansible_facts["distribution"] == "Archlinux"
       ansible.builtin.package:
         name: acpilight
         state: present
