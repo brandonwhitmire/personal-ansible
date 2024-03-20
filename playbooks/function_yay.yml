@@ -55,9 +55,6 @@
           ansible.builtin.package:
             name:
               - yay-bin
-              # Temporarily adding these to prevent odd errors
-              - fakeroot
-              - patch
               - base-devel
             state: present
           register: is_yay_installed
@@ -85,8 +82,6 @@
                 name:
                   - git
                   - base-devel
-                  - fakeroot
-                  - sudo
                 state: present
 
             - name: Create git dir

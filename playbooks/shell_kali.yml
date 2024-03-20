@@ -162,34 +162,21 @@
 
         - name: Set default font for terminal `alacritty`
           ansible.builtin.blockinfile:
-            path: ~/.config/alacritty/alacritty.yml
+            path: ~/.config/alacritty/alacritty.toml
             create: true
             state: present
             mode: '0644'
             block: |
-              font:
-                normal:
-                  family: ProFont for Powerline
-                  style: Regular
-                size: 16
-              scrolling:
-                # How many lines of scrollback to keep,
-                # '0' will disable scrolling.
-                history: 10000
+              [font]
+              size = 16
 
-                # Number of lines the viewport will move for every line
-                # scrolled when scrollback is enabled (history > 0).
-                multiplier: 3
+              [font.normal]
+              family = "ProFont for Powerline"
+              style = "Regular"
 
-                # Faux Scrolling
-                #
-                # The `faux_multiplier` setting controls the number
-                # of lines the terminal should scroll when the alternate
-                # screen buffer is active. This is used to allow mouse
-                # scrolling for applications like `man`.
-                #
-                # To disable this completely, set `faux_multiplier` to 0.
-                faux_multiplier: 3
+              [scrolling]
+              history = 10000
+              multiplier = 3
 
     - name: === /etc/environment block ===
       block:
