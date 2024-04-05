@@ -128,6 +128,10 @@ source venv/bin/activate
 pip3 install --requirement "$(git rev-parse --show-toplevel)/requirements.txt"
 ansible-galaxy collection install --requirements-file "$(git rev-parse --show-toplevel)/requirements.yml"
 
+# https://wiki.archlinux.org/title/Vagrant#vagrant-libvirt
+sudo systemctl enable --now libvirtd.service
+vagrant plugin install vagrant-libvirt
+
 # === TEST ===
 
 # cleanup any leftover instances, artifacts, and temp dirs

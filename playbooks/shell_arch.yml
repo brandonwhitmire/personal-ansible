@@ -72,6 +72,7 @@
     # https://powerline.readthedocs.io/en/master/installation.html
     - name: Install needed pip3 pkgs
       ansible.builtin.pip:
+        extra_args: --break-system-packages
         name:
           - psutil  # soft dep for powerline
           - pygit2  # soft dep for powerline

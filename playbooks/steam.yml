@@ -131,7 +131,7 @@
         - name: Download vc_redist file
           ansible.builtin.get_url:
             url: '{{ vc_redist_url }}'
-            dest: '{{ aoe2_dir }}'
+            dest: '{{ aoe2_dir }}{{ vc_redist_exe }}'
             owner: '{{ ansible_user }}'
             group: '{{ ansible_user }}'
             mode: '0755'

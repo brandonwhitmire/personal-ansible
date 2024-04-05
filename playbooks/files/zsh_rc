@@ -418,6 +418,7 @@ update () {
 }
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
+: "${ARCH_MIRROR_COUNTRY:=US}"
 update_mirrors () {
     echo "[i] Updating package mirrors..."
     sudo reflector \
@@ -429,7 +430,6 @@ update_mirrors () {
         --sort rate \
         --threads 5 \
         --save /etc/pacman.d/mirrorlist
-        --verbose
     echo -e "\n[i] Every run of pacman-mirrors requires you to syncronize your database and update your system\n"
     sudo pacman -S --refresh --sysupgrade
 }
