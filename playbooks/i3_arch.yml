@@ -77,7 +77,6 @@
     aur_packages:
       - dmenu2  # keyboard-driven program launcher
       - pa-applet-git  # applet for PulseAudio
-      - clipit  # clipboard applet
   ansible.builtin.import_playbook: function_yay.yml
 
 - name: Post-AUR Installs

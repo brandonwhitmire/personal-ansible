@@ -26,8 +26,8 @@ docker build \
 	--tag "$DOCKER_NAME" \
 	--file "$DOCKER_HOST_MOUNT"/Dockerfile \
 	--compress \
-	--build-arg UID="$(id -u)" \
-	--build-arg GUID="$(id -g)" \
+	--build-arg UID="$(id --name --user)" \
+	--build-arg GUID="$(id --name --group)" \
 	--build-arg WORKDIR="/$DOCKER_NAME" \
 	. 
 	# preserve this dot '.'
@@ -37,8 +37,12 @@ docker run \
 	--rm \
 	--interactive=true \
 	--tty=true \
-	--user "$(id -u):$(id -g)" \
+	--user "$(id --name --user):$(id --name --group)" \
 	--volume "$DOCKER_HOST_MOUNT":"/$DOCKER_NAME" \
-	--volume "$HOME"/.ssh:/home/"$(id -u)/.ssh" \
+	--volume "$HOME"/.ssh:/home/"$(id --name --user)/.ssh:ro" \
 	--workdir="/$DOCKER_NAME" \
+    --env LIBVIRT_DEFAULT_URI \
+    --volume /var/run/libvirt/:/var/run/libvirt/ \
+    --volume ~/.vagrant.d:/.vagrant.d \
+    --network host \
 	"$DOCKER_NAME"

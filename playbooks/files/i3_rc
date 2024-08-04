@@ -263,7 +263,6 @@ exec_always --no-startup-id nm-applet  # networking applet
 exec_always --no-startup-id blueman-applet  # bluetooth applet
 exec_always --no-startup-id flameshot  # screenshot applet
 exec_always --no-startup-id dunst  # system notifcations
-exec --no-startup-id clipit  # clipboard
 exec_always --no-startup-id conky --config=/usr/share/conky/conky_theme  # sysmon
 exec_always --no-startup-id xautolock -notify 30 -notifier "notify-send 'Screen will lock soon!'" -time 15 -locker "$Locker"
 exec_always --no-startup-id /usr/bin/numlockx on  # numlock button state

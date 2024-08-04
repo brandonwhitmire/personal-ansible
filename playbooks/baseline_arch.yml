@@ -34,6 +34,12 @@
         state: present
       when: "'acpilight' not in ansible_facts.packages"
 
+    - name: Upgrade system
+      become: true
+      ansible.builtin.package:
+        update_cache: true
+        upgrade: true
+
     - name: Install baseline pkgs
       become: true
       ansible.builtin.package:
@@ -64,6 +70,7 @@
           - python-setuptools  # Python3 setuptools
           - numlockx  # numlock on at login
           - ghostwriter  # Markdown editor
+          - hunspell-en_us  # English spellcheck (for ghostwriter)
           - libreoffice  # office suite of programs
           - pulseaudio  # PulseAudio
           - pavucontrol  # PulseAudio GUI for volume

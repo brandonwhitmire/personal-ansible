@@ -39,25 +39,7 @@ platforms:
                 python
           "
         '
-  - name: kali-instance
-    box: 'kalilinux/rolling'
-    cpus: 2
-    memory: 4096
-    config_options:
-      ssh.remote_user: 'vagrant'
-      ssh.keep_alive: true
-    provider_raw_config_args:
-      - 'gui = false'  # prevent VM GUI from displaying
-    instance_raw_config_args:  # REQUIRES: driver -> provision: true
-      # https://developer.hashicorp.com/vagrant/docs/provisioning/shell
-      - 'vm.provision :shell, inline:
-          "
-            apt
-              install \
-                --yes
-                  python3
-          "
-        '
+
 provisioner:
   name: ansible
   env:

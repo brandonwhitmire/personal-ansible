@@ -556,14 +556,6 @@ search_printer () {
 	# lpinfo --include-schemes dnssd -v
 	# snmpwalk -Cc -v 1 -c public <IP_ADDR>
 }
-# Show Clipboard
-show_clipboard () {
-	echo "CTRL+C Clipboard:"
-	clipit --clipboard
-	echo
-	echo "Highlight Clipboard (primary):"
-	clipit --primary
-}
 # Python3 pprint a file (e.g. JSON)
 pprint () {
 	if [[ -z "$1" ]] ; then
