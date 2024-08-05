@@ -637,6 +637,13 @@ which molecule > /dev/null 2>&1 && \
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
+# Ruby Gem defaults
+export GEM_HOME=$HOME/.gem
+export PATH=$GEM_HOME/ruby/3.0.0/bin:$PATH
+
+# Disable Touchpad by default
+synclient TouchpadOff=1
+
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
