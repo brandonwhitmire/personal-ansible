@@ -1,12 +1,14 @@
 # Reference: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-debian
 
 FROM debian 
+SHELL ["/bin/bash", "-c"]
 
 # --- root user ---
 
 RUN apt update --yes && apt install --yes \
 	python3 \
 	python3-pip \
+    python3-venv \
 	sshpass \
 	sudo \
 	git \
@@ -47,6 +49,9 @@ ENV PATH="/home/${UID}/.local/bin:$PATH"
 WORKDIR /home/${UID}
 
 # Install Ansible and plugins
+ENV VIRTUAL_ENV="/home/${UID}/venv"
+RUN python3 -m venv "$VIRTUAL_ENV"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY --chown=${UID}:${UID} requirements.txt .
 RUN pip3 install --upgrade --requirement requirements.txt
 
@@ -75,6 +80,7 @@ RUN echo '\n\
 	echo Hosts that Ansible will run against by default: \n\
 	grep --extended-regexp --invert-match --regexp="^\s*#" hosts \n\
 	echo "===" \n\
+    python3 run_first_time_setup.py \n\
 	' | tee --append ~/.zshrc
 
 # Change working directory

@@ -14,7 +14,7 @@ This is the machine that will initiate connections and configure the target node
 
 ```bash
 # For Arch-based systems
-sudo pacman -S --noconfirm docker
+sudo pacman -S --noconfirm docker sshpass
 sudo systemctl enable --now docker
 sudo usermod --append --groups docker "$USER" # requires logout/reboot
 ```
