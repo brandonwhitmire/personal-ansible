@@ -149,18 +149,19 @@
             repo: https://github.com/NvChad/starter
             dest: ~/.config/nvim
 
-        - name: Check if the plugins folder is empty
-          changed_when: false
-          ansible.builtin.find:
-            file_type: any
-            paths: ~/.local/share/nvim/
-          register: plugin_files
+            # - name: Check if the plugins folder is empty
+            #   changed_when: false
+            #   ansible.builtin.find:
+            #     file_type: any
+            #     paths: ~/.local/share/nvim/
+            #   register: plugin_files
 
+        # Will likely fail if plugins not installed yet
         - name: Install plugins
-          when: plugin_files.matched <= 0
+          ignore_errors: true
+          # when: plugin_files.matched <= 0
           ansible.builtin.command:
-            cmd: "nvim -c 'MasonInstallAll |
-              sleep 3 | q! | q!'"
+            cmd: nvim --headless '+MasonInstallAll' '+qa'
 
     - name: === alacritty block ===
       block:
