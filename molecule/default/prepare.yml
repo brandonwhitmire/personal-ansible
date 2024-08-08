@@ -31,19 +31,6 @@
             state: latest
           notify: 'Reboot'
 
-  #    - name: === KALI BLOCK ===
-  #      when: ansible_facts['distribution'] == "Kali"
-  #      block:
-  #
-  #        - name: '[Kali] Update apt cache'
-  #          become: true
-  #          # apt cache update not necessary but desired,
-  #          # prevents some rolling distro-related errors
-  #          ignore_errors: true
-  #          ansible.builtin.apt:
-  #            update_cache: true
-  #            cache_valid_time: 3600
-
   handlers:
     - name: 'Reboot'
       become: true

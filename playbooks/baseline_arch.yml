@@ -19,7 +19,7 @@
 
     - name: Update Arch Linux keyring
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name: archlinux-keyring
         state: latest
 
