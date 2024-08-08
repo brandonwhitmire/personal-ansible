@@ -1,52 +1,61 @@
----
 # Molecule docs:
 # - https://molecule.readthedocs.io/en/latest/examples.html
 # Vagrant:
 # - https://github.com/ansible-community/molecule-vagrant/blob/main/README.rst
+---
 dependency:
   name: galaxy
 driver:
   name: vagrant
+  # https://ansible.readthedocs.io/projects/molecule/guides/parallel/#running-molecule-processes-in-parallel-mode
+  parallel: true
   provision: true
   provider:
     name: virtualbox
-  default_box: 'archlinux/archlinux'
 platforms:
-  - name: test_instance
-    hostname: archvagrant.local
-    interfaces:
-      - auto_config: true
-        network_name: private_network
-        type: dhcp
-      - network_name: private_network
-        ip: 192.168.56.100
-      - network_name: forwarded_port
-        host: 2222
-        guest: 22
-    config_options:
-      ssh.keep_alive: true
-      ssh.remote_user: 'vagrant'
+  - name: arch-instance
     box: 'archlinux/archlinux'
-    memory: 8092
     cpus: 2
-    # REQUIRES: driver -> provision: true
-    instance_raw_config_args:
-      # AVOID: "--sysupgrade" for misaligned kernel versions b/t rolling updates
-      - 'vm.provision :shell, inline: "pacman -S --refresh --refresh --noconfirm && pacman -S --noconfirm python sudo"'
+    memory: 4096
+    config_options:
+      ssh.remote_user: 'vagrant'
+      ssh.keep_alive: true
+    instance_raw_config_args:  # REQUIRES: driver -> provision: true
+      # https://developer.hashicorp.com/vagrant/docs/provisioning/shell
+      # NOTE: because Arch Linux is a rolling distro, package versions can
+      # quickly go out-of-date. This performs a full system upgrade and reboots,
+      # which is necessary if the kernel versions differ. This can impact future
+      # package installations in weird ways such as mismatched versions for
+      # kernel modules (e.g. in the case of iptables/ufw, when first installed).
+      # - 'vm.provision :shell, reboot: "true", inline:
+      - 'vm.provision :shell, inline:
+          "
+            pacman \
+              -S \
+              --refresh \
+              --refresh \
+              --sysupgrade \
+              --noconfirm \
+                python
+          "
+        '
+
 provisioner:
   name: ansible
   env:
     # https://www.jeffgeerling.com/blog/2020/getting-colorized-output-molecule-and-ansible-on-github-actions-ci
     PY_COLORS: '1'
     ANSIBLE_FORCE_COLOR: '1'
-    # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-timeout
-    # ANSIBLE_TIMEOUT: 180
-    # ANSIBLE_PERSISTENT_COMMAND_TIMEOUT: 180
-    # ANSIBLE_PERSISTENT_CONNECT_RETRY_TIMEOUT: 120
-    # ANSIBLE_CONFIG: 'ansible.cfg'
+    ANSIBLE_PYTHON_INTERPRETER: '/usr/bin/python3'
+    ANSIBLE_LOG_PATH: '/tmp/ansible.molecule.log'
   config_options:
     defaults:
+      # Not used but prevents vault descryption errors
       vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault_pass"
+      stdout_callback: debug
+      stderr_callback: debug
+  playbooks:
+    prepare: prepare.yml
 verifier:
   name: ansible
 # lint: |

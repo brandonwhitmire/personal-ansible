@@ -13,10 +13,11 @@
       become: true
       ansible.builtin.package:
         name:
-          - i3-gaps  # tiling window manager
-          - i3blocks  # feed generator for status bar
-          - i3lock  # screenlocker
-          - i3status  # i3 status bar
+          - i3
+            #          - i3lock  # screenlocker
+            #          - i3-gaps  # tiling window manager
+            #          - i3blocks  # feed generator for status bar
+            #          - i3status  # i3 status bar
           - dunst  # system notifications
         state: present
 
@@ -25,10 +26,10 @@
       become: true
       ansible.builtin.file:
         path: /etc/systemd/system/getty@tty1.service.d/
-        state: directory
         owner: root
         group: root
         mode: '0644'
+        state: directory
 
     - name: Systemd unitfile for autologin via agetty
       become: true
@@ -76,7 +77,6 @@
     aur_packages:
       - dmenu2  # keyboard-driven program launcher
       - pa-applet-git  # applet for PulseAudio
-      - clipit  # clipboard applet
   ansible.builtin.import_playbook: function_yay.yml
 
 - name: Post-AUR Installs

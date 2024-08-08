@@ -35,7 +35,6 @@
 ---
 - name: '=== [AUR_FUNCTION_START] Add/Remove >>AUR<< packages ==='
   hosts: all
-
   vars:
     passwordless_sudo_user: '{{ ansible_user }}'
     passwordless_sudo_file: /etc/sudoers
@@ -45,29 +44,31 @@
       - package2
       - package3
     aur_packages_state: present
-
   tasks:
+    - name: When using Arch Linux block
+      when: ansible_facts["distribution"] == "Archlinux"
+      block:
 
-    - block:
-
-        - name: Ensure yay is installed
+        - name: Ensure yay is installed (ignore errors)
           become: true
           ignore_errors: true
           changed_when: false
-          community.general.pacman:
-            name: yay-bin
+          ansible.builtin.package:
+            name:
+              - yay-bin
+              - base-devel
             state: present
           register: is_yay_installed
 
-        - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`
+        - name: 'Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`'
           become: true
           changed_when: false
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
             create: true
-            validate: 'visudo -csf %s'
-            mode: 0440
+            validate: 'visudo --check --strict --file=%s'
+            mode: '0440'
             state: present
 
         - name: Ensure `yay` (AUR) pkg manager is installed
@@ -78,11 +79,10 @@
 
             - name: Ensure yay deps are installed
               become: true
-              community.general.pacman:
+              ansible.builtin.package:
                 name:
                   - git
                   - base-devel
-                  - sudo
                 state: present
 
             - name: Create git dir
@@ -105,12 +105,15 @@
                 cmd: makepkg --syncdeps --install --force --noconfirm
                 creates: /usr/bin/yay
 
-        - when: '"absent" in aur_packages_state'
+        - name: 'When package is absent'
+          when: '"absent" in aur_packages_state'
           ansible.builtin.fail:
-            msg: '"absent" as state for `aur_packages_state` does NOT work; Uninstall with pacman normally'
+            msg:
+              - '"absent" as state for `aur_packages_state` does NOT work'
+              - 'Uninstall with pacman normally'
 
-        - name: 'Ensure `{{ aur_packages }}` pkgs are: {{ aur_packages_state }}'
-          yay:
+        - name: 'Ensure {{ aur_packages }} pkgs are: {{ aur_packages_state }}'
+          kewlfft.aur.aur:
             name:
               - '{{ item }}'
             state: '{{ aur_packages_state }}'
@@ -124,5 +127,5 @@
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
-            validate: 'visudo -csf %s'
+            validate: 'visudo --check --strict --file=%s'
             state: absent

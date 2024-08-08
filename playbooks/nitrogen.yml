@@ -8,7 +8,7 @@
 
     - name: Install nitrogen pkg
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - nitrogen
         state: present

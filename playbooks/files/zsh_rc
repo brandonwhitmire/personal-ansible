@@ -57,13 +57,8 @@ export SAVEHIST=10000
 
 # --- Wrapped Commands
 
-alias grep='grep --colour=auto'
-alias egrep='egrep --colour=auto'
-alias fgrep='fgrep --colour=auto'
-
-# TODO: convert everything to rg or whitelist \grep
-#alias grep='echo "[i] Use ripgrep, which is \'rg\'!"'
-#alias find='echo "[i] Use \'fd\'!"'
+alias rg='rg --hidden --ignore-case --color auto'
+alias fd='fd --hidden --no-ignore'
 
 alias cp="cp --interactive --verbose" # confirm before overwriting something
 alias df='df --human-readable' # human-readable sizes
@@ -216,7 +211,7 @@ yuninstall () {
 systeminfo () {
 	# Ref: https://forum.manjaro.org/t/howto-provide-system-information/874
 	clear
-    LANG=C
+  export LANG=C
 	screenfetch
 	inxi --admin --verbosity=7 --filter --width
 }
@@ -416,6 +411,7 @@ update () {
 }
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
+: "${ARCH_MIRROR_COUNTRY:=US}"
 update_mirrors () {
     echo "[i] Updating package mirrors..."
     sudo reflector \
@@ -427,7 +423,6 @@ update_mirrors () {
         --sort rate \
         --threads 5 \
         --save /etc/pacman.d/mirrorlist
-        --verbose
     echo -e "\n[i] Every run of pacman-mirrors requires you to syncronize your database and update your system\n"
     sudo pacman -S --refresh --sysupgrade
 }
@@ -543,7 +538,6 @@ clean_histfile () {
 # Find LAN printer
 search_printer () {
 	# https://askubuntu.com/questions/643584/how-do-i-get-ip-of-installed-network-printer
-	PRINTER="HP3822E2B50004.local"
 
 	# Enable avahi-daemon service to use program
 	# sudo systemctl enable --now avahi-daemon.service
@@ -553,14 +547,6 @@ search_printer () {
 	# Discover network printers using Bonjour
 	# lpinfo --include-schemes dnssd -v
 	# snmpwalk -Cc -v 1 -c public <IP_ADDR>
-}
-# Show Clipboard
-show_clipboard () {
-	echo "CTRL+C Clipboard:"
-	clipit --clipboard
-	echo
-	echo "Highlight Clipboard (primary):"
-	clipit --primary
 }
 # Python3 pprint a file (e.g. JSON)
 pprint () {
@@ -609,10 +595,6 @@ fix_displays () {
 	set_displays
 }
 
-lazyssh () {
-	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
-}
-
 wifi_enable () {
     echo '[i] Enabling wifi...'
     sudo rfkill unblock wifi
@@ -632,6 +614,23 @@ wifi_scan () {
         echo '[i] Connect via:' && \
         echo '    nmcli device wifi connect <WIFI_NAME>'
 }
+
+# Molecule subcommands tab-completion
+# TODO: this only works when manually source AFTER
+# entering a Python virtual environment
+which molecule > /dev/null 2>&1 && \
+    eval "$(_MOLECULE_COMPLETE=zsh_source molecule)"
+
+# FZF: fuzzy finder bindings and completions
+source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh
+
+# Ruby Gem defaults
+export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
+export PATH="$PATH:$GEM_HOME/bin"
+
+# Disable Touchpad by default
+synclient TouchpadOff=1
 
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login

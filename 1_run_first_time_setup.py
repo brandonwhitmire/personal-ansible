@@ -13,14 +13,6 @@ import getpass
 import secrets
 import string
 
-try:
-    os.environ['NEW_UID']
-except KeyError:
-    print(
-        "[E] This must be ran from inside the Docker container for the Ansible controller!"
-    )
-    sys.exit(1)
-
 if __name__ == "__main__":
 
     print(

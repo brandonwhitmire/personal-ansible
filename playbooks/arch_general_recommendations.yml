@@ -13,7 +13,7 @@
 
         - name: Install pacman pkgs
           become: true
-          community.general.pacman:
+          ansible.builtin.package:
             name:
               # https://wiki.archlinux.org/title/Microcode
               - intel-ucode
@@ -22,14 +22,12 @@
               - gufw
             state: present
 
-        - name: Enable services
+        - name: Enable ufw (firewall) service
           become: true
           ansible.builtin.service:
-            name: '{{ item }}'
+            name: ufw
             enabled: true
             state: started
-          loop:
-            - ufw
 
         - name: Set firewall rules - Deny incoming traffic by default
           become: true
@@ -38,7 +36,7 @@
             direction: incoming
             state: '{{ item }}'
           loop:
-            - reset  # reset firewall to default (no rules)
+            # - reset  # reset firewall to default (no rules)
             - enabled  # re-enable firewall
 
         - name: Set firewall rules - LAN traffic (RFC1918 networks)
@@ -75,18 +73,16 @@
 
         - name: Install pacman pkgs
           become: true
-          community.general.pacman:
+          ansible.builtin.package:
             name:
               - networkmanager
               - nm-connection-editor
               - network-manager-applet
               - networkmanager-openvpn
 
-        - name: Enable services
+        - name: Enable NetworkManager service
           become: true
           ansible.builtin.service:
-            name: '{{ item }}'
+            name: NetworkManager
             enabled: true
             state: started
-          loop:
-            - NetworkManager

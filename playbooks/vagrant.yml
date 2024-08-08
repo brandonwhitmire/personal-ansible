@@ -11,9 +11,11 @@
 
     - name: Install needed OS pkgs
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - vagrant
+          - python-vagrant
+          - python-paramiko
           - libvirt
           - qemu
           - virt-manager
@@ -22,11 +24,12 @@
           - dmidecode
         state: present
 
-    - name: Install needed pip3 pkgs
-      ansible.builtin.pip:
-        name:
-          - paramiko  # SSH-like library used for dynamic inventory
-
+        #    - name: Install needed pip3 pkgs
+        #      ansible.builtin.pip:
+        #        extra_args: --break-system-packages
+        #        name:
+        #          - paramiko  # SSH-like library used for dynamic inventory
+        #
     - name: Enable libvirtd service
       become: true
       ansible.builtin.service:
@@ -73,6 +76,7 @@
           - "=== END    :: vagrant plugin list output ==="
 
     - name: Install libvirt plugin for Vagrant, if absent
+      ignore_errors: true  # NOTE: currently broken
       when: output_vagrant_plugin_list.stdout is not regex(".*vagrant-libvirt.*")
       ansible.builtin.command:
         cmd: vagrant plugin install vagrant-libvirt

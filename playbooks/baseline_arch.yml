@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 #
-# Barebones setup to make a fresh Arch Linux usable
+# Barebones setup to make a fresh box usable
 ---
 - name: Install baseline pkgs
   hosts: all
@@ -17,9 +17,9 @@
         - VerbosePkgLists  # show from->to version and download/upgrade sizes
         - ParallelDownloads  # download more pkgs at concurrently
 
-    - name: Update keyring
+    - name: Update Arch Linux keyring
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name: archlinux-keyring
         state: latest
 
@@ -34,9 +34,15 @@
         state: present
       when: "'acpilight' not in ansible_facts.packages"
 
-    - name: Install pacman pkgs
+    - name: Upgrade system
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
+        update_cache: true
+        upgrade: true
+
+    - name: Install baseline pkgs
+      become: true
+      ansible.builtin.package:
         name:
           - xdg-user-dirs  # common user dirs
           - xorg-xinit  # start GUI
@@ -45,8 +51,6 @@
           - ttf-bitstream-vera  # serif and mono
           - ttf-dejavu  # Bitstream Vera modified w/more Unicode
           - ttf-croscore  # Helvetica, Times, and Courier
-          - grub-customizer  # GUI for GRUB menu
-          - xorg-xhost  # hard dep for grub-customizer
           - xautolock  # xorg locker
           - polkit  # privs management
           - dmidecode  # used for checking for virtualization
@@ -66,9 +70,11 @@
           - python-setuptools  # Python3 setuptools
           - numlockx  # numlock on at login
           - ghostwriter  # Markdown editor
-          - libreoffice  # office suite of programs
+          - hunspell-en_us  # English spellcheck (for ghostwriter)
+          # - libreoffice-still  # office suite of programs
           - pulseaudio  # PulseAudio
           - pavucontrol  # PulseAudio GUI for volume
+          - vlc  # multimedia player
           - packer  # automate VM building
           - man-db  # manpages program
           - man-pages  # actual manpages
@@ -87,7 +93,7 @@
           - android-file-transfer  # access files from Android device
         state: present
 
-    - name: Enable services
+    - name: Enable baseline services
       become: true
       ansible.builtin.service:
         name: '{{ item }}'
@@ -95,6 +101,7 @@
         state: started
       loop:
         - bluetooth
+        - pkgfile-update
 
     - name: Disable bluetooth on boot
       become: true
@@ -146,7 +153,7 @@
         path: /etc/sudoers.d/sudo_prompt_timeout
         line: Defaults timestamp_timeout=15
         create: true
-        validate: 'visudo -csf %s'
+        validate: 'visudo --check --strict --file=%s'
         mode: '0440'
         owner: root
         group: root

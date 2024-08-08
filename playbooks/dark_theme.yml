@@ -28,6 +28,7 @@
       ansible.builtin.file:
         src: /home/{{ ansible_user }}/.gtkrc-2.0
         dest: /etc/gtk-2.0/gtkrc
+        force: true
         state: link
 
     - name: '[gtk3] Create directory'

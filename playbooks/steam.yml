@@ -29,14 +29,14 @@
     - name: Upgrade system (required when enabling multilib)
       when: pacman_multilib_enabled.changed
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         update_cache: true
         upgrade: true
 
     # https://wiki.archlinux.org/title/Steam#Installation
     - name: Ensure steam and deps are installed
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - lib32-nvidia-utils  # lib32-vulkan-driver: install before 'steam' pkg to prevent steam installing AMD drivers
           - nvidia-utils  # vulkan-driver: see previous line
@@ -50,7 +50,7 @@
 
     - name: Ensure certain packages are not installed
       become: true
-      community.general.pacman:
+      ansible.builtin.package:
         name:
           - lib32-amdvlk
           - amdvlk
@@ -62,7 +62,8 @@
       - optimus-manager  # GPU switcher
   ansible.builtin.import_playbook: function_yay.yml
 
-- hosts: all
+- name: Steam tweaks for GPU, Proton, and specific game issues
+  hosts: all
   tasks:
 
     - name: Enable optimus-manager service
@@ -75,11 +76,11 @@
     # https://github.com/GloriousEggroll/proton-ge-custom#native
     - name: === Proton GloriousEggroll Block ===
       vars:
-        - proton_ge_version: GE-Proton7-42
+        - proton_ge_version: GE-Proton7-49
         - proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
         - proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
         - install_location: ~/.steam/root/compatibilitytools.d/
-        - download_location: '{{ install_location }}/{{ proton_ge_filename}}'
+        - download_location: '{{ install_location }}/{{ proton_ge_filename }}'
       block:
 
         - name: Ensure folder exists
@@ -90,10 +91,13 @@
             mode: '0755'
             state: directory
 
-        - name: Download Proton GE Build
+        - name: 'Download Proton GE version: {{ proton_ge_version }}'
           ansible.builtin.get_url:
             url: '{{ proton_ge_url }}'
             dest: '{{ download_location }}'
+            owner: '{{ ansible_user }}'
+            group: '{{ ansible_user }}'
+            mode: '0755'
 
         - name: Extract Proton GE archive
           ansible.builtin.unarchive:
@@ -117,7 +121,7 @@
 
         - name: Install necessary pkgs
           become: true
-          community.general.pacman:
+          ansible.builtin.package:
             name:
               - cabextract
             state: present
@@ -131,7 +135,7 @@
         - name: Download vc_redist file
           ansible.builtin.get_url:
             url: '{{ vc_redist_url }}'
-            dest: '{{ aoe2_dir }}'
+            dest: '{{ aoe2_dir }}{{ vc_redist_exe }}'
             owner: '{{ ansible_user }}'
             group: '{{ ansible_user }}'
             mode: '0755'
@@ -153,7 +157,7 @@
             chdir: '{{ aoe2_dir }}'
             creates: ucrtbase.dll
 
-        - name: chown to normal user
+        - name: Change ownership (chown) to normal user
           become: true
           ansible.builtin.file:
             path: '{{ aoe2_dir }}'
