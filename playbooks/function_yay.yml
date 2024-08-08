@@ -45,7 +45,8 @@
       - package3
     aur_packages_state: present
   tasks:
-    - when: ansible_facts["distribution"] == "Archlinux"
+    - name: When using Arch Linux block
+      when: ansible_facts["distribution"] == "Archlinux"
       block:
 
         - name: Ensure yay is installed (ignore errors)
@@ -59,7 +60,7 @@
             state: present
           register: is_yay_installed
 
-        - name: Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`
+        - name: 'Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`'
           become: true
           changed_when: false
           ansible.builtin.lineinfile:
@@ -67,7 +68,7 @@
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
             create: true
             validate: 'visudo --check --strict --file=%s'
-            mode: 0440
+            mode: '0440'
             state: present
 
         - name: Ensure `yay` (AUR) pkg manager is installed
@@ -104,7 +105,8 @@
                 cmd: makepkg --syncdeps --install --force --noconfirm
                 creates: /usr/bin/yay
 
-        - when: '"absent" in aur_packages_state'
+        - name: 'When package is absent'
+          when: '"absent" in aur_packages_state'
           ansible.builtin.fail:
             msg:
               - '"absent" as state for `aur_packages_state` does NOT work'

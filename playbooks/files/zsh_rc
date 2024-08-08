@@ -57,16 +57,8 @@ export SAVEHIST=10000
 
 # --- Wrapped Commands
 
-alias grep='grep --colour=auto'
-alias egrep='egrep --colour=auto'
-alias fgrep='fgrep --colour=auto'
-
 alias rg='rg --hidden --ignore-case --color auto'
 alias fd='fd --hidden --no-ignore'
-
-# TODO: convert everything to rg or whitelist \grep
-#alias grep='echo "[i] Use ripgrep, which is \'rg\'!"'
-#alias find='echo "[i] Use \'fd\'!"'
 
 alias cp="cp --interactive --verbose" # confirm before overwriting something
 alias df='df --human-readable' # human-readable sizes
@@ -219,7 +211,7 @@ yuninstall () {
 systeminfo () {
 	# Ref: https://forum.manjaro.org/t/howto-provide-system-information/874
 	clear
-    LANG=C
+  export LANG=C
 	screenfetch
 	inxi --admin --verbosity=7 --filter --width
 }
@@ -546,7 +538,6 @@ clean_histfile () {
 # Find LAN printer
 search_printer () {
 	# https://askubuntu.com/questions/643584/how-do-i-get-ip-of-installed-network-printer
-	PRINTER="HP3822E2B50004.local"
 
 	# Enable avahi-daemon service to use program
 	# sudo systemctl enable --now avahi-daemon.service
@@ -602,10 +593,6 @@ set_displays () {
 
 fix_displays () {
 	set_displays
-}
-
-lazyssh () {
-	ssh -p 22 obb@192.168.5.200 # no long option for "-p"
 }
 
 wifi_enable () {

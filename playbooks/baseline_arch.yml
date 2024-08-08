@@ -71,7 +71,7 @@
           - numlockx  # numlock on at login
           - ghostwriter  # Markdown editor
           - hunspell-en_us  # English spellcheck (for ghostwriter)
-          #- libreoffice-still  # office suite of programs
+          # - libreoffice-still  # office suite of programs
           - pulseaudio  # PulseAudio
           - pavucontrol  # PulseAudio GUI for volume
           - vlc  # multimedia player

@@ -46,7 +46,7 @@
           - alacritty  # terminal
           - vim  # text editor
           - neovim  # upgraded text editor
-          - ttf-jetbrains-mono  # font
+          - ttf-jetbrains-mono-nerd  # font
           - powerline  # font
           - rsync  # (remote) file syncer
           - glxinfo  # GPU info
@@ -70,17 +70,15 @@
 
     # https://wiki.archlinux.org/title/Powerline
     # https://powerline.readthedocs.io/en/master/installation.html
-    - name: Install needed pip3 pkgs
-      ansible.builtin.pip:
-        extra_args: --break-system-packages
-        name:
-          - psutil  # soft dep for powerline
-          - pygit2  # soft dep for powerline
-          - i3ipc  # soft dep for powerline
-          - powerline-status  # terminal beautification
-          - neovim  # used by neovim
-          - selenium  # Website automation
-          - requests  # HTTP actions
+    #    - name: Install needed pip3 pkgs
+    #      ansible.builtin.pip:
+    #        extra_args: --break-system-packages
+    #        name:
+    #          - psutil  # soft dep for powerline
+    #          - pygit2  # soft dep for powerline
+    #          - i3ipc  # soft dep for powerline
+    #          - powerline-status  # terminal beautification
+    #          - neovim  # used by neovim
 
     - name: === zsh block ===
       block:
@@ -136,7 +134,7 @@
             force: true
             mode: '0644'
 
-    - name: === (neo)vim block ===
+    - name: === neovim / NvChad block ===
       block:
 
         - name: Ensure nvim directory exists
@@ -145,26 +143,24 @@
             state: directory
             mode: '0755'
 
-        - name: 'Copy default nvim file to profile: {{ ansible_user }}'
-          ansible.builtin.copy:
-            remote_src: false
-            src: files/vim_rc
-            dest: ~/.config/nvim/init.vim
-            force: true
-            mode: '0644'
+        # https://nvchad.com/docs/quickstart/install#install
+        - name: 'Clone nvChad to profile: {{ ansible_user }}'
+          ansible.builtin.git:
+            repo: https://github.com/NvChad/starter
+            dest: ~/.config/nvim
 
         - name: Check if the plugins folder is empty
           changed_when: false
           ansible.builtin.find:
             file_type: any
-            paths: ~/.vim/plugged/
+            paths: ~/.local/share/nvim/
           register: plugin_files
 
-        - name: Download/Install (neo)vim plugins (first time only)
+        - name: Install plugins
           when: plugin_files.matched <= 0
           ansible.builtin.command:
-            cmd: "nvim -c 'PlugUpdate | PlugUpgrade | UpdateRemotePlugins |
-              PlugStatus | sleep 3 | q! | q!'"
+            cmd: "nvim -c 'MasonInstallAll |
+              sleep 3 | q! | q!'"
 
     - name: === alacritty block ===
       block:

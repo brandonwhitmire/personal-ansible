@@ -1,8 +1,8 @@
 [font]
-size = 14
+size = 12
 
 [font.normal]
-family = "ProFont for Powerline"
+family = "JetbrainsMono Nerd Font"
 style = "Regular"
 
 [scrolling]

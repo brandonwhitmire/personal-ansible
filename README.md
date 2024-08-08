@@ -2,7 +2,7 @@
 
 Ansible playbooks for various setups and configurations.
 
-**Currently, these playbooks are tailored to _Arch Linux_, which uses the `pacman` package manager and related utilities.**
+**NOTE: these playbooks are tailored to _Arch Linux_, which uses the `pacman` package manager and related utilities**
 
 # Pre-requisites
 

@@ -43,13 +43,15 @@
     - name: Keep boot messages on tty1
       block:
 
-        - become: true
+        - name: Ensure Getty directory exists
+          become: true
           ansible.builtin.file:
             path: /etc/systemd/system/getty@tty1.service.d/
             state: directory
             mode: '0755'
 
-        - become: true
+        - name: Keep boot messages on tty1
+          become: true
           ansible.builtin.blockinfile:
             path: /etc/systemd/system/getty@tty1.service.d/noclear.conf
             create: true

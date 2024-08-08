@@ -62,7 +62,8 @@
       - optimus-manager  # GPU switcher
   ansible.builtin.import_playbook: function_yay.yml
 
-- hosts: all
+- name: Steam tweaks for GPU, Proton, and specific game issues
+  hosts: all
   tasks:
 
     - name: Enable optimus-manager service
@@ -79,7 +80,7 @@
         - proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
         - proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
         - install_location: ~/.steam/root/compatibilitytools.d/
-        - download_location: '{{ install_location }}/{{ proton_ge_filename}}'
+        - download_location: '{{ install_location }}/{{ proton_ge_filename }}'
       block:
 
         - name: Ensure folder exists
@@ -94,6 +95,9 @@
           ansible.builtin.get_url:
             url: '{{ proton_ge_url }}'
             dest: '{{ download_location }}'
+            owner: '{{ ansible_user }}'
+            group: '{{ ansible_user }}'
+            mode: '0755'
 
         - name: Extract Proton GE archive
           ansible.builtin.unarchive:
@@ -153,7 +157,7 @@
             chdir: '{{ aoe2_dir }}'
             creates: ucrtbase.dll
 
-        - name: chown to normal user
+        - name: Change ownership (chown) to normal user
           become: true
           ansible.builtin.file:
             path: '{{ aoe2_dir }}'

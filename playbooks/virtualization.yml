@@ -25,7 +25,7 @@
 
         # https://wiki.archlinux.org/title/VirtualBox
         - name: --- Virtualbox ---
-          when: vbox|bool
+          when: vbox | bool
           block:
 
             - name: Install virtualbox pkgs
@@ -58,7 +58,7 @@
 
         # https://wiki.archlinux.org/title/QEMU
         - name: --- QEMU ---
-          when: qemu|bool
+          when: qemu | bool
           block:
 
             - name: Install qemu pkgs
@@ -111,4 +111,5 @@
             path: ~/.config/i3/config
             line: exec_always VBoxClient-all
             create: true
+            mode: '0755'
             state: present
