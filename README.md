@@ -8,21 +8,21 @@ Ansible playbooks for various setups and configurations.
 
 ## Controller
 
-This is the machine that will initiate connections and configure the target nodes.
-
-- REQUIRED: `docker`:
+To use the controller, simply enter in a Python virtual environment with all dependencies installed. This is the machine that will initiate connections and configure the target nodes:
 
 ```bash
-# For Arch-based systems
-sudo pacman -S --noconfirm docker sshpass
-sudo systemctl enable --now docker
-sudo usermod --append --groups docker "$USER" # requires logout/reboot
-```
+# REQUIRED: for SSH password access
+sudo pacman -S --noconfirm sshpass
 
-Run the controller like so:
+python3 -m venv "$(git rev-parse --show-toplevel)/venv"
+source venv/bin/activate
 
-```bash
-./1_run_ansible_controller.sh
+# Install Python and Ansible Galaxy libraries
+pip3 install --requirement "$(git rev-parse --show-toplevel)/requirements.txt"
+ansible-galaxy collection install --requirements-file "$(git rev-parse --show-toplevel)/requirements.yml"
+
+# First time setup: automated prompting for Ansible config files
+./1_run_first_time_setup.py
 ```
 
 ## Targets
@@ -32,13 +32,10 @@ This is the machine or machines that will be configured via the controller.
 - REQUIRED: `sshd` running (and allowed through firewall) on target nodes:
 
 ```bash
-sudo systemctl start sshd # SSH on until reboot
-sudo systemctl enable --now sshd # SSH permanently on
+sudo systemctl enable --now sshd
 ```
 
 - If using SSH key authentication, then add the pubkey to `~/.ssh/authorized_keys`:
-
-> [SSH Auth via Keys](https://www.ssh.com/academy/ssh/copy-id)
 
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
@@ -46,16 +43,13 @@ ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
 
 # Quick Start
 
-Using the Dockerized Ansible controller to configure target nodes:
+Using the controller to configure target nodes:
 
 ```bash
-# Automatically build the batteries-included Ansible controller node
-# NOTE: this container will prompt the user for necessary connection information
-./1_run_ansible_controller.sh
+# Activate Python venv (assuming pre-reqs from above are met)
+source venv/bin/activate
 
-# Configure VMs by running playbooks against VMs as returned from ansible-inventory
-# NOTE: <PLAYBOOK> is any of the *.yml* files in this repo root directory
-ansible-playbook <PLAYBOOK>
+ansible-playbook playbooks/main.yml
 ```
 
 # Common Commands
@@ -66,7 +60,7 @@ ansible-inventory --list
 ansible-inventory --graph
 
 # Debug mode (this will not perform the actions but emulate as if they were)
-ansible-playbook --check -vvv <PLAYBOOK>
+ansible-playbook --check -vvvvv <PLAYBOOK>
 
 # Debug output for variables
 ansible all -m debug -a "var=hostvars"
@@ -95,41 +89,31 @@ ANSIBLE_INVENTORY_ENABLED="host_list" \
 ansible \
     --inventory <HOST>, \
     --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
-    --args 'reboot now' \
     --become \
-    all 
-# "all" is a necessary host(s) pattern that is all-inclusive
+    --args 'reboot now' \
+    all  # "all" is a necessary host(s) pattern that is all-inclusive
 ```
 
 # Testing and Validation
 
-References:
-- https://youtu.be/FaXVZ60o8L8?t=1239
+A combination of different levels to test an Ansible project:
 
 ```shell
 yamllint
 ansible-playbook --syntax-check
 ansible-lint
 molecule test # integration
-ansible-playbook --check # against target
+ansible-playbook --check  # against target
 Parallel Infrastructure # RARE
 ```
+
+- References: https://youtu.be/FaXVZ60o8L8?t=1239
 
 ## Molecule
 
 Molecule is an automated testing framework for Ansible, which includes validation, setting up infrastructure, and running plays.
 
 ```shell
-# === PRE-REQUISITES ===
-
-# Setup virtualenv with Molecule and its dependencies installed
-python3 -m venv "$(git rev-parse --show-toplevel)/venv"
-source venv/bin/activate
-pip3 install --requirement "$(git rev-parse --show-toplevel)/requirements.txt"
-ansible-galaxy collection install --requirements-file "$(git rev-parse --show-toplevel)/requirements.yml"
-
-# === TEST ===
-
 # cleanup any leftover instances, artifacts, and temp dirs
 molecule destroy && molecule reset
 
@@ -138,7 +122,6 @@ molecule destroy && molecule reset
 molecule converge
 
 # END-to-END: converge on a specific platform
-
 molecule test --destroy never --platform-name arch-instance
 ```
 
@@ -147,7 +130,7 @@ molecule test --destroy never --platform-name arch-instance
 The simplest step is to use Ansible-like command options such as enabling debug and verbosity output when running the `molecule` command:
 
 ```shell
-molecule --debug -vvvvv <SUBCOMMAND> ...
+molecule --debug -vvvvv <SUBCOMMAND>
 ```
 
 ### Hierarchy of Abstraction Layers
@@ -159,7 +142,7 @@ Molecule has an incredible number of layers that can make things difficult to tr
 - Ansible
 - SSH
 - Python3
-- OS-specific commands (e.g. package managers)
+- OS-local commands
 
 #### Vagrant-Specific (at the Driver layer)
 
@@ -187,32 +170,6 @@ tail --follow /tmp/ansible.molecule.log
 # append env variable to command or export
 ANSIBLE_ENABLE_TASK_DEBUGGER=True
 ```
-
-# Things to Backup
-
-This repository was written with the goal of getting a fresh installation to a personalized, standard state. For clarity's sake, the following is a rough list of things that should be backed up (usually with `borg`) but will not be added into this repository:
-
-- Web browser bookmarks
-- Password database
-- EBook collection
-- Music/Audiobook Collection
-- SSH keys
-
-# TODO
-
-Actions and capabilities to add eventually:
-
-- fix `group_vars` duplication
-- virtualization.yml (split off a VBOX or QEMU playbook)
-- hook vagrant playbook to import only either Virtualbox or QEMU playbook (but have both in repo)
-- arch linux general recommendations: https://wiki.archlinux.org/title/General_recommendations
-- add keyboard shortcuts for Spanish chars
-- fix i3status bar applets to show all
-- create playbooks for:
-  - Ansible (add `sshpass` as dependency)
-
-- automate browser addon installation: https://askubuntu.com/questions/73474/how-to-install-firefox-addon-from-command-line-in-scripts#73480
-- consider ricing Playbook XD
 
 # References:
 
