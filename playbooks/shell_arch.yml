@@ -169,23 +169,18 @@
     - name: === alacritty block ===
       block:
 
+        - name: Ensure alacritty directory exists
+          ansible.builtin.file:
+            path: ~/.config/alacritty/
+            state: directory
+            mode: '0755'
+
         - name: Set default font for terminal `alacritty`
-          ansible.builtin.blockinfile:
-            path: ~/.config/alacritty/alacritty.toml
-            create: true
-            state: present
+          ansible.builtin.copy:
+            force: true
+            src: files/alacritty.toml
+            dest: ~/.config/alacritty/alacritty.toml
             mode: '0644'
-            block: |
-              [font]
-              size = 16
-
-              [font.normal]
-              family = "ProFont for Powerline"
-              style = "Regular"
-
-              [scrolling]
-              history = 10000
-              multiplier = 3
 
     - name: === /etc/environment block ===
       block:

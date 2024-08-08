@@ -61,7 +61,8 @@ alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 
-alias rg='--hidden --ignore-case --color auto'
+alias rg='rg --hidden --ignore-case --color auto'
+alias fd='fd --hidden --no-ignore'
 
 # TODO: convert everything to rg or whitelist \grep
 #alias grep='echo "[i] Use ripgrep, which is \'rg\'!"'
@@ -638,8 +639,8 @@ source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
 # Ruby Gem defaults
-export GEM_HOME=$HOME/.gem
-export PATH=$GEM_HOME/ruby/3.0.0/bin:$PATH
+export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
+export PATH="$PATH:$GEM_HOME/bin"
 
 # Disable Touchpad by default
 synclient TouchpadOff=1

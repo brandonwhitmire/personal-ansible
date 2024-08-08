@@ -1,0 +1,10 @@
+[font]
+size = 14
+
+[font.normal]
+family = "ProFont for Powerline"
+style = "Regular"
+
+[scrolling]
+history = 10000
+multiplier = 5

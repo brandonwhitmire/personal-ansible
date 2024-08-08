@@ -36,7 +36,7 @@
             direction: incoming
             state: '{{ item }}'
           loop:
-            - reset  # reset firewall to default (no rules)
+            #- reset  # reset firewall to default (no rules)
             - enabled  # re-enable firewall
 
         - name: Set firewall rules - LAN traffic (RFC1918 networks)
