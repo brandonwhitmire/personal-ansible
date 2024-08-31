@@ -114,26 +114,6 @@ alias reload_background="nitrogen --restore &"
 
 # --- Functions
 
-# Yes/No Confirmation Prompt
-# https://stackoverflow.com/a/29436423
-# TODO: zsh fix maybe here
-# https://stackoverflow.com/a/49805832
-yes_or_no () {
-    while true ; do
-        read -rp "$* [y/n]: " yn
-        case $yn in
-            [Yy]*)
-                echo "Continuing..."
-                break
-                ;;
-            [Nn]*)
-                echo "[!] Aborted"
-                exit  5
-                ;;
-        esac
-    done
-}
-
 # Burn ISO 9660 files (liveboots) to devices
 # TODO: add more safety checks and confirm device before write
 iso_burn () {
@@ -311,18 +291,23 @@ mount_luks_device () {
 
 	# Device not mounted ; so mount
 	if [[ "$RET_CODE" == "1" ]] ; then
+    echo "Opening cryptdevice"
+    sudo cryptsetup open "/dev/$DEVICE" "$NAME"
 		echo "MOUNTING..."
-		sudo cryptsetup open "/dev/$DEVICE" "$NAME"
-		MOUNT=$(sudo udisksctl mount --block-device /dev/mapper/"$NAME")
+		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
 		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
 	elif [[ "$RET_CODE" == "0" ]] ; then
-        yes_or_no "Do you want to unmount?"
-		echo "UNMOUNTING..."
-		udisksctl unmount --block-device /dev/mapper/"$NAME"
-        sleep 2
-		sudo cryptsetup close "$NAME"
+    read -q "ANSWER?Do you want to unmount? [y/n]: "
+    if [[ "$ANSWER" =~ ^[Yy]$ ]] ; then
+      echo "UNMOUNTING..."
+      udisksctl unmount --block-device /dev/mapper/"$NAME"
+      echo "Closing cryptdevice..."
+      sudo cryptsetup close "$NAME"
+    else
+      echo "[!] Aborted unmount"
+    fi
 	# Error
 	else
 		echo "CRITICAL ERROR!"
