@@ -171,6 +171,12 @@ tail --follow /tmp/ansible.molecule.log
 ANSIBLE_ENABLE_TASK_DEBUGGER=True
 ```
 
+# Backup
+
+```
+FILES=(~/<FILE1> ~/<FILE2>); DESTINATION_USER="<USER>"; DESTINATION_HOST="<IP>"; CONTROL_PATH="/tmp/ssh-multiplex-%r@%h:%p"; ssh -o ControlMaster=yes -o ControlPath="${CONTROL_PATH}" -o ControlPersist=5m "${DESTINATION_USER}@${DESTINATION_HOST}" "exit" || { echo "Failed to establish SSH connection"; exit 1; }; for FILE in "${FILES[@]}"; do FILE_DIR=$(dirname "${FILE}"); ssh -o ControlPath="${CONTROL_PATH}" "${DESTINATION_USER}@${DESTINATION_HOST}" "mkdir -p \"${FILE_DIR}\"" || { echo "Failed to create directory ${FILE_DIR} on ${DESTINATION_HOST}"; exit 1; }; rsync -avz -e "ssh -o ControlPath=${CONTROL_PATH}" "${FILE}" "${DESTINATION_USER}@${DESTINATION_HOST}:${FILE_DIR}/" || { echo "Failed to transfer ${FILE}"; exit 1; }; done; ssh -O exit -o ControlPath="${CONTROL_PATH}" "${DESTINATION_USER}@${DESTINATION_HOST}" || { echo "Failed to close SSH connection"; exit 1; }
+```
+
 # References:
 
 * [Ansible Debian Installation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-debian)
