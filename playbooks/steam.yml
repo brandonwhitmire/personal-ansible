@@ -76,7 +76,7 @@
     # https://github.com/GloriousEggroll/proton-ge-custom#native
     - name: === Proton GloriousEggroll Block ===
       vars:
-        - proton_ge_version: GE-Proton9-11
+        - proton_ge_version: GE-Proton9-15
         - proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
         - proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
         - install_location: ~/.steam/root/compatibilitytools.d/
