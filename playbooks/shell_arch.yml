@@ -188,9 +188,9 @@
             path: /etc/environment
             marker: '# {mark} environment_config'
             block: |
-              export EDITOR=/usr/bin/nvim
-              export BROWSER={{ default_browser_fullpath }}
-              export TERMINAL=/usr/bin/alacritty
+              EDITOR=/usr/bin/nvim
+              BROWSER={{ default_browser_fullpath }}
+              TERMINAL=/usr/bin/alacritty
             create: true
             state: present
             mode: '0644'
