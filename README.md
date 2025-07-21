@@ -1,178 +1,202 @@
-# Ansible
+# My Ansible Playbooks - Arch Linux OS
 
-Ansible playbooks for various setups and configurations.
+My personal collection of Ansible playbooks to automate the setup and configuration of my Arch Linux system. This is targeted to my personal tastes as my "daily driver".
 
-**NOTE: these playbooks are tailored to _Arch Linux_, which uses the `pacman` package manager and related utilities**
+---
 
-# Pre-requisites
+## Table of Contents
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Requirements](#requirements)
+4. [Setup Guide](#setup-guide)
+    - [Controller](#controller)
+    - [Targets](#targets)
+5. [Usage](#usage)
+6. [Common Commands](#common-commands)
+7. [Testing & Validation](#testing--validation)
+8. [Troubleshooting](#troubleshooting)
+9. [Extending / Customizing](#extending--customizing)
+10. [References](#references)
 
-## Controller
+---
 
-To use the controller, simply enter in a Python virtual environment with all dependencies installed. This is the machine that will initiate connections and configure the target nodes:
+## Overview
 
-```bash
-# REQUIRED: for SSH password access
-sudo pacman -S --noconfirm sshpass
+This project provides modular Ansible playbooks for initializing fresh Arch Linux installations
 
-python3 -m venv "$(git rev-parse --show-toplevel)/venv"
-source venv/bin/activate
+---
 
-# Install Python and Ansible Galaxy libraries
-pip3 install --requirement "$(git rev-parse --show-toplevel)/requirements.txt"
-ansible-galaxy collection install --requirements-file "$(git rev-parse --show-toplevel)/requirements.yml"
+## Features
+- Tailored for Arch Linux (uses `pacman` and Arch-specific tools)
+- Modular playbooks for desktop, server, and development environments
+- Automated testing with [Molecule](https://molecule.readthedocs.io/)
+- Example ad-hoc and troubleshooting commands
+- Easily extensible for your own needs
 
-# First time setup: automated prompting for Ansible config files
-./1_run_first_time_setup.py
-```
+---
 
-## Targets
+## Requirements
 
-This is the machine or machines that will be configured via the controller.
+### Controller (Your machine running Ansible)
+- Python 3.x
+- [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+- [sshpass](https://linux.die.net/man/1/sshpass) (for password-based SSH)
+- Virtualenv (recommended)
 
-- REQUIRED: `sshd` running (and allowed through firewall) on target nodes:
+### Targets (Machines to be configured)
+- Arch Linux (or derivative)
+- SSH server (`sshd`) running and accessible
+- (Optional) SSH key authentication set up
 
-```bash
-sudo systemctl enable --now sshd
-```
+---
 
-- If using SSH key authentication, then add the pubkey to `~/.ssh/authorized_keys`:
+## Setup Guide
 
-```bash
-ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
-```
+### Controller
 
-# Quick Start
+1. **Install dependencies:**
+   ```bash
+   sudo pacman -S --noconfirm sshpass
+   python3 -m venv "$(git rev-parse --show-toplevel)/venv"
+   source venv/bin/activate
+   pip3 install --requirement requirements.txt
+   ansible-galaxy collection install --requirements-file requirements.yml
+   ```
+2. **First-time setup:**
+   ```bash
+   ./1_run_first_time_setup.py
+   ```
 
-Using the controller to configure target nodes:
+### Targets
 
-```bash
-# Activate Python venv (assuming pre-reqs from above are met)
-source venv/bin/activate
+- **Enable SSH:**
+  ```bash
+  sudo systemctl enable --now sshd
+  ```
+- **(Optional) Set up SSH key authentication:**
+  ```bash
+  ssh-copy-id -i ~/.ssh/id_rsa <USER>@<IP_ADDR>
+  ```
 
-ansible-playbook playbooks/main.yml
-```
+---
 
-# Common Commands
+## Usage
 
-```bash
-# Show inventory
-ansible-inventory --list
-ansible-inventory --graph
+1. **Activate the Python virtual environment:**
+   ```bash
+   source venv/bin/activate
+   ```
+2. **Run the main playbook:**
+   ```bash
+   ansible-playbook playbooks/main.yml
+   ```
 
-# Debug mode (this will not perform the actions but emulate as if they were)
-ansible-playbook --check -vvvvv <PLAYBOOK>
+---
 
-# Debug output for variables
-ansible all -m debug -a "var=hostvars"
-ansible all -m debug -a "var=vars"
+## Common Commands
 
-# Probe a particular variable, in this case "ansible_user"
-ansible -m debug -a 'msg={{ ansible_user }}' all
+- **Show inventory:**
+  ```bash
+  ansible-inventory --list
+  ansible-inventory --graph
+  ```
+- **Dry-run (check mode) with verbose output:**
+  ```bash
+  ansible-playbook --check -vvvvv <PLAYBOOK>
+  ```
+- **Debug variables:**
+  ```bash
+  ansible all -m debug -a "var=hostvars"
+  ansible all -m debug -a "var=vars"
+  ansible -m debug -a 'msg={{ ansible_user }}' all
+  ```
+- **Run playbook against a specific host (no inventory file):**
+  > Note: When not providing a file to `-i`, the trailing comma is required for the hostname or IP address.
+  ```bash
+  ANSIBLE_PIPELINING=true \
+  ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
+      --inventory <HOST>, \
+      --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+      <PLAYBOOKS>
+  ```
 
-# Specify hosts manually instead of using an inventory file
-# NOTE: when not providing a file to "-i" the trailing ',' is required for the hostname or IP address
-ANSIBLE_PIPELINING=true \
-ANSIBLE_INVENTORY_ENABLED="host_list" ansible-playbook \
-    --inventory <HOST>, \
-    --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
-    <PLAYBOOKS>
-```
+### Ad-Hoc Commands
 
+Run commands on hosts without a playbook or role.
 
-## Ad-Hoc Commands
+- **Reboot remote host with privilege escalation:**
+  ```bash
+  ANSIBLE_INVENTORY_ENABLED="host_list" \
+  ansible \
+      --inventory <HOST>, \
+      --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
+      --become \
+      --args 'reboot now' \
+      all  # 'all' is a host pattern (required)
+  ```
+  > **Tip:** Use `--become` for commands requiring sudo/root privileges.
 
-Ad-hoc commands are just that -- running commands on valid hosts without needing a task, playbook, role, etc.
+---
 
-```shell
-# Reboot remote host with escalation ("--become" is like "sudo")
-ANSIBLE_INVENTORY_ENABLED="host_list" \
-ansible \
-    --inventory <HOST>, \
-    --extra-vars "ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=1200' ansible_user=<USER> ansible_ssh_password=<PASSWORD> ansible_ssh_become_password=<PASSWORD>" \
-    --become \
-    --args 'reboot now' \
-    all  # "all" is a necessary host(s) pattern that is all-inclusive
-```
+## Testing & Validation
 
-# Testing and Validation
+- **Lint and syntax check:**
+  ```bash
+  yamllint
+  ansible-playbook --syntax-check
+  ansible-lint
+  ```
+- **Integration testing with Molecule:**
+  ```bash
+  molecule test # Full test (destroys environment after)
+  molecule converge # Apply playbook, keep environment running for manual checks
+  molecule destroy && molecule reset # Clean up all test resources
+  molecule test --destroy never --platform-name arch-instance # E2E on specific platform
+  ```
+  > **Tip:** Use `--debug -vvvvv` with Molecule for verbose troubleshooting.
 
-A combination of different levels to test an Ansible project:
+- **Check mode (dry run) against target:**
+  ```bash
+  ansible-playbook --check
+  ```
 
-```shell
-yamllint
-ansible-playbook --syntax-check
-ansible-lint
-molecule test # integration
-ansible-playbook --check  # against target
-Parallel Infrastructure # RARE
-```
+#### Molecule Logging
+- **Follow Vagrant logs (if using Vagrant driver):**
+  ```bash
+  tail --follow ~/.cache/molecule/ansible/*/vagrant.{out,err}
+  ```
+- **Follow Ansible logs:**
+  ```bash
+  tail --follow /tmp/ansible.molecule.log
+  ```
 
-- References: https://youtu.be/FaXVZ60o8L8?t=1239
+---
 
-## Molecule
+## Troubleshooting
 
-Molecule is an automated testing framework for Ansible, which includes validation, setting up infrastructure, and running plays.
+- **Directory matters:** Always run Ansible commands from the project root to avoid unexpected behavior due to misplaced config files.
+- **Enable interactive debugger on task failure:**
+  ```bash
+  ANSIBLE_ENABLE_TASK_DEBUGGER=True
+  ```
+- **SSH errors with Molecule/Vagrant:** Check both `vagrant.out` and `vagrant.err` logs for details. Sometimes only `vagrant.out` contains the root cause.
+- **General tip:** If you get strange errors, try running `cd /ansible_controller` to reset your working directory, or re-enter the controller environment if using Docker.
 
-```shell
-# cleanup any leftover instances, artifacts, and temp dirs
-molecule destroy && molecule reset
+---
 
-# same as 'test' but leaves the environment running
-# to test new changes or additions
-molecule converge
+## Extending / Customizing
 
-# END-to-END: converge on a specific platform
-molecule test --destroy never --platform-name arch-instance
-```
+- Add or modify playbooks in the `playbooks/` directory to suit your needs.
+- Place custom files, templates, or scripts in `playbooks/files/`.
+- Use Molecule scenarios in `molecule/` to test new roles or playbooks.
+- Update `requirements.txt` and `requirements.yml` for new Python or Ansible dependencies.
 
-## Molecule Errors
+---
 
-The simplest step is to use Ansible-like command options such as enabling debug and verbosity output when running the `molecule` command:
+## References
 
-```shell
-molecule --debug -vvvvv <SUBCOMMAND>
-```
-
-### Hierarchy of Abstraction Layers
-
-Molecule has an incredible number of layers that can make things difficult to troubleshoot. This list might not include all that one would need to consider. Rough hierarchy of molecule layers from **high**- to **low**-level:
-
-- Molecule
-- Driver (e.g. Vagrant or Docker)
-- Ansible
-- SSH
-- Python3
-- OS-local commands
-
-#### Vagrant-Specific (at the Driver layer)
-
-Although Molecule can be good at outputting useful errors, sometimes vague errors regarding `ssh` are displayed without error output when internal VM commands are ran. In these cases, try reading all logs for the Driver (i.e. Vagrant in this case). There have been package manager issues that have caused these `ssh` "errors" that could only be discerned from reading the `vagrant.out` log (yes -- not the `vagrant.err` log as would be expected).
-
-```shell
-# Follow both Vagrant logs while VM provisions and builds
-tail --follow ~/.cache/molecule/ansible/*/vagrant.{out,err}
-```
-
-```shell
-# Follow Ansible logs while configuring
-# NOTE: molecule.yml has this environment variable ANSIBLE_LOG_PATH,
-# which places the Ansible log file in the below location
-tail --follow /tmp/ansible.molecule.log
-```
-
-# Troubleshooting and Pitfalls
-
-* Be aware of the current directory that invokes any `ansible*` command. Ansible is sensitive to certain files being in the current directory, and this could cause many strange errors when outside of the proper working directory. When in doubt, run "`cd /ansible_controller`" to get back into the proper working directory or exit the Dockerized Ansible controller node then re-enter it via "`./1_run_ansible_controller.sh`".
-
-* Run interactive debugger upon task fail:
-
-```shell
-# append env variable to command or export
-ANSIBLE_ENABLE_TASK_DEBUGGER=True
-```
-
-# References:
-
-* [Ansible Debian Installation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-debian)
-* [Ansible Commands](https://docs.ansible.com/ansible/latest/collections/ansible/index.html)
-* [Ansible Playbook Examples](https://github.com/ansible/ansible-examples)
+- [Ansible Official Docs](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+- [Ansible Commands](https://docs.ansible.com/ansible/latest/collections/ansible/index.html)
+- [Ansible Playbook Examples](https://github.com/ansible/ansible-examples)
+- [Molecule Documentation](https://molecule.readthedocs.io/)
+- [YouTube: Ansible Playbook Walkthrough](https://youtu.be/FaXVZ60o8L8?t=1239)
