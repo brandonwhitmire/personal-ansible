@@ -58,6 +58,106 @@
             port: ssh
             comment: Allow SSH traffic
 
+        - name: Set firewall rules - SSH (IPv6)
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: tcp
+            port: ssh
+            comment: Allow SSH traffic
+            direction: in
+            from_ip: '::/0'
+
+        - name: Set firewall rules - DHCP server (port 67/udp)
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: udp
+            port: '67'
+            comment: Allow DHCP server traffic
+
+        - name: Set firewall rules - DHCP server (port 67/udp IPv6)
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: udp
+            port: '67'
+            comment: Allow DHCP server traffic
+            direction: in
+            from_ip: '::/0'
+
+        - name: Set firewall rules - DHCP client (port 68/udp)
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: udp
+            port: '68'
+            comment: Allow DHCP client traffic
+
+        - name: Set firewall rules - DHCP client (port 68/udp IPv6)
+          become: true
+          community.general.ufw:
+            rule: allow
+            proto: udp
+            port: '68'
+            comment: Allow DHCP client traffic
+            direction: in
+            from_ip: '::/0'
+
+        - name: Set firewall rules - Allow traffic on virbr1 bridge (vagrant)
+          become: true
+          community.general.ufw:
+            rule: allow
+            interface: virbr1
+            comment: Allow all traffic on virbr1 bridge (vagrant traffic)
+
+        - name: Set firewall rules - Allow traffic on virbr1 bridge (vagrant IPv6)
+          become: true
+          community.general.ufw:
+            rule: allow
+            interface: virbr1
+            comment: Allow all traffic on virbr1 bridge (vagrant traffic)
+            direction: in
+            from_ip: '::/0'
+
+        - name: Set firewall rules - Forward traffic from virbr1 to wlan0
+          become: true
+          community.general.ufw:
+            rule: allow
+            direction: forward
+            in_interface: virbr1
+            out_interface: wlan0
+            comment: Forward traffic from virbr1 to wlan0
+
+        - name: Set firewall rules - Forward traffic from wlan0 to virbr1
+          become: true
+          community.general.ufw:
+            rule: allow
+            direction: forward
+            in_interface: wlan0
+            out_interface: virbr1
+            comment: Forward traffic from wlan0 to virbr1
+
+        - name: Set firewall rules - Forward traffic from virbr1 to wlan0 (IPv6)
+          become: true
+          community.general.ufw:
+            rule: allow
+            direction: forward
+            in_interface: virbr1
+            out_interface: wlan0
+            comment: Forward traffic from virbr1 to wlan0 (IPv6)
+            from_ip: '::/0'
+
+        - name: Set firewall rules - Forward traffic from wlan0 to virbr1 (IPv6)
+          become: true
+          community.general.ufw:
+            rule: allow
+            direction: forward
+            in_interface: wlan0
+            out_interface: virbr1
+            comment: Forward traffic from wlan0 to virbr1 (IPv6)
+            from_ip: '::/0'
+
         # https://wiki.archlinux.org/title/OpenSSH#Deny
         - name: Prevent SSH root login
           become: true

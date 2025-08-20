@@ -19,9 +19,9 @@
 - name: Configure baseline shell
   hosts: all
   vars:
-    - default_browser_name: librewolf
-    - default_browser_fullpath: '/usr/bin/{{ default_browser_name }}'
-    - default_image_viewer: deepin-image-viewer
+    default_browser_name: librewolf
+    default_browser_fullpath: '/usr/bin/{{ default_browser_name }}'
+    default_image_viewer: deepin-image-viewer
   tasks:
 
     - name: Install needed OS pkgs

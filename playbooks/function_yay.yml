@@ -74,7 +74,7 @@
         - name: Ensure `yay` (AUR) pkg manager is installed
           when: is_yay_installed is failed
           vars:
-            - yay_dir: /tmp/yay-bin/
+            yay_dir: /tmp/yay-bin/
           block:
 
             - name: Ensure yay deps are installed

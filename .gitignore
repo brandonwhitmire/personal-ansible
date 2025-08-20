@@ -10,3 +10,4 @@ artifacts/
 *.log
 .yamllint
 venv/
+.vscode/

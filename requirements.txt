@@ -14,3 +14,4 @@ molecule-plugins[docker]  # Docker plugin for Molecule
 ansible_runner  # run Ansible via Python3
 python-vagrant  # run Vagrant via Python3
 docker  # run Docker via Python3
+libvirt-python  # libvirt for Molecule

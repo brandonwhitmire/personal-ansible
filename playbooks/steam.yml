@@ -76,11 +76,11 @@
     # https://github.com/GloriousEggroll/proton-ge-custom#native
     - name: === Proton GloriousEggroll Block ===
       vars:
-        - proton_ge_version: GE-Proton9-15
-        - proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
-        - proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
-        - install_location: ~/.steam/root/compatibilitytools.d/
-        - download_location: '{{ install_location }}/{{ proton_ge_filename }}'
+        proton_ge_version: GE-Proton9-15
+        proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
+        proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
+        install_location: ~/.steam/root/compatibilitytools.d/
+        download_location: '{{ install_location }}/{{ proton_ge_filename }}'
       block:
 
         - name: Ensure folder exists
@@ -113,10 +113,10 @@
     - name: === AOE2 Block ===
       vars:
         # Leave this so that the files get placed in the user dir and not /root
-        - aoe2_dir: /home/{{ ansible_user }}/.local/share/Steam/steamapps/compatdata/813780/pfx/drive_c/windows/system32/
-        - vc_redist_exe: vc_redist.x64.exe
-        - vc_redist_url: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/{{ vc_redist_exe }}
-        - vulcan_folder: /usr/share/vulkan/icd.d/
+        aoe2_dir: /home/{{ ansible_user }}/.local/share/Steam/steamapps/compatdata/813780/pfx/drive_c/windows/system32/
+        vc_redist_exe: vc_redist.x64.exe
+        vc_redist_url: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/{{ vc_redist_exe }}
+        vulcan_folder: /usr/share/vulkan/icd.d/
       block:
 
         - name: Install necessary pkgs

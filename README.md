@@ -148,6 +148,11 @@ Run commands on hosts without a playbook or role.
   ```
 - **Integration testing with Molecule:**
   ```bash
+  # Arch image is required
+  curl -L https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2 -o /var/lib/libvirt/images/
+
+  sudo pacman -S cdrkit
+
   molecule test # Full test (destroys environment after)
   molecule converge # Apply playbook, keep environment running for manual checks
   molecule destroy && molecule reset # Clean up all test resources
