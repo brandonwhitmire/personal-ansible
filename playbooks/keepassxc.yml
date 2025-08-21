@@ -4,15 +4,12 @@
 # Reference:
 # https://keepassxc.org/docs/KeePassXC_GettingStarted.html#_setup_browser_integration
 ---
-- name: Install AUR pkgs
-  vars:
-    aur_packages:
-      - librewolf-bin
-  ansible.builtin.import_playbook: function_yay.yml
-
-- name: KeepassXC, keepassxc-browser, keepassxc-proxy
-  hosts: all
-  tasks:
+    - name: Install browser
+      become: true
+      ansible.builtin.package:
+        name:
+          - firefox  # web browser
+        state: present
 
     - name: Install KeepassXC password manager and required packages
       become: true
@@ -25,7 +22,7 @@
       ansible.builtin.copy:
         remote_src: false
         src: files/browser/native-messaging-hosts
-        dest: ~/.librewolf/
+        dest: ~/.mozilla/
         mode: '0770'
 
     # NOTE: not necessary?: https://archlinux.org/packages/community/x86_64/keepassxc/
