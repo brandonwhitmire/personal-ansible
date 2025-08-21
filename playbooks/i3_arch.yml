@@ -72,6 +72,22 @@
         dest: ~/.config/i3/config
         mode: '0644'
 
+    - name: Ensure i3 scripts directory exists
+      ansible.builtin.file:
+        path: ~/.config/i3/scripts/
+        state: directory
+        mode: '0755'
+
+    - name: Copy i3 scripts
+      ansible.builtin.copy:
+        force: true
+        src: "files/{{ item }}"
+        dest: "~/.config/i3/scripts/{{ item }}"
+        mode: '0755'
+      loop:
+        - powermenu.sh
+        - autostart.sh
+
 - name: Install AUR pkgs
   vars:
     aur_packages:
