@@ -29,7 +29,6 @@ This project provides modular Ansible playbooks for initializing fresh Arch Linu
 ## Features
 - Tailored for Arch Linux (uses `pacman` and Arch-specific tools)
 - Modular playbooks for desktop, server, and development environments
-- Automated testing with [Molecule](https://molecule.readthedocs.io/)
 - Example ad-hoc and troubleshooting commands
 - Easily extensible for your own needs
 
@@ -146,33 +145,9 @@ Run commands on hosts without a playbook or role.
   ansible-playbook --syntax-check
   ansible-lint
   ```
-- **Integration testing with Molecule:**
-  ```bash
-  # Arch image is required
-  curl -L https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2 -o /var/lib/libvirt/images/
-
-  sudo pacman -S cdrkit
-
-  molecule test # Full test (destroys environment after)
-  molecule converge # Apply playbook, keep environment running for manual checks
-  molecule destroy && molecule reset # Clean up all test resources
-  molecule test --destroy never --platform-name arch-instance # E2E on specific platform
-  ```
-  > **Tip:** Use `--debug -vvvvv` with Molecule for verbose troubleshooting.
-
 - **Check mode (dry run) against target:**
   ```bash
   ansible-playbook --check
-  ```
-
-#### Molecule Logging
-- **Follow Vagrant logs (if using Vagrant driver):**
-  ```bash
-  tail --follow ~/.cache/molecule/ansible/*/vagrant.{out,err}
-  ```
-- **Follow Ansible logs:**
-  ```bash
-  tail --follow /tmp/ansible.molecule.log
   ```
 
 ---
@@ -184,7 +159,7 @@ Run commands on hosts without a playbook or role.
   ```bash
   ANSIBLE_ENABLE_TASK_DEBUGGER=True
   ```
-- **SSH errors with Molecule/Vagrant:** Check both `vagrant.out` and `vagrant.err` logs for details. Sometimes only `vagrant.out` contains the root cause.
+- **SSH errors with Vagrant:** Check both `vagrant.out` and `vagrant.err` logs for details. Sometimes only `vagrant.out` contains the root cause.
 - **General tip:** If you get strange errors, try running `cd /ansible_controller` to reset your working directory, or re-enter the controller environment if using Docker.
 
 ---
@@ -193,7 +168,6 @@ Run commands on hosts without a playbook or role.
 
 - Add or modify playbooks in the `playbooks/` directory to suit your needs.
 - Place custom files, templates, or scripts in `playbooks/files/`.
-- Use Molecule scenarios in `molecule/` to test new roles or playbooks.
 - Update `requirements.txt` and `requirements.yml` for new Python or Ansible dependencies.
 
 ---
@@ -203,5 +177,4 @@ Run commands on hosts without a playbook or role.
 - [Ansible Official Docs](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 - [Ansible Commands](https://docs.ansible.com/ansible/latest/collections/ansible/index.html)
 - [Ansible Playbook Examples](https://github.com/ansible/ansible-examples)
-- [Molecule Documentation](https://molecule.readthedocs.io/)
 - [YouTube: Ansible Playbook Walkthrough](https://youtu.be/FaXVZ60o8L8?t=1239)

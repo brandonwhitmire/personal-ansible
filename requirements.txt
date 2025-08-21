@@ -4,14 +4,7 @@
 ansible  # automate configuration and more
 ansible-lint  # ansible-specific linter
 
-# Molecule
-# https://molecule.readthedocs.io/en/latest/installation.html#pip
-molecule  # test suite for Ansible
-molecule-plugins  # provider plugins
-molecule-plugins[docker]  # Docker plugin for Molecule
-
 # Dependencies for various Runners
 ansible_runner  # run Ansible via Python3
 python-vagrant  # run Vagrant via Python3
 docker  # run Docker via Python3
-libvirt-python  # libvirt for Molecule

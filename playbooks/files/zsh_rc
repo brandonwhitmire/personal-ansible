@@ -600,12 +600,6 @@ wifi_scan () {
         echo '    nmcli device wifi connect <WIFI_NAME>'
 }
 
-# Molecule subcommands tab-completion
-# TODO: this only works when manually source AFTER
-# entering a Python virtual environment
-which molecule > /dev/null 2>&1 && \
-    eval "$(_MOLECULE_COMPLETE=zsh_source molecule)"
-
 # FZF: fuzzy finder bindings and completions
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
