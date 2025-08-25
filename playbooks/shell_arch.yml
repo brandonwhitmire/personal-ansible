@@ -85,10 +85,18 @@
 
         - name: Add functionality for shells
           ansible.builtin.blockinfile:
-            path: '~/{{ item }}'
+            path: '/home/{{ ansible_user }}/{{ item }}'
             marker: "# {mark} zsh_rc"
             block: "{{ lookup('file', '../files/zsh_rc') }}"
             create: true
+            owner: '{{ ansible_user }}'
+            group: '{{ ansible_user }}'
+            mode: '0644'
+            state: present
+          loop:
+            - .zshrc
+            # - .bashrc
+
             mode: '0644'
             state: present
           loop:

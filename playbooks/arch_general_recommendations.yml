@@ -108,6 +108,7 @@
           become: true
           community.general.ufw:
             rule: allow
+            direction: in
             interface: virbr1
             comment: Allow all traffic on virbr1 bridge (vagrant traffic)
 
@@ -124,27 +125,27 @@
           become: true
           community.general.ufw:
             rule: allow
-            direction: forward
-            in_interface: virbr1
-            out_interface: wlan0
+            route: true
+            interface_in: virbr1
+            interface_out: wlan0
             comment: Forward traffic from virbr1 to wlan0
 
         - name: Set firewall rules - Forward traffic from wlan0 to virbr1
           become: true
           community.general.ufw:
             rule: allow
-            direction: forward
-            in_interface: wlan0
-            out_interface: virbr1
+            route: true
+            interface_in: wlan0
+            interface_out: virbr1
             comment: Forward traffic from wlan0 to virbr1
 
         - name: Set firewall rules - Forward traffic from virbr1 to wlan0 (IPv6)
           become: true
           community.general.ufw:
             rule: allow
-            direction: forward
-            in_interface: virbr1
-            out_interface: wlan0
+            route: true
+            interface_in: virbr1
+            interface_out: wlan0
             comment: Forward traffic from virbr1 to wlan0 (IPv6)
             from_ip: '::/0'
 
@@ -152,9 +153,9 @@
           become: true
           community.general.ufw:
             rule: allow
-            direction: forward
-            in_interface: wlan0
-            out_interface: virbr1
+            route: true
+            interface_in: wlan0
+            interface_out: virbr1
             comment: Forward traffic from wlan0 to virbr1 (IPv6)
             from_ip: '::/0'
 

@@ -4,6 +4,8 @@
 # Reference:
 # https://keepassxc.org/docs/KeePassXC_GettingStarted.html#_setup_browser_integration
 ---
+- hosts: all
+  tasks:
     - name: Install browser
       become: true
       ansible.builtin.package:

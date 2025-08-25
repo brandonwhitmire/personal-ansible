@@ -51,12 +51,19 @@
         create: true
         state: present
 
+    - name: '[gtk3] Ensure source file exists'
+      ansible.builtin.stat:
+        path: /home/{{ ansible_user }}/.config/gtk-3.0/settings.ini
+      register: gtk3_settings_file
+
     - name: '[gtk3] Set root applications to use dark theme'
       become: true
       ansible.builtin.file:
         src: /home/{{ ansible_user }}/.config/gtk-3.0/settings.ini
         dest: /etc/gtk-3.0/settings.ini
+        force: true
         state: link
+      when: gtk3_settings_file.stat.exists
 
     - name: '[Qt4] Use GTK2 themes'
       ansible.builtin.blockinfile:

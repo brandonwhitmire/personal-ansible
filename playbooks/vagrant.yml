@@ -5,6 +5,13 @@
 # Reference:
 # https://wiki.archlinux.org/title/Vagrant#Installation
 ---
+- name: Install vagrant from AUR
+  vars:
+    aur_packages:
+      - vagrant
+    aur_packages_state: present
+  ansible.builtin.import_playbook: function_yay.yml
+
 - name: Install Vagrant
   hosts: all
   tasks:
@@ -13,8 +20,6 @@
       become: true
       ansible.builtin.package:
         name:
-          - vagrant
-          - python-vagrant
           - python-paramiko
           - libvirt
           - qemu

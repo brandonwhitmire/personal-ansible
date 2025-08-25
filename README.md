@@ -150,6 +150,14 @@ Run commands on hosts without a playbook or role.
   ansible-playbook --check
   ```
 
+### End-to-End Testing
+
+This requires a basic Arch Linux VM imported into Vagrant. My other project builds a [Arch Linux VM for libvirt (QEMU) using Packer](https://github.com/OpenSourceKyle/personal-packer) using an installation script that is true to my actual hardware. Assuming a Arch Linux VM exists (will require updating the Vagrantfile if not using my project), simply run the following command to run an end-to-end of the playbooks:
+
+```bash
+vagrant up
+```
+
 ---
 
 ## Troubleshooting

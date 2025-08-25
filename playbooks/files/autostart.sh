@@ -50,7 +50,6 @@ pa-applet &
 /usr/bin/redshift-gtk &
 
 # Start screen locker daemon
-set $Locker "i3lock --ignore-empty-password --color=444444"
-xautolock -notify 30 -notifier "notify-send 'Screen will lock soon!'" -time 15 -locker "$Locker" &
+xss-lock --transfer-sleep-lock -- i3lock --ignore-empty-password --color=444444 &
 
 echo "Autostart script finished."

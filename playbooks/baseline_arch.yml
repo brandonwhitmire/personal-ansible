@@ -51,7 +51,7 @@
           - ttf-bitstream-vera  # serif and mono
           - ttf-dejavu  # Bitstream Vera modified w/more Unicode
           - ttf-croscore  # Helvetica, Times, and Courier
-          - xautolock  # xorg locker
+          - xss-lock  # xorg locker
           - polkit  # privs management
           - dmidecode  # used for checking for virtualization
           - firefox  # web browser
