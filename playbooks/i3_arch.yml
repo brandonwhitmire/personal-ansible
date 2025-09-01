@@ -53,8 +53,8 @@
         path: ~/.xinitrc
         marker: "# {mark} .xinitrc"
         block: |
-          /usr/bin/prime-offload # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
-          i3
+          /usr/bin/prime-offload  # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
+          exec i3
         mode: '0644'
         create: true
         state: present

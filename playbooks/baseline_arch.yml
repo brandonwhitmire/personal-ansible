@@ -27,12 +27,12 @@
       ansible.builtin.package_facts:
         manager: auto
 
-    - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* from 'xorg')
-      become: true
-      ansible.builtin.package:
-        name: xorg  # desktop GUI
-        state: present
-      when: "'acpilight' not in ansible_facts.packages"
+    # - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* from 'xorg')
+    #   become: true
+    #   ansible.builtin.package:
+    #     name: xorg  # desktop GUI
+    #     state: present
+    #   when: "'acpilight' not in ansible_facts.packages"
 
     - name: Upgrade system
       become: true

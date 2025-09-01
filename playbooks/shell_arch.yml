@@ -97,12 +97,6 @@
             - .zshrc
             # - .bashrc
 
-            mode: '0644'
-            state: present
-          loop:
-            - .zshrc
-            # - .bashrc
-
         - name: Copy custom zsh_rc to root
           become: true
           ansible.builtin.copy:
