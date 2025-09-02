@@ -13,11 +13,11 @@ Vagrant.configure("2") do |config|
   end
   # 3. Provision the VM with Ansible
   config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "playbooks/main.yml"
-    #ansible.inventory_path = "inventory.ini"
-    ansible.become = true
-    ansible.become_user = "root"
-    ansible.verbose = "v"
     ansible.compatibility_mode = "2.0"
+    ansible.become = true
+    ansible.verbose = "v"
+    #ansible.inventory_path = "inventory.ini"
+    ansible.become_user = "root"
+    ansible.playbook = "site.yml"
   end
 end

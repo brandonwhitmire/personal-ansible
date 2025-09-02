@@ -1,0 +1,183 @@
+---
+# Arch Linux general recommendations
+# Reference: https://wiki.archlinux.org/title/General_recommendations
+# https://wiki.archlinux.org/title/Security
+- name: === SECURITY BLOCK ===
+  block:
+
+    - name: Install pacman pkgs
+      become: true
+      ansible.builtin.package:
+        name:
+          # https://wiki.archlinux.org/title/Microcode
+          - intel-ucode
+          # https://wiki.archlinux.org/title/Uncomplicated_Firewall
+          - ufw
+          - gufw
+        state: present
+
+    - name: Enable ufw (firewall) service
+      become: true
+      ansible.builtin.service:
+        name: ufw
+        enabled: true
+        state: started
+
+    - name: Set firewall rules - Deny incoming traffic by default
+      become: true
+      community.general.ufw:
+        default: reject
+        direction: incoming
+        state: '{{ item }}'
+      loop:
+        # - reset  # reset firewall to default (no rules)
+        - enabled  # re-enable firewall
+
+    - name: Set firewall rules - LAN traffic (RFC1918 networks)
+      become: true
+      community.general.ufw:
+        rule: allow
+        src: '{{ item }}'
+        comment: Allow intra-LAN traffic
+      loop:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+
+    - name: Set firewall rules - SSH
+      become: true
+      community.general.ufw:
+        rule: allow
+        proto: tcp
+        port: ssh
+        comment: Allow SSH traffic
+
+    - name: Set firewall rules - SSH (IPv6)
+      become: true
+      community.general.ufw:
+        rule: allow
+        proto: tcp
+        port: ssh
+        comment: Allow SSH traffic
+        direction: in
+        from_ip: '::/0'
+
+    - name: Set firewall rules - DHCP server (port 67/udp)
+      become: true
+      community.general.ufw:
+        rule: allow
+        proto: udp
+        port: '67'
+        comment: Allow DHCP server traffic
+
+    - name: Set firewall rules - DHCP server (port 67/udp IPv6)
+      become: true
+      community.general.ufw:
+        rule: allow
+        proto: udp
+        port: '67'
+        comment: Allow DHCP server traffic
+        direction: in
+        from_ip: '::/0'
+
+    - name: Set firewall rules - DHCP client (port 68/udp)
+      become: true
+      community.general.ufw:
+        rule: allow
+        proto: udp
+        port: '68'
+        comment: Allow DHCP client traffic
+
+    - name: Set firewall rules - DHCP client (port 68/udp IPv6)
+      become: true
+      community.general.ufw:
+        rule: allow
+        proto: udp
+        port: '68'
+        comment: Allow DHCP client traffic
+        direction: in
+        from_ip: '::/0'
+
+    - name: Set firewall rules - Allow traffic on virbr1 bridge (vagrant)
+      become: true
+      community.general.ufw:
+        rule: allow
+        direction: in
+        interface: virbr1
+        comment: Allow all traffic on virbr1 bridge (vagrant traffic)
+
+    - name: Set firewall rules - Allow traffic on virbr1 bridge (vagrant IPv6)
+      become: true
+      community.general.ufw:
+        rule: allow
+        interface: virbr1
+        comment: Allow all traffic on virbr1 bridge (vagrant traffic)
+        direction: in
+        from_ip: '::/0'
+
+    - name: Set firewall rules - Forward traffic from virbr1 to wlan0
+      become: true
+      community.general.ufw:
+        rule: allow
+        route: true
+        interface_in: virbr1
+        interface_out: wlan0
+        comment: Forward traffic from virbr1 to wlan0
+
+    - name: Set firewall rules - Forward traffic from wlan0 to virbr1
+      become: true
+      community.general.ufw:
+        rule: allow
+        route: true
+        interface_in: wlan0
+        interface_out: virbr1
+        comment: Forward traffic from wlan0 to virbr1
+
+    - name: Set firewall rules - Forward traffic from virbr1 to wlan0 (IPv6)
+      become: true
+      community.general.ufw:
+        rule: allow
+        route: true
+        interface_in: virbr1
+        interface_out: wlan0
+        comment: Forward traffic from virbr1 to wlan0 (IPv6)
+        from_ip: '::/0'
+
+    - name: Set firewall rules - Forward traffic from wlan0 to virbr1 (IPv6)
+      become: true
+      community.general.ufw:
+        rule: allow
+        route: true
+        interface_in: wlan0
+        interface_out: virbr1
+        comment: Forward traffic from wlan0 to virbr1 (IPv6)
+        from_ip: '::/0'
+
+    # https://wiki.archlinux.org/title/OpenSSH#Deny
+    - name: Prevent SSH root login
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: PermitRootLogin no
+        create: true
+        mode: '0440'
+        state: present
+
+- name: === SYSTEM BLOCK ===
+  block:
+
+    - name: Install pacman pkgs
+      become: true
+      ansible.builtin.package:
+        name:
+          - networkmanager
+          - nm-connection-editor
+          - network-manager-applet
+          - networkmanager-openvpn
+
+    - name: Enable NetworkManager service
+      become: true
+      ansible.builtin.service:
+        name: NetworkManager
+        enabled: true
+        state: started
