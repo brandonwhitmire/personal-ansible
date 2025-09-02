@@ -4,33 +4,9 @@ My personal collection of Ansible playbooks to automate the setup and configurat
 
 ---
 
-## Table of Contents
-1. [Overview](#overview)
-2. [Features](#features)
-3. [Requirements](#requirements)
-4. [Setup Guide](#setup-guide)
-    - [Controller](#controller)
-    - [Targets](#targets)
-5. [Usage](#usage)
-6. [Common Commands](#common-commands)
-7. [Testing & Validation](#testing--validation)
-8. [Troubleshooting](#troubleshooting)
-9. [Extending / Customizing](#extending--customizing)
-10. [References](#references)
-
----
-
 ## Overview
 
 This project provides modular Ansible playbooks for initializing fresh Arch Linux installations
-
----
-
-## Features
-- Tailored for Arch Linux (uses `pacman` and Arch-specific tools)
-- Modular playbooks for desktop, server, and development environments
-- Example ad-hoc and troubleshooting commands
-- Easily extensible for your own needs
 
 ---
 
@@ -87,7 +63,7 @@ This project provides modular Ansible playbooks for initializing fresh Arch Linu
    ```
 2. **Run the main playbook:**
    ```bash
-   ansible-playbook playbooks/main.yml
+   ansible-playbook site.yml
    ```
 
 ---
@@ -168,15 +144,6 @@ vagrant up
   ANSIBLE_ENABLE_TASK_DEBUGGER=True
   ```
 - **SSH errors with Vagrant:** Check both `vagrant.out` and `vagrant.err` logs for details. Sometimes only `vagrant.out` contains the root cause.
-- **General tip:** If you get strange errors, try running `cd /ansible_controller` to reset your working directory, or re-enter the controller environment if using Docker.
-
----
-
-## Extending / Customizing
-
-- Add or modify playbooks in the `playbooks/` directory to suit your needs.
-- Place custom files, templates, or scripts in `playbooks/files/`.
-- Update `requirements.txt` and `requirements.yml` for new Python or Ansible dependencies.
 
 ---
 
