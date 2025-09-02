@@ -1,5 +1,4 @@
 ---
-# moved from playbooks/shell_arch.yml on 2024-12-19
 - name: Install needed OS pkgs
   become: true
   ansible.builtin.package:
@@ -29,9 +28,7 @@
       - colordiff  # diff with color
       - borg  # encrypted, de-duplicated backups
       - python-llfuse  # dep for borg backup
-      - transmission-cli  # torrent manager
-      - transmission-gtk  # GUI torrent manager client
-      - transmission-remote-gtk  # GUI torrent manager daemon
+      - qbittorrent  # torrent manager
       - nodejs  # dep for coc.nvim
       - xclip  # dep for vim clipboard
       - galculator  # default calc
@@ -42,6 +39,7 @@
       - ansible-lint  # linter for Ansible
       # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
       - deepin-image-viewer  # simple image viewer
+      - starship  # prompt
     state: present
 
 # https://wiki.archlinux.org/title/Powerline
@@ -98,14 +96,6 @@
   ansible.builtin.command:
     cmd: pkgfile --update
     creates: /var/cache/pkgfile/core.files
-
-- name: Copy spaceship config
-  ansible.builtin.copy:
-    remote_src: false
-    src: files/spaceship_rc
-    dest: ~/.spaceshiprc.zsh
-    force: true
-    mode: '0644'
 
 - name: Ensure nvim directory exists
   ansible.builtin.file:

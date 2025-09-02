@@ -1,4 +1,3 @@
-# moved from playbooks/baseline_arch.yml on 2024-12-19
 ---
 - name: Enable pacman options
   become: true
@@ -15,24 +14,45 @@
   become: true
   ansible.builtin.package:
     name: archlinux-keyring
-    state: latest
+    state: present
 
-- name: Gather the package facts
-  ansible.builtin.package_facts:
-    manager: auto
+- name: Check system update status and perform if needed
+  block:
+    - name: Check the timestamp of the last pacman sync
+      become: true
+      ansible.builtin.stat:
+        path: /var/lib/pacman/sync/core.db
+      register: baseline_pacman_sync_db_stat
 
-# - name: Avoid pkg conflict ('acpilight' overwrites *xbacklight* from 'xorg')
-#   become: true
-#   ansible.builtin.package:
-#     name: xorg  # desktop GUI
-#     state: present
-#   when: "'acpilight' not in ansible_facts.packages"
+    - name: Set update needed flag
+      ansible.builtin.set_fact:
+        baseline_update_needed: "{{ not baseline_pacman_sync_db_stat.stat.exists or (ansible_facts.date_time.epoch | int - baseline_pacman_sync_db_stat.stat.mtime | int > 3600) }}"
+      when: not baseline_pacman_sync_db_stat.stat.exists or (ansible_facts.date_time.epoch | int - baseline_pacman_sync_db_stat.stat.mtime | int > 3600)
 
-- name: Upgrade system
-  become: true
-  ansible.builtin.package:
-    update_cache: true
-    upgrade: true
+    - name: Set update not needed flag
+      ansible.builtin.set_fact:
+        baseline_update_needed: false
+      when: baseline_pacman_sync_db_stat.stat.exists and (ansible_facts.date_time.epoch | int - baseline_pacman_sync_db_stat.stat.mtime | int <= 3600)
+
+    - name: Debug update status
+      ansible.builtin.debug:
+        msg: "System update {{ 'needed' if baseline_update_needed else 'not needed' }} (last sync: {{ baseline_pacman_sync_db_stat.stat.mtime | default('never') }})"
+
+    - name: Upgrade system
+      become: true
+      ansible.builtin.package:
+        update_cache: true
+        upgrade: true
+      when: baseline_update_needed
+
+    - name: Reboot the VM
+      become: true
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+        connect_timeout: 60
+        post_reboot_delay: 15
+        test_command: uptime
+      when: baseline_update_needed
 
 - name: Install baseline pkgs
   become: true
@@ -40,6 +60,8 @@
     name:
       - xdg-user-dirs  # common user dirs
       - xorg-xinit  # start GUI
+      - xorg-server  # Xorg server
+      - xorg-apps  # Xorg apps
       - picom  # xorg compositor
       - xterm  # default terminal
       - ttf-bitstream-vera  # serif and mono
@@ -122,15 +144,16 @@
     block: |
       DefaultTimeoutStopSec=15s
 
-- name: Set Chromium to use GTK theme
-  ignore_errors: true
-  ansible.builtin.lineinfile:
-    backup: true
-    backrefs: true
-    path: ~/.config/chromium/Default/Preferences
-    regexp: '(.*)"system_theme":0(.*)'
-    line: '\1 "system_theme":1 \2'
-    state: present
+# Only works for first time Chromium is opened and creates its profile
+# - name: Set Chromium to use GTK theme
+#   ignore_errors: true
+#   ansible.builtin.lineinfile:
+#     backup: true
+#     backrefs: true
+#     path: ~/.config/chromium/Default/Preferences
+#     regexp: '(.*)"system_theme":0(.*)'
+#     line: '\1 "system_theme":1 \2'
+#     state: present
 
 # https://wiki.archlinux.org/title/Touchpad_Synaptics#Frequently_used_options
 - name: Configure touchpad to use sane defaults

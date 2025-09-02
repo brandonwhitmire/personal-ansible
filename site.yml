@@ -1,13 +1,14 @@
 ---
-- name: Discern target OS
+- name: Prepare and configure all hosts
   hosts: all
-  tasks:
-    - name: Target OS
-      ansible.builtin.debug:
-        msg: 'TARGET OS: {{ ansible_facts["distribution"] }}'
-
-- name: Apply baseline configuration
-  hosts: all
+#  gather_facts: false
+#  pre_tasks:
+#    - name: 'Gather facts (much more quietly)'
+#      ansible.builtin.setup:
+#      # no_log: true
+#    - name: Display target OS
+#      ansible.builtin.debug:
+#        msg: 'TARGET OS: {{ ansible_facts["distribution"] }}'
   roles:
     - baseline
     - arch_recommendations

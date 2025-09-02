@@ -34,18 +34,65 @@
 # https://github.com/kewlfft/ansible-aur#create-the-aur_builder-user
 - name: '=== [AUR_FUNCTION_START] Add/Remove >>AUR<< packages ==='
   when: ansible_facts["distribution"] == "Archlinux"
+  vars:
+    yay_dir: /tmp/yay-bin/
   block:
 
-    - name: Ensure yay is installed (ignore errors)
+    - name: Check if yay is already installed
       become: true
-      ignore_errors: true
-      changed_when: false
+      ansible.builtin.stat:
+        path: /usr/bin/yay
+      register: function_yay_yay_exists
+
+    - name: Ensure yay dependencies are installed
+      become: true
       ansible.builtin.package:
         name:
-          - yay-bin
           - base-devel
+          - git
         state: present
-      register: is_yay_installed
+      when: not function_yay_yay_exists.stat.exists
+
+    - name: Install yay from AUR if not present
+      when: not function_yay_yay_exists.stat.exists
+      block:
+
+        # - name: Remove existing yay directory
+        #   become: true
+        #   ansible.builtin.file:
+        #     path: '{{ yay_dir }}'
+        #     state: absent
+
+        - name: Create git directory
+          become: false
+          ansible.builtin.file:
+            path: '{{ yay_dir }}'
+            state: directory
+            mode: '0755'
+
+        - name: Clone yay repository
+          become: false
+          ansible.builtin.git:
+            repo: https://aur.archlinux.org/yay-bin.git
+            dest: '{{ yay_dir }}'
+            clone: true
+            update: true
+            force: true
+
+        - name: Build and install yay
+          become: false
+          ansible.builtin.command:
+            chdir: '{{ yay_dir }}'
+            cmd: makepkg --syncdeps --install --force --noconfirm
+            creates: /usr/bin/yay
+
+    - name: Verify yay installation
+      become: true
+      ansible.builtin.command: yay --version
+      register: function_yay_yay_version_check
+      changed_when: false
+      failed_when: false
+      when: not function_yay_yay_exists.stat.exists
 
     - name: 'Add `{{ passwordless_sudo_user }}` user to sudoers enabling passwordless `sudo {{ passwordless_sudo_program }}`'
       become: true
@@ -58,48 +105,7 @@
         mode: '0440'
         state: present
 
-    - name: Ensure `yay` (AUR) pkg manager is installed
-      when: is_yay_installed is failed
-      vars:
-        yay_dir: /tmp/yay-bin/
-      block:
 
-        - name: Ensure yay deps are installed
-          become: true
-          ansible.builtin.package:
-            name:
-              - git
-              - base-devel
-            state: present
-
-        - name: Remove existing yay directory
-          become: true
-          ansible.builtin.file:
-            path: '{{ yay_dir }}'
-            state: absent
-
-        - name: Create git dir
-          become: false
-          ansible.builtin.file:
-            path: '{{ yay_dir }}'
-            state: directory
-            mode: '0755'
-
-        - name: Clone yay repo
-          become: false
-          ansible.builtin.git:
-            repo: https://aur.archlinux.org/yay-bin.git
-            dest: '{{ yay_dir }}'
-            clone: true
-            update: true
-            force: true
-
-        - name: Install yay
-          become: false
-          ansible.builtin.command:
-            chdir: '{{ yay_dir }}'
-            cmd: makepkg --syncdeps --install --force --noconfirm
-            creates: /usr/bin/yay
 
     - name: 'When package is absent'
       when: '"absent" in aur_packages_state'
@@ -114,6 +120,10 @@
         name:
           - '{{ item }}'
         state: '{{ aur_packages_state }}'
+      register: function_yay_aur_install_result
+      until: function_yay_aur_install_result is succeeded
+      retries: 3
+      delay: 3 # in seconds
       loop: '{{ aur_packages }}'
 
   # Always removes this temp security hole even with a previous failure

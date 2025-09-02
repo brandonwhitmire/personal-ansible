@@ -205,6 +205,9 @@ for_window [class="Galculator"] floating enable, border pixel 1
 for_window [class="Pavucontrol"] floating enable
 for_window [title="Unlock Database - KeePassXC"] floating enable
 
+# Make KeePassXC spawn in scratchpad by default
+for_window [class="KeePassXC"] move to scratchpad
+
 # switch to workspace with urgent window automatically
 for_window [urgent=latest] focus
 
@@ -227,14 +230,15 @@ mode "resize" {
 }
 
 # Gaps mode
-set $mode_gaps "Gaps: (o) outer, (i) inner"
-bindsym $mod+Shift+g mode "$mode_gaps"
-mode "$mode_gaps" {
+bindsym $mod+Shift+g mode "gaps"
+
+mode "gaps" {
     bindsym o mode "gaps_outer"
     bindsym i mode "gaps_inner"
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
+
 mode "gaps_outer" {
     bindsym plus gaps outer current plus 5
     bindsym minus gaps outer current minus 5
@@ -245,6 +249,7 @@ mode "gaps_outer" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
+
 mode "gaps_inner" {
     bindsym plus gaps inner current plus 5
     bindsym minus gaps inner current minus 5

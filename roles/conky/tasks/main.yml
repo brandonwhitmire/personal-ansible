@@ -1,4 +1,3 @@
-# moved from playbooks/conky.yml on 2024-12-19
 ---
 - name: Install conky
   become: true
@@ -21,3 +20,6 @@
     src: files/conky_theme
     dest: '{{ conky_theme_dir }}'
     mode: '0644'
+
+
+

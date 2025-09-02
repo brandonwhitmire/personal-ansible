@@ -1,4 +1,3 @@
-# moved from playbooks/keepassxc.yml on 2024-12-19
 ---
 - name: Install browser
   become: true
@@ -59,3 +58,6 @@
     mode: '0644'
     create: true
     state: present
+
+
+

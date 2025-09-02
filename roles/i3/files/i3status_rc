@@ -1,0 +1,39 @@
+general {
+        colors = true
+        interval = 5
+}
+
+order += "ipv6"
+order += "disk /"
+order += "wireless _first_"
+order += "cpu_usage"
+order += "memory"
+order += "load"
+order += "tztime local"
+
+cpu_usage {
+        format = " %usage%%"
+}
+
+memory {
+        format = " %used_g G / %total_g G"
+        threshold_degraded = "1G"
+        format_degraded = "MEMORY < %available"
+}
+
+disk "/" {
+        format = " %avail GB"
+}
+
+wireless "_first_" {
+        format_up = " %essid (%quality) | IP: %ip"
+        format_down = "W: down"
+}
+
+load {
+        format = " %1min"
+}
+
+tztime local {
+        format = " %Y-%-m-%d %H:%M:%S"
+}

@@ -1,4 +1,3 @@
-# moved from playbooks/shell_arch.yml on 2024-12-19
 ---
 shell_default_browser_name: firefox
 shell_default_browser_fullpath: '/usr/bin/{{ shell_default_browser_name }}'

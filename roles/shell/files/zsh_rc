@@ -1,8 +1,5 @@
-# TODO: fix vpn and magnet commands
-
-# Set Spaceship ZSH as a prompt
-autoload -U promptinit ; promptinit
-prompt spaceship
+# Set Starship ZSH as a prompt
+eval "$(starship init zsh)"
 
 # --- Powerline Fonts
 
@@ -132,7 +129,7 @@ iso_burn () {
         bs=32M \
         conv=fsync \
         oflag=direct \
-        status=progress
+        status=progress \
         if="${1}" \
         of="${2}"
 }
@@ -432,83 +429,6 @@ BREAKLINE () {
 
     printf "$CHAR%.0s" {1..80} ; echo
 }
-# Download magnets
-download () {
-	# NOTE: This IP address is known to change
-	# and is currently ca1.ovpn
-	MAGNET_VPN="209.58.135.120"
-
-	# Keep .zhistory clean of downloads
-	clean_histfile "download"
-	unset HISTFILE
-	echo "HISTFILE (should be blank b/t quotes): \"$HISTFILE\""
-	
-	# Clean previous history from commands in case of error
-	CLEANS=(
-		".*download .*"
-		".*magnet:\?.*"
-		".*\?xt.*"
-		".*transmission.*"
-		"^\s*$"
-	)
-	for CLEAN in $CLEANS ; do
-		sed --in-place "s#$CLEAN##g" ~/.zhistory
-	done
-
-	# Requires magnet link (MUST be quoted!)
-	if [[ -z "$1" ]] ; then
-		echo "Please supply magnet"
-		exit 1
-	fi
-
-	# Naive check to make sure on desired VPN	
-    # TODO: make this more robust
-	if [[ $(hazip) == "$MAGNET_VPN" ]] ; then
-		echo "Already on proper VPN..."
-	else
-		echo "STARTING proper VPN..."
-		~/scripts/openvpn_configs/1_run_openvpn.sh ~/scripts/openvpn_configs/ca1.ovpn
-	fi
-
-	# Start transmission-daemon server if not running
-	if ! pgrep "transmission-da*" ; then
-		# Download and update blocklists
-		BLOCKS=(
-			"https://github.com/sahsu/transmission-blocklist/releases/latest/download/blocklist.gz"
-			"https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz"
-		)
-		pushd ~/.config/transmission-daemon/blocklists > /dev/null
-			"rm" --verbose --force *blocklist*
-			for BLOCK in $BLOCKS ; do
-				wget --no-verbose "$BLOCK"	
-			done
-			gunzip --decompress *.gz
-			for FILE in *blocklist* ; do
-				mv $FILE $FILE.bin
-			done
-		popd > /dev/null 2>&1
-
-		echo "Starting transmission-daemon..."
-		transmission-daemon
-		sleep 4
-		echo "Updating blocklists..."
-		transmission-remote --blocklist-update
-	else
-		echo "transmission-daemon already running..."
-	fi
-
-	# Add and watch downloads
-	MAGNET=$(python3 -c "import urllib.parse;print(urllib.parse.unquote_plus('$1', encoding='utf-8'))" | grep --only-matching "magnet.*")
-	echo -e "MAGNET:\t$MAGNET"
-	transmission-remote --add "$MAGNET"
-	sleep 1
-	watch --differences --interval 2 'transmission-remote -l'
-	echo -e "\nREMOVE TORRENTS:\n\n\ttransmission-remote -tall --remove"	
-}
-vpn () {
-	echo "STARTING proper VPN..."
-	~/scripts/openvpn_configs/1_run_openvpn.sh
-}
 # Search with locate
 search () {
 	echo -e "Don't forget to update:\n\tsudo updatedb"
@@ -520,19 +440,6 @@ clean_histfile () {
 	echo "Cleaning regex \"$1\" out of history: $HISTFILE"
 	sed --in-place "/^.*$1.*$/d" "$HISTFILE"
 }
-# Find LAN printer
-search_printer () {
-	# https://askubuntu.com/questions/643584/how-do-i-get-ip-of-installed-network-printer
-
-	# Enable avahi-daemon service to use program
-	# sudo systemctl enable --now avahi-daemon.service
-	# avahi-browse -t -d local -c -a --resolve | sed -n '/^=.*Printer/,/txt =/p'
-	avahi-browse --all --terminate --resolve | grep --after-context=2 "$PRINTER" | grep "address" | uniq | grep --only-matching --extended-regexp "([0-9]{1,3}\.){3}[0-9]{1,3}"
-
-	# Discover network printers using Bonjour
-	# lpinfo --include-schemes dnssd -v
-	# snmpwalk -Cc -v 1 -c public <IP_ADDR>
-}
 # Python3 pprint a file (e.g. JSON)
 pprint () {
 	if [[ -z "$1" ]] ; then
@@ -541,7 +448,6 @@ pprint () {
 	fi
 	echo -e "import pprint\nwith open('$1', 'rt') as file_obj: pprint.pprint(file_obj.readlines())" | python3
 }
-
 # Force screen on ; wait ; screen off
 # NOTE: wake screen via keyboard or mouse
 screen_off () {
@@ -550,7 +456,6 @@ screen_off () {
 	sleep "$SLEEP_TIME"
 	xset dpms force off
 }
-
 # Set/Fix monitor displays
 # For extended displays, run like: "set_displays"
 # For duplicated displays, run like: "set_displays asdfasdf"

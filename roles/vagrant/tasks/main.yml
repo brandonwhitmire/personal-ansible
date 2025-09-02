@@ -24,12 +24,14 @@
       - dmidecode
     state: present
 
-    #    - name: Install needed pip3 pkgs
-    #      ansible.builtin.pip:
-    #        extra_args: --break-system-packages
-    #        name:
-    #          - paramiko  # SSH-like library used for dynamic inventory
-    #
+- name: Add '{{ ansible_user }}' to libvirt group
+  become: true
+  ansible.builtin.user:
+    name: '{{ ansible_user }}'
+    groups: libvirt
+    append: true
+    state: present
+
 - name: Enable libvirtd service
   become: true
   ansible.builtin.service:
@@ -62,29 +64,18 @@
     enabled: true
     state: restarted
 
-- name: Check if libvirt plugin is installed
-  ansible.builtin.command:
-    cmd: vagrant plugin list
-  register: output_vagrant_plugin_list
-  changed_when: output_vagrant_plugin_list.rc != 0
+- name: Check for already installed Vagrant plugins
+  ansible.builtin.command: vagrant plugin list
+  register: vagrant_installed_plugins
+  changed_when: false
+  failed_when: false
 
-- name: Show Vagrant plugin list
-  ansible.builtin.debug:
-    msg:
-      - "=== START  :: vagrant plugin list output ==="
-      - "{{ output_vagrant_plugin_list.stdout }}"
-      - "=== END    :: vagrant plugin list output ==="
-
-- name: Install libvirt plugin for Vagrant, if absent
-  ignore_errors: true  # NOTE: currently broken
-  when: output_vagrant_plugin_list.stdout is not regex(".*vagrant-libvirt.*")
-  ansible.builtin.command:
-    cmd: vagrant plugin install vagrant-libvirt
-
-- name: Add '{{ ansible_user }}' to libvirt group
-  become: true
-  ansible.builtin.user:
-    name: '{{ ansible_user }}'
-    groups: libvirt
-    append: true
-    state: present
+- name: Ensure required Vagrant plugins are installed
+  ansible.builtin.command: vagrant plugin install {{ item }}
+  loop:
+    - vagrant-libvirt
+    - vagrant-dns
+    - vagrant-scp
+  when: item not in vagrant_installed_plugins.stdout
+  loop_control:
+    label: "{{ item }}"

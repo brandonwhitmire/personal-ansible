@@ -15,9 +15,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.compatibility_mode = "2.0"
     ansible.become = true
-    ansible.verbose = "v"
-    #ansible.inventory_path = "inventory.ini"
     ansible.become_user = "root"
+    #ansible.inventory_path = "inventory.ini"
     ansible.playbook = "site.yml"
+    ansible.verbose = false
   end
 end

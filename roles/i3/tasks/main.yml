@@ -43,6 +43,7 @@
     state: present
 
 - name: Startx i3 upon (auto)login
+  become: false
   ansible.builtin.blockinfile:
     path: ~/.xinitrc
     marker: "# {mark} .xinitrc"
@@ -54,25 +55,44 @@
     state: present
 
 - name: Ensure i3 config dir is present
+  become: false
   ansible.builtin.file:
     path: ~/.config/i3/
     state: directory
     mode: '0755'
 
 - name: Copy default i3 file to `{{ ansible_user }}` profile
+  become: false
   ansible.builtin.copy:
     force: true
     src: files/i3_rc
     dest: ~/.config/i3/config
     mode: '0644'
 
+- name: Ensure i3status config directory exists
+  become: false
+  ansible.builtin.file:
+    path: ~/.config/i3status/
+    state: directory
+    mode: '0755'
+
+- name: Copy i3status config file
+  become: false
+  ansible.builtin.copy:
+    force: true
+    src: files/i3status_rc
+    dest: ~/.config/i3status/config
+    mode: '0644'
+
 - name: Ensure i3 scripts directory exists
+  become: false
   ansible.builtin.file:
     path: ~/.config/i3/scripts/
     state: directory
     mode: '0755'
 
 - name: Copy i3 scripts
+  become: false
   ansible.builtin.copy:
     force: true
     src: "files/{{ item }}"
@@ -98,3 +118,16 @@
     dest: /usr/local/bin/
     checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
     mode: '0755'
+
+# Validate i3 configuration syntax
+- name: Verify i3 configuration syntax
+  become: false
+  ansible.builtin.command: i3-config-parser -c ~/.config/i3/config
+  changed_when: false
+  failed_when: false
+  register: i3_config_validation
+
+- name: Display i3 configuration validation result
+  ansible.builtin.debug:
+    msg: "i3 config validation: {{ 'PASSED' if i3_config_validation.rc == 0 else 'FAILED - Check syntax' }}"
+  when: i3_config_validation is defined
