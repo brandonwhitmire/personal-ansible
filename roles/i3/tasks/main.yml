@@ -3,15 +3,12 @@
 #
 # Boot Sequence:
 # systemd boot -> agetty (autologin into user) -> zsh (sources .zshrc) -> startx (sources .xinitrc) -> i3
+#
 - name: Install i3 pkgs
   become: true
   ansible.builtin.package:
     name:
-      - i3
-        #          - i3lock  # screenlocker
-        #          - i3-gaps  # tiling window manager
-        #          - i3blocks  # feed generator for status bar
-        #          - i3status  # i3 status bar
+      - i3  # metapackage of various i3 packages
       - dunst  # system notifications
     state: present
 
@@ -68,6 +65,7 @@
     src: files/i3_rc
     dest: ~/.config/i3/config
     mode: '0644'
+  register: i3_config_changed
 
 - name: Ensure i3status config directory exists
   become: false
@@ -83,6 +81,7 @@
     src: files/i3status_rc
     dest: ~/.config/i3status/config
     mode: '0644'
+  register: i3_config_changed
 
 - name: Ensure i3 scripts directory exists
   become: false
@@ -101,11 +100,12 @@
   loop:
     - powermenu.sh
     - autostart.sh
+  register: i3_config_changed
 
 - name: Install AUR pkgs
   vars:
     aur_packages:
-      - dmenu2  # keyboard-driven program launcher
+      - dmenu2  # keyboard-driven app launcher
       - pa-applet-git  # applet for PulseAudio
   ansible.builtin.import_role:
     name: function_yay
@@ -123,11 +123,10 @@
 - name: Verify i3 configuration syntax
   become: false
   ansible.builtin.command: i3-config-parser -c ~/.config/i3/config
-  changed_when: false
-  failed_when: false
-  register: i3_config_validation
+  when: i3_config_changed is defined and i3_config_changed.changed
 
-- name: Display i3 configuration validation result
-  ansible.builtin.debug:
-    msg: "i3 config validation: {{ 'PASSED' if i3_config_validation.rc == 0 else 'FAILED - Check syntax' }}"
-  when: i3_config_validation is defined
+- name: Reload i3 configuration
+  become: false
+  ansible.builtin.command: i3-msg reload
+  changed_when: false
+  when: i3_config_changed is defined and i3_config_changed.changed

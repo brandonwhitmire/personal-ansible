@@ -58,8 +58,8 @@ bindsym $mod+z exec --no-startup-id $menu
 bindsym $mod+Shift+m exec pavucontrol
 
 # Screen brightness controls
-bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'Brightness Up' \"$(xbacklight -get)%\""
-bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'Brightness Down' \"$(xbacklight -get)%\""
+bindsym XF86MonBrightnessUp exec "brightnessctl set +10%; notify-send 'Brightness Up' \"$(brightnessctl get)%\""
+bindsym XF86MonBrightnessDown exec "brightnessctl set 10%-; notify-send 'Brightness Down' \"$(brightnessctl get)%\""
 
 # Start Applications
 bindsym $mod+Ctrl+b exec $terminal -e /usr/bin/bmenu

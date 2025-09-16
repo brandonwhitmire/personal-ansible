@@ -3,23 +3,25 @@
 
 set -euo pipefail
 
-ANSIBLE_BASE_DIR="/etc/ansible"
-ANSIBLE_CONFIG="ansible.cfg"
+# --- Configuration Variables ---
+ANSIBLE_BASE_DIR="$(pwd)"
 ANSIBLE_INVENTORY="hosts"
 ANSIBLE_VAULT_PASS_FILE=".vault_pass"
-ANSIBLE_GROUP_VARS="playbooks/group_vars"
+ANSIBLE_GROUP_VARS="group_vars"
 ANSIBLE_GROUP_VARS_FILE="${ANSIBLE_GROUP_VARS}/all"
 
 DELETE=false
 VAULT_PASS_LENGTH=50
 
+# --- Functions ---
 usage() {
     echo "Usage: $0 [-d] [-l LENGTH]"
-    echo "  -d            Re-prompt and overwrite all configuration files"
-    echo "  -l LENGTH     Length of random generated vault password (default 50)"
+    echo "  -d            Force re-prompting and overwrite all configuration files."
+    echo "  -l LENGTH     Length of random generated vault password (default: 50)."
     exit 1
 }
 
+# --- Argument Parsing ---
 while getopts "dl:" opt; do
     case $opt in
         d) DELETE=true ;;
@@ -28,13 +30,15 @@ while getopts "dl:" opt; do
     esac
 done
 
-echo "Running $0 to collect connection info for Ansible targets..."
+echo "Running Ansible setup script..."
+echo "------------------------------------"
 
-# --- inventory ---
+# --- Inventory Setup ---
 if $DELETE || [ ! -f "$ANSIBLE_INVENTORY" ]; then
+    echo "[*] Inventory file not found or refresh forced. Prompting for new inventory."
     read -rp "Enter default user to SSH as: " ansible_user
-    echo
-    read -rp "Enter comma-separated list of host(s) (with optional SSH port), e.g. 192.168.1.123:2222,192.168.1.125: " ansible_inventory
+    echo "Enter comma-separated list of host(s) (with optional SSH port), e.g. 192.168.1.123:2222,192.168.1.125:"
+    read -rp "Enter inventory: " ansible_inventory
     echo
 
     INVENTORY_TO_WRITE=""
@@ -44,38 +48,79 @@ if $DELETE || [ ! -f "$ANSIBLE_INVENTORY" ]; then
         port="${socket##*:}"
         if [ "$ip" = "$port" ]; then
             port=22
-            echo "  [i] Using default SSH port for $ip..."
         fi
 
-        # validate IP address using `ip route get`
-        if ip route get "$ip" &>/dev/null; then
-            INVENTORY_TO_WRITE+="$ip:$port ansible_user=$ansible_user"$'\n'
+        if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            IFS='.' read -ra OCTETS <<< "$ip"
+            valid_ip=true
+            for octet in "${OCTETS[@]}"; do
+                if [[ $octet -gt 255 ]]; then
+                    valid_ip=false
+                    break
+                fi
+            done
+            
+            if $valid_ip; then
+                INVENTORY_TO_WRITE+="$ip ansible_port=$port ansible_user=$ansible_user"$'\n'
+                echo "  [✓] Added $ip:$port to inventory"
+            else
+                echo "  [E] Invalid IP address (octet > 255): $ip"
+            fi
         else
-            echo "  [E] Ignoring malformed IP: $ip"
+            echo "  [E] Invalid IP address format: $ip"
         fi
     done
-    echo -n "$INVENTORY_TO_WRITE" > "$ANSIBLE_INVENTORY"
+    
+    if echo -e "$INVENTORY_TO_WRITE" > "$ANSIBLE_INVENTORY"; then
+        echo "  [✓] Inventory file '$ANSIBLE_INVENTORY' created successfully."
+    else
+        echo "  [E] Failed to create inventory file."
+        exit 1
+    fi
     echo
+else
+    echo "[*] Inventory file '$ANSIBLE_INVENTORY' already exists. Skipping."
 fi
 
-# --- vault password ---
-if $DELETE || [ ! -f "$ANSIBLE_VAULT_PASS_FILE" ]; then
-    tr -dc '[:alnum:][:punct:]' < /dev/urandom | head -c "$VAULT_PASS_LENGTH" > "$ANSIBLE_VAULT_PASS_FILE"
-    chmod 600 "$ANSIBLE_VAULT_PASS_FILE"
+REGENERATE_SECRETS=false
+if $DELETE || [ ! -f "$ANSIBLE_VAULT_PASS_FILE" ] || [ ! -f "$ANSIBLE_GROUP_VARS_FILE" ]; then
+    REGENERATE_SECRETS=true
+    echo "[*] Secrets refresh required (forced, or vault/vars file missing)."
+    rm -f "$ANSIBLE_VAULT_PASS_FILE" "$ANSIBLE_GROUP_VARS_FILE"
 fi
 
-# --- group_vars ---
-if $DELETE || [ ! -d "$ANSIBLE_GROUP_VARS" ]; then
+if $REGENERATE_SECRETS; then
+    echo "  [-] Generating new vault password file..."
+    (
+        set +o pipefail
+        tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c "$VAULT_PASS_LENGTH" > "$ANSIBLE_VAULT_PASS_FILE"
+    )
+    if [ -s "$ANSIBLE_VAULT_PASS_FILE" ]; then
+        chmod 600 "$ANSIBLE_VAULT_PASS_FILE"
+        echo "  [✓] Vault password file created successfully."
+    else
+        echo "  [E] Failed to create vault password file."
+        exit 1
+    fi
+    echo
+
+    echo "  [-] Generating new encrypted group_vars file..."
     mkdir -p "$ANSIBLE_GROUP_VARS"
-fi
 
-if $DELETE || [ ! -f "$ANSIBLE_GROUP_VARS_FILE" ]; then
-    read -srp "Enter default password to SSH with: " ansible_ssh_password
+    read -srp "Enter the SSH password for the remote hosts (will be encrypted): " ansible_ssh_password
     echo
     {
         ansible-vault encrypt_string --vault-password-file "$ANSIBLE_VAULT_PASS_FILE" \
-            --name "ansible_ssh_password" "$ansible_ssh_password"
+            --encrypt-vault-id default \
+            "$ansible_ssh_password" --name "ansible_ssh_password"
         echo "ansible_become_pass: '{{ ansible_ssh_password }}'"
     } > "$ANSIBLE_GROUP_VARS_FILE"
+    
+    echo "  [✓] Encrypted group_vars file '$ANSIBLE_GROUP_VARS_FILE' created successfully."
     echo
+else
+    echo "[*] Vault password and group_vars files already exist and are in sync. Skipping."
 fi
+
+echo "------------------------------------"
+echo "[✓] Setup completed successfully!"

@@ -18,31 +18,49 @@
 
 - name: Check system update status and perform if needed
   block:
-    - name: Check the timestamp of the last pacman sync
+    - name: Check if system was recently updated (within last hour)
       become: true
       ansible.builtin.stat:
-        path: /var/lib/pacman/sync/core.db
-      register: baseline_pacman_sync_db_stat
+        path: /var/log/pacman.log
+      register: pacman_log_stat
 
-    - name: Set update needed flag
-      ansible.builtin.set_fact:
-        baseline_update_needed: "{{ not baseline_pacman_sync_db_stat.stat.exists or (ansible_facts.date_time.epoch | int - baseline_pacman_sync_db_stat.stat.mtime | int > 3600) }}"
-      when: not baseline_pacman_sync_db_stat.stat.exists or (ansible_facts.date_time.epoch | int - baseline_pacman_sync_db_stat.stat.mtime | int > 3600)
+    - name: Get last system update time from pacman log
+      become: true
+      ansible.builtin.shell: |
+        if [ -f /var/log/pacman.log ]; then
+          # Get the last line that contains "starting full system upgrade" or "upgraded"
+          last_upgrade=$(grep -E "(starting full system upgrade|upgraded)" /var/log/pacman.log | tail -1)
+          if [ -n "$last_upgrade" ]; then
+            # Extract timestamp and convert to epoch
+            timestamp=$(echo "$last_upgrade" | awk '{print $1, $2}' | sed 's/\[//;s/\]//')
+            date -d "$timestamp" +%s 2>/dev/null || echo "0"
+          else
+            echo "0"
+          fi
+        else
+          echo "0"
+        fi
+      register: last_upgrade_epoch
+      changed_when: false
 
-    - name: Set update not needed flag
+    - name: Calculate time since last update
       ansible.builtin.set_fact:
-        baseline_update_needed: false
-      when: baseline_pacman_sync_db_stat.stat.exists and (ansible_facts.date_time.epoch | int - baseline_pacman_sync_db_stat.stat.mtime | int <= 3600)
+        time_since_update: "{{ ansible_facts.date_time.epoch | int - (last_upgrade_epoch.stdout | int) }}"
+
+    - name: Set update needed flag based on time since last update
+      ansible.builtin.set_fact:
+        baseline_update_needed: "{{ time_since_update > 3600 }}"
 
     - name: Debug update status
       ansible.builtin.debug:
-        msg: "System update {{ 'needed' if baseline_update_needed else 'not needed' }} (last sync: {{ baseline_pacman_sync_db_stat.stat.mtime | default('never') }})"
+        msg: "System update {{ 'needed' if baseline_update_needed else 'not needed' }} ({{ time_since_update }} seconds since last update)"
 
     - name: Upgrade system
       become: true
       ansible.builtin.package:
         update_cache: true
         upgrade: true
+      register: upgrade_result
       when: baseline_update_needed
 
     - name: Reboot the VM
@@ -52,7 +70,14 @@
         connect_timeout: 60
         post_reboot_delay: 15
         test_command: uptime
-      when: baseline_update_needed
+      when: baseline_update_needed and upgrade_result is defined and upgrade_result.changed
+
+- name: Remove conflicting acpilight package if present
+  become: true
+  ansible.builtin.package:
+    name: acpilight
+    state: absent
+  ignore_errors: true
 
 - name: Install baseline pkgs
   become: true

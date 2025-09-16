@@ -513,6 +513,9 @@ source /usr/share/fzf/completion.zsh
 export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
 export PATH="$PATH:$GEM_HOME/bin"
 
+# SSH Agent
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket
+
 # Disable Touchpad by default
 #synclient TouchpadOff=1
 
