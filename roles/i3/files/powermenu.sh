@@ -8,27 +8,27 @@
 LAUNCHER="dmenu -i -p Power"
 
 # Options to display in the menu
-# Using Nerd Font icons for a nicer look
-OPTIONS=" Lock\n Suspend\n Logout\n Reboot\n Shutdown"
+# Using standard Unicode emojis for universal compatibility
+OPTIONS="🔒 Lock\n😴 Suspend\n🚪 Logout\n🔄 Reboot\n⏻ Shutdown"
 
 # Get the user's choice
 CHOSEN=$(echo -e "$OPTIONS" | $LAUNCHER)
 
 # Execute the corresponding command
 case "$CHOSEN" in
-    " Lock")
+    "🔒 Lock")
         i3lock --ignore-empty-password --color=444444
         ;;
-    " Suspend")
+    "😴 Suspend")
         systemctl suspend
         ;;
-    " Logout")
+    "🚪 Logout")
         i3-msg exit
         ;;
-    " Reboot")
+    "🔄 Reboot")
         systemctl reboot
         ;;
-    " Shutdown")
+    "⏻ Shutdown")
         systemctl poweroff -i
         ;;
 esac

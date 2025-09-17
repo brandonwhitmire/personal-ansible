@@ -19,13 +19,13 @@ source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring
 function command_not_found_handler {
     [[ -e '/var/lib/pacman/sync/core.files' ]] || sudo pacman -F --refresh  # update database cache if missing
     local purple='\e[1;35m' bright='\e[0;1m' green='\e[1;32m' reset='\e[0m'
-    printf 'zsh: command not found: %s\n' "$1"
+    printf '❌ zsh: command not found: %s\n' "$1"
     local entries=(
         ${(f)"$(/usr/bin/pacman -F --machinereadable -- "/usr/bin/$1")"}
     )
     if (( ${#entries[@]} ))
     then
-        printf "${bright}$1${reset} may be found in the following packages:\n"
+        printf "💡 ${bright}$1${reset} may be found in the following packages:\n"
         local pkg
         for entry in "${entries[@]}"
         do
@@ -514,7 +514,7 @@ export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
 export PATH="$PATH:$GEM_HOME/bin"
 
 # SSH Agent
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
 # Disable Touchpad by default
 #synclient TouchpadOff=1

@@ -115,6 +115,13 @@
         direction: in
         from_ip: '::/0'
 
+    - name: Check if virbr1 to wlan0 forwarding rule exists in UFW config
+      become: true
+      ansible.builtin.command: ufw status numbered | grep -q "virbr1.*wlan0"
+      register: arch_recommendations_virbr1_wlan0_rule
+      failed_when: false
+      changed_when: false
+
     - name: Set firewall rules - Forward traffic from virbr1 to wlan0
       become: true
       community.general.ufw:
@@ -123,6 +130,15 @@
         interface_in: virbr1
         interface_out: wlan0
         comment: Forward traffic from virbr1 to wlan0
+        state: enabled
+      when: arch_recommendations_virbr1_wlan0_rule.rc != 0
+
+    - name: Check if wlan0 to virbr1 forwarding rule exists in UFW config
+      become: true
+      ansible.builtin.command: ufw status numbered | grep -q "wlan0.*virbr1"
+      register: arch_recommendations_wlan0_virbr1_rule
+      failed_when: false
+      changed_when: false
 
     - name: Set firewall rules - Forward traffic from wlan0 to virbr1
       become: true
@@ -132,6 +148,15 @@
         interface_in: wlan0
         interface_out: virbr1
         comment: Forward traffic from wlan0 to virbr1
+        state: enabled
+      when: arch_recommendations_wlan0_virbr1_rule.rc != 0
+
+    - name: Check if virbr1 to wlan0 IPv6 forwarding rule exists in UFW config
+      become: true
+      ansible.builtin.command: ufw status numbered | grep -q "virbr1.*wlan0.*::/0"
+      register: arch_recommendations_virbr1_wlan0_ipv6_rule
+      failed_when: false
+      changed_when: false
 
     - name: Set firewall rules - Forward traffic from virbr1 to wlan0 (IPv6)
       become: true
@@ -142,6 +167,15 @@
         interface_out: wlan0
         comment: Forward traffic from virbr1 to wlan0 (IPv6)
         from_ip: '::/0'
+        state: enabled
+      when: arch_recommendations_virbr1_wlan0_ipv6_rule.rc != 0
+
+    - name: Check if wlan0 to virbr1 IPv6 forwarding rule exists in UFW config
+      become: true
+      ansible.builtin.command: ufw status numbered | grep -q "wlan0.*virbr1.*::/0"
+      register: arch_recommendations_wlan0_virbr1_ipv6_rule
+      failed_when: false
+      changed_when: false
 
     - name: Set firewall rules - Forward traffic from wlan0 to virbr1 (IPv6)
       become: true
@@ -152,6 +186,8 @@
         interface_out: virbr1
         comment: Forward traffic from wlan0 to virbr1 (IPv6)
         from_ip: '::/0'
+        state: enabled
+      when: arch_recommendations_wlan0_virbr1_ipv6_rule.rc != 0
 
     # https://wiki.archlinux.org/title/OpenSSH#Deny
     - name: Prevent SSH root login

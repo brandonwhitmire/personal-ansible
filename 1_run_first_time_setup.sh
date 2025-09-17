@@ -30,8 +30,6 @@ while getopts "dl:" opt; do
     esac
 done
 
-echo "Running Ansible setup script..."
-echo "------------------------------------"
 
 # --- Inventory Setup ---
 if $DELETE || [ ! -f "$ANSIBLE_INVENTORY" ]; then
@@ -62,49 +60,32 @@ if $DELETE || [ ! -f "$ANSIBLE_INVENTORY" ]; then
             
             if $valid_ip; then
                 INVENTORY_TO_WRITE+="$ip ansible_port=$port ansible_user=$ansible_user"$'\n'
-                echo "  [✓] Added $ip:$port to inventory"
-            else
-                echo "  [E] Invalid IP address (octet > 255): $ip"
             fi
-        else
-            echo "  [E] Invalid IP address format: $ip"
-        fi
     done
     
-    if echo -e "$INVENTORY_TO_WRITE" > "$ANSIBLE_INVENTORY"; then
-        echo "  [✓] Inventory file '$ANSIBLE_INVENTORY' created successfully."
-    else
+    if ! echo -e "$INVENTORY_TO_WRITE" > "$ANSIBLE_INVENTORY"; then
         echo "  [E] Failed to create inventory file."
         exit 1
     fi
-    echo
-else
-    echo "[*] Inventory file '$ANSIBLE_INVENTORY' already exists. Skipping."
 fi
 
 REGENERATE_SECRETS=false
 if $DELETE || [ ! -f "$ANSIBLE_VAULT_PASS_FILE" ] || [ ! -f "$ANSIBLE_GROUP_VARS_FILE" ]; then
     REGENERATE_SECRETS=true
-    echo "[*] Secrets refresh required (forced, or vault/vars file missing)."
     rm -f "$ANSIBLE_VAULT_PASS_FILE" "$ANSIBLE_GROUP_VARS_FILE"
 fi
 
 if $REGENERATE_SECRETS; then
-    echo "  [-] Generating new vault password file..."
     (
         set +o pipefail
         tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c "$VAULT_PASS_LENGTH" > "$ANSIBLE_VAULT_PASS_FILE"
     )
-    if [ -s "$ANSIBLE_VAULT_PASS_FILE" ]; then
-        chmod 600 "$ANSIBLE_VAULT_PASS_FILE"
-        echo "  [✓] Vault password file created successfully."
-    else
+    if [ ! -s "$ANSIBLE_VAULT_PASS_FILE" ]; then
         echo "  [E] Failed to create vault password file."
         exit 1
     fi
-    echo
+    chmod 600 "$ANSIBLE_VAULT_PASS_FILE"
 
-    echo "  [-] Generating new encrypted group_vars file..."
     mkdir -p "$ANSIBLE_GROUP_VARS"
 
     read -srp "Enter the SSH password for the remote hosts (will be encrypted): " ansible_ssh_password
@@ -115,12 +96,5 @@ if $REGENERATE_SECRETS; then
             "$ansible_ssh_password" --name "ansible_ssh_password"
         echo "ansible_become_pass: '{{ ansible_ssh_password }}'"
     } > "$ANSIBLE_GROUP_VARS_FILE"
-    
-    echo "  [✓] Encrypted group_vars file '$ANSIBLE_GROUP_VARS_FILE' created successfully."
-    echo
-else
-    echo "[*] Vault password and group_vars files already exist and are in sync. Skipping."
 fi
-
-echo "------------------------------------"
 echo "[✓] Setup completed successfully!"

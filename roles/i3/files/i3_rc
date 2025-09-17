@@ -58,20 +58,20 @@ bindsym $mod+z exec --no-startup-id $menu
 bindsym $mod+Shift+m exec pavucontrol
 
 # Screen brightness controls
-bindsym XF86MonBrightnessUp exec "brightnessctl set +10%; notify-send 'Brightness Up' \"$(brightnessctl get)%\""
-bindsym XF86MonBrightnessDown exec "brightnessctl set 10%-; notify-send 'Brightness Down' \"$(brightnessctl get)%\""
+bindsym XF86MonBrightnessUp exec brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
 
 # Start Applications
 bindsym $mod+Ctrl+b exec $terminal -e /usr/bin/bmenu
 bindsym $mod+F1 exec /usr/bin/galculator
-bindsym $mod+F2 exec "notify-send --expire-time 10000 'Launching Web Browser' ; /usr/bin/librewolf"
+bindsym $mod+F2 exec "notify-send --expire-time 10000 '🌐 Launching Web Browser' ; /usr/bin/firefox"
 bindsym $mod+F3 exec --no-startup-id /usr/bin/pcmanfm
-bindsym $mod+F4 exec "notify-send --expire-time 10000 'KeePassXC Launched (in scratchpad)' ; /usr/bin/keepassxc"
+bindsym $mod+F4 exec "notify-send --expire-time 10000 '🔐 KeePassXC Launched (in scratchpad)' ; /usr/bin/keepassxc"
 bindsym $mod+F5 exec /usr/bin/virtualbox
 
 # Screenshots
-bindsym $mod+Print --release exec --no-startup-id flameshot screen
-bindsym $mod+Shift+Print --release exec --no-startup-id flameshot gui
+bindsym $mod+Print --release exec --no-startup-id "flameshot screen && notify-send '📸 Screenshot taken'"
+bindsym $mod+Shift+Print --release exec --no-startup-id "flameshot gui && notify-send '📸 Screenshot area selected'"
 
 # Click & Kill Window/Program
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
@@ -149,9 +149,9 @@ set $ws2 "2: "
 set $ws3 "3: "
 set $ws4 "4: "
 set $ws5 "5: "
-set $ws6 "6"
-set $ws7 "7"
-set $ws8 "8"
+set $ws6 "6: "
+set $ws7 "7: "
+set $ws8 "8: "
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
@@ -204,6 +204,7 @@ assign [class="discord"] $ws5
 for_window [class="Galculator"] floating enable, border pixel 1
 for_window [class="Pavucontrol"] floating enable
 for_window [title="Unlock Database - KeePassXC"] floating enable
+for_window [title="Desbloquear base de datos - KeePassXC"] floating enable
 
 # Make KeePassXC spawn in scratchpad by default
 for_window [class="KeePassXC"] move to scratchpad

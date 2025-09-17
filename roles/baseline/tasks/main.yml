@@ -18,21 +18,22 @@
 
 - name: Check system update status and perform if needed
   block:
-    - name: Check if system was recently updated (within last hour)
+    - name: Check if system was recently updated
       become: true
       ansible.builtin.stat:
         path: /var/log/pacman.log
-      register: pacman_log_stat
+      register: baseline_pacman_log_stat
 
     - name: Get last system update time from pacman log
       become: true
       ansible.builtin.shell: |
+        set -o pipefail
         if [ -f /var/log/pacman.log ]; then
           # Get the last line that contains "starting full system upgrade" or "upgraded"
           last_upgrade=$(grep -E "(starting full system upgrade|upgraded)" /var/log/pacman.log | tail -1)
           if [ -n "$last_upgrade" ]; then
-            # Extract timestamp and convert to epoch
-            timestamp=$(echo "$last_upgrade" | awk '{print $1, $2}' | sed 's/\[//;s/\]//')
+            # Extract timestamp from the first field and remove brackets
+            timestamp=$(echo "$last_upgrade" | awk '{print $1}' | sed 's/\[//;s/\]//')
             date -d "$timestamp" +%s 2>/dev/null || echo "0"
           else
             echo "0"
@@ -40,27 +41,27 @@
         else
           echo "0"
         fi
-      register: last_upgrade_epoch
+      register: baseline_last_upgrade_epoch
       changed_when: false
 
     - name: Calculate time since last update
       ansible.builtin.set_fact:
-        time_since_update: "{{ ansible_facts.date_time.epoch | int - (last_upgrade_epoch.stdout | int) }}"
+        baseline_time_since_update: "{{ ansible_facts.date_time.epoch | int - (baseline_last_upgrade_epoch.stdout | int) }}"
 
     - name: Set update needed flag based on time since last update
       ansible.builtin.set_fact:
-        baseline_update_needed: "{{ time_since_update > 3600 }}"
+        baseline_update_needed: "{{ baseline_time_since_update > 86400 }}"  # 24 hrs
 
     - name: Debug update status
       ansible.builtin.debug:
-        msg: "System update {{ 'needed' if baseline_update_needed else 'not needed' }} ({{ time_since_update }} seconds since last update)"
+        msg: "System update {{ 'needed' if baseline_update_needed else 'not needed' }} ({{ baseline_time_since_update }} seconds since last update)"
 
     - name: Upgrade system
       become: true
       ansible.builtin.package:
         update_cache: true
         upgrade: true
-      register: upgrade_result
+      register: baseline_upgrade_result
       when: baseline_update_needed
 
     - name: Reboot the VM
@@ -70,14 +71,16 @@
         connect_timeout: 60
         post_reboot_delay: 15
         test_command: uptime
-      when: baseline_update_needed and upgrade_result is defined and upgrade_result.changed
+      when: baseline_update_needed and baseline_upgrade_result is defined and baseline_upgrade_result.changed
 
-- name: Remove conflicting acpilight package if present
+- name: Remove conflicting acpilight and xorg-xbacklight packages if present
   become: true
   ansible.builtin.package:
-    name: acpilight
+    name:
+      - acpilight
+      - xorg-xbacklight
     state: absent
-  ignore_errors: true
+  failed_when: false
 
 - name: Install baseline pkgs
   become: true
@@ -86,12 +89,30 @@
       - xdg-user-dirs  # common user dirs
       - xorg-xinit  # start GUI
       - xorg-server  # Xorg server
-      - xorg-apps  # Xorg apps
+      # - xorg-apps  # Xorg apps (excluded to avoid xorg-xbacklight conflict)
+      - xorg-xrandr  # display configuration
+      - xorg-xset  # user preference utility
+      - xorg-xsetroot  # root window parameter utility
+      - xorg-xprop  # property displayer
+      - xorg-xdpyinfo  # display information utility
+      - xorg-xwininfo  # window information utility
+      - xorg-xev  # event viewer
+      - xorg-xkill  # kill a client by its X resource
+      - xorg-xlsclients  # list client applications
+      - xorg-xlsfonts  # list fonts
+      - xorg-xmessage  # display a message
+      - xorg-xmodmap  # utility for modifying keymaps
+      - xorg-xrdb  # X server resource database utility
+      - xorg-xrefresh  # refresh all or part of an X screen
+      - xorg-xvinfo  # print out X-Video extension adaptor information
+      - xorg-xwd  # dump an image of an X window
+      - xorg-xwud  # display an X window dump
       - picom  # xorg compositor
       - xterm  # default terminal
       - ttf-bitstream-vera  # serif and mono
       - ttf-dejavu  # Bitstream Vera modified w/more Unicode
       - ttf-croscore  # Helvetica, Times, and Courier
+      - noto-fonts-emoji  # comprehensive emoji support
       - xss-lock  # xorg locker
       - polkit  # privs management
       - dmidecode  # used for checking for virtualization
@@ -136,15 +157,21 @@
       - linux-headers  # Linux kernel headers
     state: present
 
-- name: Enable baseline services
+- name: Enable bluetooth service
   become: true
-  ansible.builtin.service:
-    name: '{{ item }}'
+  ansible.builtin.systemd:
+    name: bluetooth
     enabled: true
     state: started
-  loop:
-    - bluetooth
-    - pkgfile-update
+    daemon_reload: false
+
+- name: Enable and start the pkgfile timer
+  become: true
+  ansible.builtin.systemd:
+    name: pkgfile-update.timer
+    state: started
+    enabled: true
+    daemon_reload: false
 
 - name: Disable bluetooth on boot
   become: true
@@ -202,3 +229,13 @@
     owner: root
     group: root
     state: present
+
+- name: Install font configuration for emoji support
+  become: true
+  ansible.builtin.copy:
+    force: true
+    src: files/fonts.conf
+    dest: /etc/fonts/local.conf
+    mode: '0644'
+    owner: root
+    group: root

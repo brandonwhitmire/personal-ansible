@@ -14,37 +14,37 @@
         exit 0
       fi
     fi
-    
+
     # Check system files for virtualization indicators
     if [ -f /sys/class/dmi/id/product_name ]; then
       if grep --ignore-case --quiet --extended-regexp 'virtualbox|vbox|vmware|qemu|kvm|xen|parallels|hyper-v|bhyve' /sys/class/dmi/id/product_name; then
         exit 0
       fi
     fi
-    
+
     if [ -f /sys/class/dmi/id/sys_vendor ]; then
       if grep --ignore-case --quiet --extended-regexp 'vmware|qemu|kvm|xen|parallels|microsoft|bhyve' /sys/class/dmi/id/sys_vendor; then
         exit 0
       fi
     fi
-    
+
     # Check CPU info for virtualization indicators
     if [ -f /proc/cpuinfo ]; then
       if grep --ignore-case --quiet --extended-regexp 'virtualbox|vbox|vmware|qemu|kvm|xen|parallels|hyper-v|bhyve' /proc/cpuinfo; then
         exit 0
       fi
     fi
-    
+
     # Check for virtualization-specific kernel modules
     if lsmod | grep --quiet --extended-regexp 'vboxguest|vmw_vmci|virtio|kvm|xen'; then
       exit 0
     fi
-    
+
     # Check for virtualization-specific processes
     if pgrep --quiet --extended-regexp 'vboxservice|vmware|qemu|kvm'; then
       exit 0
     fi
-    
+
     # If no virtualization detected, exit with failure
     exit 1
   register: virtualization_is_virtualized
@@ -258,10 +258,20 @@
               - spice-protocol
             state: present
 
+        - name: Check if spice-vdagent service is already running
+          become: true
+          ansible.builtin.systemd:
+            name: spice-vdagentd
+          register: virtualization_spice_vdagent_status
+          changed_when: false
+          failed_when: false
+
         - name: Enable spice-vdagent service
           become: true
-          ansible.builtin.service:
+          ansible.builtin.systemd:
             name: spice-vdagentd
             state: started
             enabled: true
+            daemon_reload: false
+          when: not virtualization_spice_vdagent_status.status.ActiveState == "active"
           failed_when: false

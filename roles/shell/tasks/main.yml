@@ -22,6 +22,8 @@
       - vim  # text editor
       - neovim  # upgraded text editor
       - ttf-jetbrains-mono-nerd  # font
+      - ttf-nerd-fonts-symbols  # additional nerd font symbols
+      - ttf-nerd-fonts-symbols-mono  # monospace nerd font symbols
       - powerline  # font
       - rsync  # (remote) file syncer
       - glxinfo  # GPU info
@@ -96,7 +98,7 @@
   become: true
   ansible.builtin.command:
     cmd: pkgfile --update
-    creates: /var/cache/pkgfile/core.files
+    creates: /var/cache/pkgfile/
 
 - name: Ensure nvim directory exists
   ansible.builtin.file:
@@ -116,11 +118,18 @@
     #     paths: ~/.local/share/nvim/
     #   register: plugin_files
 # Will likely fail if plugins not installed yet
+- name: Check if nvim plugins are already installed
+  ansible.builtin.stat:
+    path: ~/.local/share/nvim/lazy
+  register: shell_nvim_plugins_installed
+  changed_when: false
+
 - name: Install plugins
-  ignore_errors: true
-  # when: plugin_files.matched <= 0
   ansible.builtin.command:
     cmd: nvim --headless '+MasonInstallAll' '+qa'
+  when: not shell_nvim_plugins_installed.stat.exists
+  changed_when: false
+  failed_when: false
 
 - name: Ensure alacritty directory exists
   ansible.builtin.file:
@@ -150,7 +159,7 @@
     owner: root
     group: root
 
-- name: 'Template {{ mimeapps_file }}'
+- name: 'Template {{ shell_mimeapps_file }}'
   ansible.builtin.blockinfile:
     path: '{{ shell_mimeapps_file }}'
     marker: '# {mark} mimeapps_list_config'
@@ -171,4 +180,12 @@
       image/png={{ shell_default_image_viewer }}.desktop
     create: true
     state: present
+    mode: '0644'
+
+- name: Copy starship configuration
+  become: false
+  ansible.builtin.copy:
+    force: true
+    src: files/starship.toml
+    dest: ~/.config/starship.toml
     mode: '0644'

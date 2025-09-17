@@ -41,6 +41,8 @@
         path: /etc/systemd/system/getty@tty1.service.d/
         state: directory
         mode: '0755'
+        owner: root
+        group: root
 
     - name: Keep boot messages on tty1
       become: true
@@ -53,14 +55,6 @@
         block: |
           [Service]
           TTYVTDisallocate=no
-
-# https://wiki.archlinux.org/title/Backlight#xbacklight_returns_:_No_outputs_have_backlight_property
-# NOTE: this will require a reboot due to adding a user to the proper group
-- name: First, remove conflicting package/binary
-  become: true
-  ansible.builtin.package:
-    name: xorg-xbacklight
-    state: absent
 
 - name: Install brightnessctl pkg
   become: true
