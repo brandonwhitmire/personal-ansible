@@ -291,7 +291,7 @@ mount_luks_device () {
     echo "Opening cryptdevice"
     sudo cryptsetup open "/dev/$DEVICE" "$NAME"
 		echo "MOUNTING..."
-		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
+		MOUNT=$(sudo udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
 		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
@@ -299,7 +299,7 @@ mount_luks_device () {
     read -q "ANSWER?Do you want to unmount? [y/n]: "
     if [[ "$ANSWER" =~ ^[Yy]$ ]] ; then
       echo "UNMOUNTING..."
-      udisksctl unmount --block-device /dev/mapper/"$NAME"
+      sudo udisksctl unmount --block-device /dev/mapper/"$NAME"
       echo "Closing cryptdevice..."
       sudo cryptsetup close "$NAME"
     else
@@ -359,6 +359,7 @@ borg_backup () {
         --exclude '*.vdi' \
         --exclude '*.vmdk' \
         --exclude '*.box' \
+		--exclude '*.qcow2' \
         --exclude $HOME/.local \
         --exclude $HOME/.cache \
         --exclude $HOME/.vagrant.d \

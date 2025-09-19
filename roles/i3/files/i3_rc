@@ -271,7 +271,7 @@ bindsym $mod+0 exec --no-startup-id $powermenu
 bar {
     i3bar_command i3bar
     status_command i3status
-    position bottom
+    position top
     tray_output primary
     font pango:JetBrainsMono Nerd Font 12
 

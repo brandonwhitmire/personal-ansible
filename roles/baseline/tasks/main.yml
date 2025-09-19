@@ -54,7 +54,7 @@
 
     - name: Debug update status
       ansible.builtin.debug:
-        msg: "System update {{ 'needed' if baseline_update_needed else 'not needed' }} ({{ baseline_time_since_update }} seconds since last update)"
+        msg: "{{ '[!] Update needed' if baseline_update_needed else 'Not updating...' }} ({{ baseline_time_since_update }} seconds since last update)"
 
     - name: Upgrade system
       become: true

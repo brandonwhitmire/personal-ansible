@@ -63,7 +63,7 @@ This project provides modular Ansible playbooks for initializing fresh Arch Linu
    ```
 2. **Run the main playbook:**
    ```bash
-   ansible-playbook site.yml
+   ansible-playbook archlinux.yml
    ```
 
 ---

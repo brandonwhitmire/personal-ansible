@@ -208,18 +208,6 @@
         state: started
         daemon_reload: true
 
-    - name: Add SSH key to agent (if key exists)
-      ansible.builtin.command:
-        cmd: ssh-add ~/.ssh/id_ed25519
-      ignore_errors: true
-      register: ssh_add_result
-      changed_when: false
-
-    - name: Display SSH key add result
-      ansible.builtin.debug:
-        msg: "{{ 'SSH key added to agent successfully' if ssh_add_result.rc == 0 else 'SSH key not found or already in agent (rc: ' + ssh_add_result.rc|string + ')' }}"
-      when: ssh_add_result is defined
-
 - name: === SYSTEM BLOCK ===
   block:
 
