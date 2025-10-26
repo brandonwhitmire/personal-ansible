@@ -1,0 +1,10 @@
+---
+# DNS Blackhole Role - Handlers
+# Handles service restarts when configuration changes
+
+- name: Restart NetworkManager
+  ansible.builtin.systemd:
+    name: NetworkManager.service
+    state: restarted
+    daemon_reload: true
+  listen: restart NetworkManager

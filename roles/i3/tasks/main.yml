@@ -80,8 +80,6 @@
     force: true
     src: files/i3status_rc
     dest: ~/.config/i3status/config
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_gid }}"
     mode: '0644'
   register: i3_config_changed
 

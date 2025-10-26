@@ -199,15 +199,6 @@
         mode: '0440'
         state: present
 
-    # SSH Agent configuration - https://wiki.archlinux.org/title/SSH_keys#ssh-agent
-    - name: Enable ssh-agent systemd user service
-      ansible.builtin.systemd:
-        name: ssh-agent.service
-        scope: user
-        enabled: true
-        state: started
-        daemon_reload: true
-
 - name: === SYSTEM BLOCK ===
   block:
 

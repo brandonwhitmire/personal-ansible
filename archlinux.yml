@@ -12,6 +12,7 @@
   roles:
     - baseline
     - arch_recommendations
+    - dns_blackhole
     - i3
     - shell
     - theme
