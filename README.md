@@ -57,13 +57,9 @@ This project provides modular Ansible playbooks for initializing fresh Arch Linu
 
 ## Usage
 
-1. **Activate the Python virtual environment:**
+1. **Activate the Python venv and run the main Playbook:**
    ```bash
-   source venv/bin/activate
-   ```
-2. **Run the main playbook:**
-   ```bash
-   ansible-playbook archlinux.yml
+   source venv/bin/activate && ansible-playbook archlinux.yml
    ```
 
 ---

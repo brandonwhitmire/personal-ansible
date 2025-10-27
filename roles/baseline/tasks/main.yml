@@ -46,11 +46,11 @@
 
     - name: Calculate time since last update
       ansible.builtin.set_fact:
-        baseline_time_since_update: "{{ ansible_facts.date_time.epoch | int - (baseline_last_upgrade_epoch.stdout | int) }}"
+        baseline_time_since_update: "{{ (ansible_facts.date_time.epoch | int) - (baseline_last_upgrade_epoch.stdout | int) }}"
 
     - name: Set update needed flag based on time since last update
       ansible.builtin.set_fact:
-        baseline_update_needed: "{{ baseline_time_since_update > 86400 }}"  # 24 hrs
+        baseline_update_needed: "{{ (baseline_time_since_update | int) > 86400 }}"  # 24 hrs
 
     - name: Debug update status
       ansible.builtin.debug:

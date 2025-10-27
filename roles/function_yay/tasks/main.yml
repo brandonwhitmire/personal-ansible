@@ -110,6 +110,7 @@
           become: true
           ansible.builtin.lineinfile:
             path: '{{ passwordless_sudo_file }}'
+            regexp: '^{{ passwordless_sudo_user }}\s+ALL=\(ALL\)\s+NOPASSWD:\s+{{ passwordless_sudo_program }}$'
             line: '{{ passwordless_sudo_user }} ALL=(ALL) NOPASSWD: {{ passwordless_sudo_program }}'
             create: true
             validate: 'visudo --check --strict --file=%s'

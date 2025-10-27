@@ -20,4 +20,4 @@ dns_blackhole_blocked_domains:
 dns_blackhole_networkmanager_config: /etc/NetworkManager/conf.d/10-dnsmasq.conf
 
 # dnsmasq configuration file path
-dns_blackhole_dnsmasq_config: /etc/dnsmasq.d/blocklist.conf
+dns_blackhole_dnsmasq_config: /etc/NetworkManager/dnsmasq.d/blocklist.conf

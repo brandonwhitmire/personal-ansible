@@ -61,6 +61,7 @@ if $DELETE || [ ! -f "$ANSIBLE_INVENTORY" ]; then
             if $valid_ip; then
                 INVENTORY_TO_WRITE+="$ip ansible_port=$port ansible_user=$ansible_user"$'\n'
             fi
+        fi
     done
     
     if ! echo -e "$INVENTORY_TO_WRITE" > "$ANSIBLE_INVENTORY"; then
@@ -90,11 +91,20 @@ if $REGENERATE_SECRETS; then
 
     read -srp "Enter the SSH password for the remote hosts (will be encrypted): " ansible_ssh_password
     echo
-    {
-        ansible-vault encrypt_string --vault-password-file "$ANSIBLE_VAULT_PASS_FILE" \
-            --encrypt-vault-id default \
-            "$ansible_ssh_password" --name "ansible_ssh_password"
-        echo "ansible_become_pass: '{{ ansible_ssh_password }}'"
-    } > "$ANSIBLE_GROUP_VARS_FILE"
+    
+    # Create temporary file with all variables
+    cat > "$ANSIBLE_GROUP_VARS_FILE.tmp" << EOF
+ansible_ssh_password: $ansible_ssh_password
+ansible_become_pass: '{{ ansible_ssh_password }}'
+EOF
+    
+    # Encrypt the entire file
+    ansible-vault encrypt "$ANSIBLE_GROUP_VARS_FILE.tmp" \
+        --vault-password-file "$ANSIBLE_VAULT_PASS_FILE" \
+        --encrypt-vault-id default \
+        --output "$ANSIBLE_GROUP_VARS_FILE"
+    
+    # Clean up temporary file
+    rm -f "$ANSIBLE_GROUP_VARS_FILE.tmp"
 fi
 echo "[✓] Setup completed successfully!"
