@@ -10,3 +10,5 @@ artifacts/
 *.log
 .yamllint
 venv/
+.vscode/
+*.tmp

@@ -1,0 +1,23 @@
+---
+# DNS Blackhole Role - Default Variables
+# Default configuration for DNS blackhole setup
+
+# Path to the custom blocklist file
+dns_blackhole_blocklist_path: /etc/hosts.blocklist
+
+# List of domains to block (can be overridden in group_vars or host_vars)
+dns_blackhole_blocked_domains:
+  - reddit.com
+  - facebook.com
+  - twitter.com
+  - x.com
+  - 4chan.org
+  - instagram.com
+  - tiktok.com
+  - twitch.tv
+
+# NetworkManager configuration file path
+dns_blackhole_networkmanager_config: /etc/NetworkManager/conf.d/10-dnsmasq.conf
+
+# dnsmasq configuration file path
+dns_blackhole_dnsmasq_config: /etc/NetworkManager/dnsmasq.d/blocklist.conf
