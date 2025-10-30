@@ -39,7 +39,7 @@ This project provides modular Ansible playbooks for initializing fresh Arch Linu
    ```
 2. **First-time setup:**
    ```bash
-   ./1_run_first_time_setup.sh
+   source venv/bin/activate && ./1_run_first_time_setup.sh
    ```
 
 ### Targets

@@ -20,6 +20,3 @@
     src: files/conky_theme
     dest: '{{ conky_theme_dir }}'
     mode: '0644'
-
-
-

@@ -8,8 +8,8 @@
     path: ~/.gtkrc-2.0
     marker: '# {mark} gtk2_config'
     block: |
-      gtk-icon-theme-name = "{{ selected_theme }}"
-      gtk-theme-name = "{{ selected_theme }}"
+      gtk-icon-theme-name = "{{ theme_selected_theme }}"
+      gtk-theme-name = "{{ theme_selected_theme }}"
       gtk-font-name = "DejaVu Sans 11"
     mode: '0644'
     create: true
@@ -35,8 +35,8 @@
     marker: '# {mark} gtk3_config'
     block: |
       [Settings]
-      gtk-theme-name = {{ selected_theme }}
-      gtk-icon-theme-name = {{ selected_theme }}
+      gtk-theme-name = {{ theme_selected_theme }}
+      gtk-icon-theme-name = {{ theme_selected_theme }}
       gtk-font-name = DejaVu Sans 11
       gtk-application-prefer-dark-theme = true
     mode: '0644'
@@ -46,7 +46,7 @@
 - name: '[gtk3] Ensure source file exists'
   ansible.builtin.stat:
     path: /home/{{ ansible_user }}/.config/gtk-3.0/settings.ini
-  register: gtk3_settings_file
+  register: theme_gtk3_settings_file
 
 - name: '[gtk3] Set root applications to use dark theme'
   become: true
@@ -55,7 +55,7 @@
     dest: /etc/gtk-3.0/settings.ini
     force: true
     state: link
-  when: gtk3_settings_file.stat.exists
+  when: theme_gtk3_settings_file.stat.exists
 
 - name: '[Qt4] Use GTK2 themes'
   ansible.builtin.blockinfile:
@@ -76,8 +76,8 @@
     insertbefore: BOF
     marker: '# {mark} qt56_config'
     block: |
-      export GTK2_RC_FILES=/usr/share/themes/{{ selected_theme }}/gtk-2.0/gtkrc
-      export GTK_THEME={{ selected_theme }}
+      export GTK2_RC_FILES=/usr/share/themes/{{ theme_selected_theme }}/gtk-2.0/gtkrc
+      export GTK_THEME={{ theme_selected_theme }}
       export QT_QPA_PLATFORMTHEME={{ gtk_version }}
       export QT_STYLE_OVERRIDE={{ gtk_version }}
     mode: '0644'
@@ -86,7 +86,7 @@
 
 - name: '[Qt5/6] Install AUR pkgs'
   vars:
-    aur_packages:
+    function_yay_aur_packages:
       - dracula-gtk-theme  # dark theme
       - qt5-styleplugins  # GUI framework
       # REMOVED: https://wiki.archlinux.org/title/Uniform_look_for_Qt_and_GTK_applications_#QGtkStyle

@@ -5,9 +5,9 @@
 # https://wiki.archlinux.org/title/Vagrant#Installation
 - name: Install vagrant from AUR
   vars:
-    aur_packages:
+    function_yay_aur_packages:
       - vagrant
-    aur_packages_state: present
+    function_yay_aur_packages_state: present
   ansible.builtin.import_role:
     name: function_yay
 
@@ -79,3 +79,4 @@
   when: item not in vagrant_installed_plugins.stdout
   loop_control:
     label: "{{ item }}"
+  changed_when: true

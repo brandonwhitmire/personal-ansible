@@ -21,6 +21,3 @@
     groups: docker
     append: true
     state: present
-
-
-

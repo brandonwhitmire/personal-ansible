@@ -107,7 +107,7 @@
     mode: '0755'
 
 # https://nvchad.com/docs/quickstart/install#install
-- name: 'Clone nvChad to profile: {{ ansible_user }}'
+- name: 'Clone nvChad to profile: {{ ansible_user }}'  # noqa latest[git]
   ansible.builtin.git:
     repo: https://github.com/NvChad/starter
     dest: ~/.config/nvim

@@ -1,9 +1,11 @@
 ---
-passwordless_sudo_user: '{{ ansible_user }}'
-passwordless_sudo_file: /etc/sudoers
-passwordless_sudo_program: /usr/bin/pacman
-# aur_packages:
+# Prefixed defaults for function_yay role
+function_yay_passwordless_sudo_user: '{{ ansible_user }}'
+function_yay_passwordless_sudo_file: /etc/sudoers
+function_yay_passwordless_sudo_program: /usr/bin/pacman
+# function_yay_aur_packages:
 #   - package1
 #   - package2
 #   - package3
-aur_packages_state: present
+function_yay_aur_packages_state: present
+function_yay_yay_version: master

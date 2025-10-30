@@ -101,7 +101,7 @@
 
     # https://wiki.archlinux.org/title/VirtualBox
     - name: --- Virtualbox ---
-      when: vbox | bool
+      when: virtualization_vbox | bool
       block:
 
         - name: Install virtualbox pkgs
@@ -134,7 +134,7 @@
 
     # https://wiki.archlinux.org/title/QEMU
     - name: --- QEMU ---
-      when: qemu | bool
+      when: virtualization_qemu | bool
       block:
 
         - name: Install qemu pkgs
