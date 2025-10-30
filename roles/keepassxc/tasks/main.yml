@@ -1,0 +1,32 @@
+---
+- name: Install browser
+  become: true
+  ansible.builtin.package:
+    name:
+      - firefox  # web browser
+    state: present
+
+- name: Install KeepassXC password manager and required packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - keepassxc
+    state: present
+
+- name: Browser config to allow keepassxc-browser extension to communicate
+  ansible.builtin.copy:
+    remote_src: false
+    src: files/browser/native-messaging-hosts
+    dest: ~/.mozilla/
+    mode: '0770'
+
+- name: Set KeepassXC theme to system (classic)
+  ansible.builtin.blockinfile:
+    path: ~/.config/keepassxc/keepassxc.ini
+    marker: '# {mark} keepassxc_theme'
+    block: |
+      [GUI]
+      ApplicationTheme=classic
+    mode: '0644'
+    create: true
+    state: present
