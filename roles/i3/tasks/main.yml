@@ -126,8 +126,17 @@
   when: i3_config_changed is defined and i3_config_changed.changed
   changed_when: false
 
+- name: Check if i3 is running
+  become: false
+  ansible.builtin.command: pgrep -x i3
+  register: i3_running
+  failed_when: false
+  changed_when: false
+
 - name: Reload i3 configuration
   become: false
   ansible.builtin.command: i3-msg reload
   changed_when: false
-  when: i3_config_changed is defined and i3_config_changed.changed
+  when:
+    - i3_config_changed is defined and i3_config_changed.changed
+    - i3_running is defined and i3_running.rc == 0
