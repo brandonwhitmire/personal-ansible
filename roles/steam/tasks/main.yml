@@ -20,6 +20,10 @@
   register: steam_pacman_multilib_enabled
   notify: Upgrade system (multilib enabled)
 
+- name: Flush handlers if multilib was enabled (refresh package databases now)
+  ansible.builtin.meta:
+    flush_handlers
+
 # https://wiki.archlinux.org/title/Steam#Installation
 - name: Ensure steam and deps are installed
   become: true
@@ -34,6 +38,7 @@
       - ttf-liberation
       - steam
     state: present
+    update_cache: true
 
 - name: Ensure certain packages are not installed
   become: true

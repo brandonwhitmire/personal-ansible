@@ -127,7 +127,10 @@ Run commands on hosts without a playbook or role.
 This requires a basic Arch Linux VM imported into Vagrant. My other project builds a [Arch Linux VM for libvirt (QEMU) using Packer](https://github.com/OpenSourceKyle/personal-packer) using an installation script that is true to my actual hardware. Assuming a Arch Linux VM exists (will require updating the Vagrantfile if not using my project), simply run the following command to run an end-to-end of the playbooks:
 
 ```bash
-vagrant up
+# Provision and configure VM; later, shut it down upon success
+vagrant up --provision && vagrant halt
+# Delete VM
+vagrant destroy
 ```
 
 ---

@@ -1,11 +1,12 @@
 ---
 # Install nitrogen (wallpaper manager)
-- name: Install nitrogen pkg
-  become: true
-  ansible.builtin.package:
-    name:
+- name: Install nitrogen from AUR
+  vars:
+    function_yay_aur_packages:
       - nitrogen
-    state: present
+    function_yay_aur_packages_state: present
+  ansible.builtin.import_role:
+    name: function_yay
 
 - name: Ensure wallpaper directory exists
   become: true

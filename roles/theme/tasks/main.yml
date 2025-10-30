@@ -15,6 +15,19 @@
     create: true
     state: present
 
+- name: '[gtk2] Install GTK2 from AUR'
+  vars:
+    function_yay_aur_packages:
+      - gtk2
+    function_yay_aur_packages_state: present
+  ansible.builtin.import_role:
+    name: function_yay
+
+- name: '[gtk2] Ensure source file exists'
+  ansible.builtin.stat:
+    path: /home/{{ ansible_user }}/.gtkrc-2.0
+  register: theme_gtk2_rc
+
 - name: '[gtk2] Set root applications to use dark theme'
   become: true
   ansible.builtin.file:
@@ -22,6 +35,7 @@
     dest: /etc/gtk-2.0/gtkrc
     force: true
     state: link
+  when: theme_gtk2_rc.stat.exists
 
 - name: '[gtk3] Create directory'
   ansible.builtin.file:

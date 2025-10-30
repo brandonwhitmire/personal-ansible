@@ -119,10 +119,10 @@
     checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
     mode: '0755'
 
-# Validate i3 configuration syntax
+# Validate i3 configuration syntax using i3 built-in check
 - name: Verify i3 configuration syntax
   become: false
-  ansible.builtin.command: i3-config-parser -c ~/.config/i3/config
+  ansible.builtin.command: i3 -C -c ~/.config/i3/config
   when: i3_config_changed is defined and i3_config_changed.changed
   changed_when: false
 
