@@ -65,25 +65,46 @@
 # https://github.com/GloriousEggroll/proton-ge-custom#native
 - name: === Proton GloriousEggroll Block ===
   vars:
-    proton_ge_version: GE-Proton10-13
-    proton_ge_filename: '{{ proton_ge_version }}.tar.gz'
-    proton_ge_url: https://github.com/GloriousEggroll/proton-ge-custom/releases/download/{{ proton_ge_version }}/{{ proton_ge_filename }}
-    install_location: ~/.steam/root/compatibilitytools.d/
-    download_location: '{{ install_location }}/{{ proton_ge_filename }}'
+    github_repo: GloriousEggroll/proton-ge-custom
+    steam_install_location: '/home/{{ ansible_user }}/.steam/root/compatibilitytools.d'
+  become: false
   block:
+    - name: Get latest Proton GE release metadata
+      ansible.builtin.uri:
+        url: 'https://api.github.com/repos/{{ github_repo }}/releases/latest'
+        method: GET
+        return_content: true
+        headers:
+          Accept: application/vnd.github+json
+          X-GitHub-Api-Version: '2022-11-28'
+          User-Agent: ansible
+      register: steam_latest_release_info
+
+    - name: Set Proton GE version from API
+      ansible.builtin.set_fact:
+        steam_proton_ge_version: '{{ steam_latest_release_info.json.tag_name }}'
+
+    - name: Set Proton GE filename
+      ansible.builtin.set_fact:
+        steam_proton_ge_filename: '{{ steam_proton_ge_version }}.tar.gz'
+
+    - name: Set Proton GE URLs and paths
+      ansible.builtin.set_fact:
+        steam_proton_ge_url: 'https://github.com/{{ github_repo }}/releases/download/{{ steam_proton_ge_version }}/{{ steam_proton_ge_version }}.tar.gz'
+        steam_download_location: '{{ steam_install_location }}/{{ steam_proton_ge_version }}.tar.gz'
 
     - name: Ensure folder exists
       ansible.builtin.file:
-        path: '{{ install_location }}'
+        path: '{{ steam_install_location }}'
         owner: '{{ ansible_user }}'
         group: '{{ ansible_user }}'
         mode: '0755'
         state: directory
 
-    - name: 'Download Proton GE version: {{ proton_ge_version }}'
+    - name: 'Download Proton GE version: {{ steam_proton_ge_version }}'
       ansible.builtin.get_url:
-        url: '{{ proton_ge_url }}'
-        dest: '{{ download_location }}'
+        url: '{{ steam_proton_ge_url }}'
+        dest: '{{ steam_download_location }}'
         owner: '{{ ansible_user }}'
         group: '{{ ansible_user }}'
         mode: '0755'
@@ -91,12 +112,12 @@
     - name: Extract Proton GE archive
       ansible.builtin.unarchive:
         remote_src: true
-        src: '{{ download_location }}'
-        dest: '{{ install_location }}'
+        src: '{{ steam_download_location }}'
+        dest: '{{ steam_install_location }}'
         owner: '{{ ansible_user }}'
         group: '{{ ansible_user }}'
         mode: '0755'
-        creates: '{{ install_location }}/{{ proton_ge_version }}'
+        creates: '{{ steam_install_location }}/{{ steam_proton_ge_version }}'
 
 # Multi Desync: https://www.protondb.com/app/813780#T4QkvqCK-9
 - name: === AOE2 Block ===
@@ -106,6 +127,7 @@
     vc_redist_exe: vc_redist.x64.exe
     vc_redist_url: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/{{ vc_redist_exe }}
     vulcan_folder: /usr/share/vulkan/icd.d/
+  become: false
   block:
 
     - name: Install necessary pkgs

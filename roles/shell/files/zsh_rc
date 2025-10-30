@@ -394,7 +394,7 @@ update () {
 }
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
-: "${ARCH_MIRROR_COUNTRY:=US}"
+: "${ARCH_MIRROR_COUNTRY:=MX,US}"
 update_mirrors () {
     echo "[i] Updating package mirrors..."
     sudo reflector \
