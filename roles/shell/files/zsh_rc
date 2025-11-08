@@ -358,7 +358,7 @@ borg_backup () {
         --exclude '*.ova' \
         --exclude '*.vdi' \
         --exclude '*.vmdk' \
-        --exclude '*.box' \
+        --exclude '*box' \
 		--exclude '*.qcow2' \
         --exclude $HOME/.local \
         --exclude $HOME/.cache \
