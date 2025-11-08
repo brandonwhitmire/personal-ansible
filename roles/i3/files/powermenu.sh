@@ -19,7 +19,7 @@ case "$CHOSEN" in
     "🔒 Lock")
         i3lock --ignore-empty-password --color=444444
         ;;
-    "😴 Suspend")
+    "😴 Sleep")
         systemctl suspend
         ;;
     "🚪 Logout")

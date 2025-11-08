@@ -5,7 +5,7 @@ general {
 
 order += "wireless _first_"
 wireless "_first_" {
-        format_up = "📶 %essid %ip %quality"
+        format_up = "📶 %essid %ip%quality"
         format_down = "❌ Wifi"
 }
 

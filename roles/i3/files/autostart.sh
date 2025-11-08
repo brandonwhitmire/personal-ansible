@@ -50,6 +50,7 @@ pa-applet &
 /usr/bin/redshift-gtk &
 
 # Start screen locker daemon with 5s idle delay (no delay on suspend)
-xss-lock --transfer-sleep-lock -- sh -c '[ -n "$XSS_SLEEP_LOCK_FD" ] || sleep 5; exec i3lock --ignore-empty-password --color=444444' &
+xset s 900 5 &
+xss-lock -- sh -c 'sleep 5; exec i3lock -n --ignore-empty-password --color=444444' &
 
 echo "Autostart script finished."
