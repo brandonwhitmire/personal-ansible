@@ -111,23 +111,24 @@
   ansible.builtin.git:
     repo: https://github.com/NvChad/starter
     dest: ~/.config/nvim
-    # - name: Check if the plugins folder is empty
-    #   changed_when: false
-    #   ansible.builtin.find:
-    #     file_type: any
-    #     paths: ~/.local/share/nvim/
-    #   register: plugin_files
-# Will likely fail if plugins not installed yet
-- name: Check if nvim plugins are already installed
-  ansible.builtin.stat:
-    path: ~/.local/share/nvim/lazy
-  register: shell_nvim_plugins_installed
-  changed_when: false
+  register: shell_nvchad_cloned
 
-- name: Install plugins
+- name: Initialize nvim
+  ansible.builtin.command:
+    cmd: nvim --headless '+qa'
+  when: shell_nvchad_cloned.changed
+  changed_when: false
+  failed_when: false
+
+- name: Sync nvim plugins with Lazy
+  ansible.builtin.command:
+    cmd: nvim --headless '+lua require("lazy").sync()' '+qa'
+  changed_when: false
+  failed_when: false
+
+- name: Install Mason packages
   ansible.builtin.command:
     cmd: nvim --headless '+MasonInstallAll' '+qa'
-  when: not shell_nvim_plugins_installed.stat.exists
   changed_when: false
   failed_when: false
 
@@ -189,3 +190,26 @@
     src: files/starship.toml
     dest: ~/.config/starship.toml
     mode: '0644'
+
+- name: Ensure display config directory exists
+  become: false
+  ansible.builtin.file:
+    path: ~/.config/display/
+    state: directory
+    mode: '0755'
+
+- name: Create display restore script
+  become: false
+  ansible.builtin.copy:
+    src: restore-display.sh
+    dest: ~/.config/display/restore-display.sh
+    mode: '0755'
+    force: true
+
+- name: Create .xprofile to restore displays early in X session
+  become: false
+  ansible.builtin.template:
+    src: xprofile.j2
+    dest: ~/.xprofile
+    mode: '0755'
+    force: true

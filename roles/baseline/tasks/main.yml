@@ -50,7 +50,7 @@
 
     - name: Set update needed flag based on time since last update
       ansible.builtin.set_fact:
-        baseline_update_needed: "{{ (baseline_time_since_update | int) > 86400 }}"  # 24 hrs
+        baseline_update_needed: "{{ (baseline_time_since_update | int) > 604800 }}"  # 1 week
 
     - name: Debug update status
       ansible.builtin.debug:
@@ -196,16 +196,18 @@
     block: |
       DefaultTimeoutStopSec=15s
 
-# Only works for first time Chromium is opened and creates its profile
-# - name: Set Chromium to use GTK theme
-#   ignore_errors: true
-#   ansible.builtin.lineinfile:
-#     backup: true
-#     backrefs: true
-#     path: ~/.config/chromium/Default/Preferences
-#     regexp: '(.*)"system_theme":0(.*)'
-#     line: '\1 "system_theme":1 \2'
-#     state: present
+- name: Configure power button behavior - ignore single press, shutdown on long press
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: '^#?\s*{{ item.key }}=.*'
+    line: '{{ item.key }}={{ item.value }}'
+    state: present
+    backup: true
+  loop:
+    - { key: 'HandlePowerKey', value: 'ignore' }
+    - { key: 'HandlePowerKeyLongPress', value: 'poweroff' }
+  notify: restart systemd-logind
 
 # https://wiki.archlinux.org/title/Touchpad_Synaptics#Frequently_used_options
 - name: Configure touchpad to use sane defaults

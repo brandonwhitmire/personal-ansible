@@ -291,7 +291,7 @@ mount_luks_device () {
     echo "Opening cryptdevice"
     sudo cryptsetup open "/dev/$DEVICE" "$NAME"
 		echo "MOUNTING..."
-		MOUNT=$(sudo udisksctl mount --block-device /dev/mapper/"$NAME")
+		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
 		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
@@ -299,7 +299,7 @@ mount_luks_device () {
     read -q "ANSWER?Do you want to unmount? [y/n]: "
     if [[ "$ANSWER" =~ ^[Yy]$ ]] ; then
       echo "UNMOUNTING..."
-      sudo udisksctl unmount --block-device /dev/mapper/"$NAME"
+      udisksctl unmount --block-device /dev/mapper/"$NAME"
       echo "Closing cryptdevice..."
       sudo cryptsetup close "$NAME"
     else
@@ -472,8 +472,8 @@ set_displays () {
 	# Give no options to activate this mode
 	if [[ -z "$1" ]] ; then
 		echo "[+] Setting EXTENDED Display mode!"
-		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
-			--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
+		xrandr --output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 0x0 --rotate normal \
+			--output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 1920x0 --rotate normal
 	# Give any arbitrary option to activate this mode
 	else
 		echo "[+] Setting DUPLICATED Display mode!"
@@ -484,6 +484,124 @@ set_displays () {
 
 fix_displays () {
 	set_displays
+}
+
+# Helper: Get list of connected displays
+_get_connected_displays () {
+	xrandr | grep -E '[^dis]connected' | awk '{ print $1 }'
+}
+
+# Helper: Detect laptop display (eDP-*)
+_detect_laptop_display () {
+	local displays="$(_get_connected_displays)"
+	echo "$displays" | grep -ioE 'eDP-?[0-9\-]+' | head -n1
+}
+
+# Helper: Detect external display (HDMI-* or DP-*, prefers HDMI)
+_detect_external_display () {
+	local displays="$(_get_connected_displays)"
+	local hdmi=$(echo "$displays" | grep -ioE 'HDMI-?[0-9\-]+' | head -n1)
+	local dp=$(echo "$displays" | grep -ioE 'DP-?[0-9\-]+' | head -n1)
+	
+	if [[ -n "$hdmi" ]]; then
+		echo "$hdmi"
+	else
+		echo "$dp"
+	fi
+}
+
+# Helper: Get native/preferred resolution for a display
+_get_display_resolution () {
+	local display="$1"
+	if [[ -z "$display" ]]; then
+		return 1
+	fi
+	
+	# Get the native resolution (marked with *+) for this specific display
+	xrandr --query | \
+		awk -v display="$display" '
+			$0 ~ "^" display " connected" { found=1; next }
+			found && /\*\+/ { print $1; exit }
+			found && /^[A-Z]/ { exit }
+		'
+}
+
+# Auto-configure displays: set all connected displays to their native resolution
+# External monitor is positioned on the left, laptop on the right
+display_auto () {
+	local displays="$(_get_connected_displays)"
+	
+	if [[ -z "$displays" ]]; then
+		echo "ERROR: No connected displays found"
+		return 1
+	fi
+	
+	# Detect external and laptop displays
+	local external="$(_detect_external_display)"
+	local laptop="$(_detect_laptop_display)"
+	
+	local pos_x=0
+	
+	# Configure both displays in a single xrandr command for proper linking
+	# This ensures mouse can move seamlessly in both directions
+	if [[ -n "$external" ]] && [[ -n "$laptop" ]]; then
+		local external_res="$(_get_display_resolution "$external")"
+		local laptop_res="$(_get_display_resolution "$laptop")"
+		
+		if [[ -n "$external_res" ]] && [[ -n "$laptop_res" ]]; then
+			local external_width=$(echo "$external_res" | cut -d'x' -f1)
+			local laptop_pos=$external_width
+			
+			echo "[+] Configuring dual display setup:"
+			echo "    External (left, primary): $external - $external_res"
+			echo "    Laptop (right): $laptop - $laptop_res at position ${laptop_pos}x0"
+			
+			# Configure both displays in ONE command for proper adjacency
+			xrandr --output "$external" --primary --mode "$external_res" --pos "${pos_x}x0" --rotate normal \
+			       --output "$laptop" --mode "$laptop_res" --pos "${laptop_pos}x0" --rotate normal
+		fi
+	elif [[ -n "$external" ]]; then
+		# Only external monitor
+		local external_res="$(_get_display_resolution "$external")"
+		
+		if [[ -n "$external_res" ]]; then
+			echo "[+] Configuring external monitor (primary): $external - $external_res"
+			xrandr --output "$external" --primary --mode "$external_res" --pos "${pos_x}x0" --rotate normal
+		fi
+	elif [[ -n "$laptop" ]]; then
+		# Only laptop display
+		local laptop_res="$(_get_display_resolution "$laptop")"
+		
+		if [[ -n "$laptop_res" ]]; then
+			echo "[+] Configuring laptop display (primary): $laptop - $laptop_res"
+			xrandr --output "$laptop" --primary --mode "$laptop_res" --pos "${pos_x}x0" --rotate normal
+		fi
+	else
+		# If no external/laptop detected, fall back to configuring all displays in order
+		local first_display=true
+		pos_x=0
+		
+		for display in $displays; do
+			local native_res="$(_get_display_resolution "$display")"
+			
+			if [[ -z "$native_res" ]]; then
+				echo "WARNING: Could not detect native resolution for $display, skipping"
+				continue
+			fi
+			
+			echo "[+] Configuring $display: $native_res"
+			
+			if [[ "$first_display" == true ]]; then
+				xrandr --output "$display" --primary --mode "$native_res" --pos "${pos_x}x0" --rotate normal
+				first_display=false
+			else
+				xrandr --output "$display" --mode "$native_res" --pos "${pos_x}x0" --rotate normal
+			fi
+			
+			local width=$(echo "$native_res" | cut -d'x' -f1)
+			pos_x=$((pos_x + width))
+		done
+	fi
 }
 
 wifi_enable () {
@@ -520,6 +638,94 @@ export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 # Disable Touchpad by default
 #synclient TouchpadOff=1
 
+# === Command Execution Timing ===
+# Display command execution time similar to VSCode shell output
+# Shows: user time, system time, CPU percentage, total time, and start timestamp
+
+# Initialize timing variables
+zsh_command_start_time=""
+zsh_command_start_timestamp=""
+zsh_command_start_utime=""
+zsh_command_start_stime=""
+
+# Hook to capture command start time and CPU stats
+preexec() {
+    zsh_command_start_time=$SECONDS
+    zsh_command_start_timestamp=$(date '+%H:%M:%S')
+    # Get initial CPU time from /proc/self/stat (field 14 = utime, field 15 = stime, in clock ticks)
+    if [[ -r /proc/self/stat ]]; then
+        local stat_line=($(cat /proc/self/stat))
+        zsh_command_start_utime=${stat_line[13]}  # utime (index 13, 0-based)
+        zsh_command_start_stime=${stat_line[14]}  # stime (index 14, 0-based)
+    else
+        zsh_command_start_utime=0
+        zsh_command_start_stime=0
+    fi
+}
+
+# Hook to display command execution time after command completes
+precmd() {
+    if [[ -n "$zsh_command_start_time" ]]; then
+        local end_time=$SECONDS
+        local end_timestamp=$(date '+%H:%M:%S')
+        local elapsed=$(($end_time - $zsh_command_start_time))
+        
+        if (( elapsed > 0.1 )); then  # Only show for commands taking more than 0.1 seconds
+            # Get final CPU time
+            local end_utime=0
+            local end_stime=0
+            if [[ -r /proc/self/stat ]]; then
+                local stat_line=($(cat /proc/self/stat))
+                end_utime=${stat_line[13]}  # utime
+                end_stime=${stat_line[14]}  # stime
+            fi
+            
+            # Calculate CPU time used (in clock ticks, convert to seconds)
+            # Clock ticks per second is typically 100 (getconf CLK_TCK)
+            local clk_tck=$(getconf CLK_TCK 2>/dev/null || echo 100)
+            local cpu_user_diff=$((end_utime - zsh_command_start_utime))
+            local cpu_system_diff=$((end_stime - zsh_command_start_stime))
+            
+            local user_time=$(echo "scale=2; $cpu_user_diff / $clk_tck" | bc 2>/dev/null || echo "0.00")
+            local system_time=$(echo "scale=2; $cpu_system_diff / $clk_tck" | bc 2>/dev/null || echo "0.00")
+            
+            # Calculate CPU percentage
+            local cpu_percent="0.0"
+            if (( $(echo "$elapsed > 0" | bc -l 2>/dev/null || echo 0) )); then
+                local cpu_total=$(echo "scale=2; $user_time + $system_time" | bc 2>/dev/null || echo "0.00")
+                cpu_percent=$(echo "scale=1; ($cpu_total / $elapsed) * 100" | bc 2>/dev/null || echo "0.0")
+            fi
+            
+            # Format times to match VSCode output format
+            local user_time_str=$(printf "%.2fs" $user_time 2>/dev/null || echo "0.00s")
+            local system_time_str=$(printf "%.2fs" $system_time 2>/dev/null || echo "0.00s")
+            local total_time_str=$(printf "%.2fs" $elapsed 2>/dev/null || echo "0.00s")
+            
+            # Display in VSCode-like format: "start_timestamp end_timestamp user_time system_time CPU% total_time"
+            printf "\033[2m%s %s %s user %s system %s%% cpu %s total\033[0m\n" \
+                "$zsh_command_start_timestamp" \
+                "$end_timestamp" \
+                "$user_time_str" \
+                "$system_time_str" \
+                "$cpu_percent" \
+                "$total_time_str"
+        fi
+        
+        # Reset for next command
+        zsh_command_start_time=""
+        zsh_command_start_utime=""
+        zsh_command_start_stime=""
+    fi
+}
+
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login
+# This must come before zellij because it uses exec, which replaces the shell process
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
+
+# === AUTOSTART ZELLIJ ===
+# Auto-start zellij terminal multiplexer for interactive shells or SSH sessions
+# Only start if not already in zellij (ZELLIJ env var not set)
+if [[ ( -o interactive || -n "$SSH_CONNECTION" ) && -z "$ZELLIJ" ]]; then
+    exec zellij
+fi

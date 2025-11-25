@@ -4,6 +4,18 @@
 # Boot Sequence:
 # systemd boot -> agetty (autologin into user) -> zsh (sources .zshrc) -> startx (sources .xinitrc) -> i3
 #
+- name: Check if Nvidia GPU is present
+  become: false
+  ansible.builtin.shell: |
+    lspci | grep -i nvidia > /dev/null 2>&1
+  register: nvidia_gpu_check
+  changed_when: false
+  failed_when: false
+
+- name: Set fact for Nvidia GPU presence
+  ansible.builtin.set_fact:
+    has_nvidia_gpu: "{{ nvidia_gpu_check.rc == 0 }}"
+
 - name: Install i3 pkgs
   become: true
   ansible.builtin.package:
@@ -30,8 +42,10 @@
     block: |
       [Service]
       ExecStart=
+      {% if has_nvidia_gpu | bool %}
       # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
       ExecStartPre=-/usr/bin/prime-switch
+      {% endif %}
       ExecStart=-/sbin/agetty --autologin {{ ansible_user }} --noclear %I 38400 linux
     owner: root
     group: root
@@ -45,7 +59,16 @@
     path: ~/.xinitrc
     marker: "# {mark} .xinitrc"
     block: |
-      /usr/bin/prime-offload  # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
+      {% if has_nvidia_gpu | bool %}
+      # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
+      if command -v prime-offload >/dev/null 2>&1; then
+          /usr/bin/prime-offload
+      fi
+      {% endif %}
+      # Restore display configuration before starting i3
+      if [ -f "$HOME/.config/display/restore-display.sh" ]; then
+          "$HOME/.config/display/restore-display.sh" 2>/dev/null
+      fi
       exec i3
     mode: '0644'
     create: true
@@ -60,27 +83,11 @@
 
 - name: Copy default i3 file to `{{ ansible_user }}` profile
   become: false
-  ansible.builtin.copy:
-    src: files/i3_rc
+  ansible.builtin.template:
+    src: i3_rc.j2
     dest: ~/.config/i3/config
     mode: '0644'
     backup: true
-  register: i3_config_changed
-
-- name: Ensure i3status config directory exists
-  become: false
-  ansible.builtin.file:
-    path: ~/.config/i3status/
-    state: directory
-    mode: '0755'
-
-- name: Copy i3status config file
-  become: false
-  ansible.builtin.copy:
-    force: true
-    src: files/i3status_rc
-    dest: ~/.config/i3status/config
-    mode: '0644'
   register: i3_config_changed
 
 - name: Ensure i3 scripts directory exists
@@ -90,34 +97,30 @@
     state: directory
     mode: '0755'
 
-- name: Copy i3 scripts
+- name: Copy powermenu script (template)
   become: false
-  ansible.builtin.copy:
+  ansible.builtin.template:
     force: true
-    src: "files/{{ item }}"
-    dest: "~/.config/i3/scripts/{{ item }}"
+    src: powermenu.sh.j2
+    dest: ~/.config/i3/scripts/powermenu.sh
     mode: '0755'
-  loop:
-    - powermenu.sh
-    - autostart.sh
+  register: i3_config_changed
+
+- name: Copy autostart script (template)
+  become: false
+  ansible.builtin.template:
+    force: true
+    src: autostart.sh.j2
+    dest: ~/.config/i3/scripts/autostart.sh
+    mode: '0755'
   register: i3_config_changed
 
 - name: Install AUR pkgs
   vars:
     function_yay_aur_packages:
-      - dmenu2  # keyboard-driven app launcher
       - pa-applet-git  # applet for PulseAudio
   ansible.builtin.import_role:
     name: function_yay
-
-# Requires dmenu to be installed first
-- name: Install dmenu history patch
-  become: true
-  ansible.builtin.get_url:
-    url: https://tools.suckless.org/dmenu/scripts/dmenu_run_with_command_history/dmenu_run_history
-    dest: /usr/local/bin/
-    checksum: sha256:e46ab822e1809f82f6a71e705087d40ebb95cfb828839b860bccb8904634df09
-    mode: '0755'
 
 # Validate i3 configuration syntax using i3 built-in check
 - name: Verify i3 configuration syntax
@@ -126,17 +129,33 @@
   when: i3_config_changed is defined and i3_config_changed.changed
   changed_when: false
 
-- name: Check if i3 is running
+- name: Check if i3 is running and ready
   become: false
-  ansible.builtin.command: pgrep -x i3
-  register: i3_running
+  ansible.builtin.shell: |
+    set -o pipefail
+    # Check if i3 process exists
+    if ! pgrep -x i3 > /dev/null; then
+      exit 1
+    fi
+    # Verify i3 socket is accessible by trying a simple command
+    # This will fail if DISPLAY is not set or socket is not ready
+    i3-msg -t get_version > /dev/null 2>&1
+  register: i3_ready
   failed_when: false
   changed_when: false
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0') }}"
 
 - name: Reload i3 configuration
   become: false
   ansible.builtin.command: i3-msg reload
   changed_when: false
+  retries: 3
+  delay: 2
+  register: i3_reload_result
+  until: i3_reload_result.rc == 0
   when:
     - i3_config_changed is defined and i3_config_changed.changed
-    - i3_running is defined and i3_running.rc == 0
+    - i3_ready is defined and i3_ready.rc == 0
+  environment:
+    DISPLAY: "{{ ansible_env.DISPLAY | default(':0') }}"

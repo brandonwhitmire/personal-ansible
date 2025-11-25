@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Script to monitor battery and change polybar bar background to red when low
+BATTERY_PATH="/sys/class/power_supply/BAT0"
+LOW_THRESHOLD=25
+
+if [ -d "$BATTERY_PATH" ]; then
+    CAPACITY=$(cat "$BATTERY_PATH/capacity" 2>/dev/null)
+    STATUS=$(cat "$BATTERY_PATH/status" 2>/dev/null)
+    
+    if [ -n "$CAPACITY" ] && [ "$STATUS" != "Charging" ] && [ "$CAPACITY" -lt "$LOW_THRESHOLD" ]; then
+        # Battery is low - output a red background block that spans the bar
+        # This creates a visual indicator that the battery is low
+        echo "%{B#ff5555}%{F#ff5555}█%{F-}%{B-}"
+    else
+        # Battery is OK - output empty (no indicator)
+        echo ""
+    fi
+else
+    echo ""
+fi
+

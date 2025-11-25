@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Terminate already running bar instances
+killall -q polybar
+
+# Wait until the processes have been shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+# Detect bar name from config file
+# Look for [bar] or [bar/name] pattern
+# If [bar/name], use "name", if [bar], use "bar"
+BAR_LINE=$(grep -E "^\[bar" ~/.config/polybar/config.ini 2>/dev/null | head -1)
+if [ -n "$BAR_LINE" ]; then
+    # Extract bar name: [bar/name] -> name, [bar] -> bar
+    if echo "$BAR_LINE" | grep -q "/"; then
+        # Has slash, extract part after slash
+        BAR_NAME=$(echo "$BAR_LINE" | sed 's/.*\[bar\///;s/\].*//' | tr -d '[:space:]')
+    else
+        # No slash, use "bar"
+        BAR_NAME="bar"
+    fi
+else
+    # No bar section found, default to "main"
+    BAR_NAME="main"
+fi
+
+# Launch Polybar on all connected monitors
+# Wait for monitors to be available (check up to 30 times with 0.2s delay = 6 seconds max)
+MAX_RETRIES=30
+RETRY_COUNT=0
+MONITORS=""
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    MONITORS=$(xrandr --query 2>/dev/null | grep " connected" | awk '{print $1}')
+    if [ -n "$MONITORS" ]; then
+        # Verify we have actual monitor names (not empty)
+        if [ "$(echo "$MONITORS" | wc -w)" -gt 0 ]; then
+            break
+        fi
+    fi
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    sleep 0.2
+done
+
+# Launch polybar on each detected monitor (deduplicate)
+if [ -n "$MONITORS" ]; then
+    # Deduplicate monitor list and sort
+    UNIQUE_MONITORS=$(echo "$MONITORS" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    
+    for monitor in $UNIQUE_MONITORS; do
+        # Check if polybar is already running on this specific monitor
+        # Check process environment for MONITOR variable
+        ALREADY_RUNNING=0
+        for pid in $(pgrep -f "polybar.*$BAR_NAME" 2>/dev/null); do
+            if [ -r "/proc/$pid/environ" ]; then
+                if tr '\0' '\n' < "/proc/$pid/environ" | grep -q "^MONITOR=$monitor$"; then
+                    ALREADY_RUNNING=1
+                    break
+                fi
+            fi
+        done
+        
+        if [ "$ALREADY_RUNNING" -eq 0 ]; then
+            # Launch polybar on this monitor
+            MONITOR="$monitor" polybar "$BAR_NAME" &
+            # Small delay to prevent race conditions
+            sleep 0.1
+        fi
+    done
+fi

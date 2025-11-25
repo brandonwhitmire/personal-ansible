@@ -6,6 +6,10 @@
     - arch_recommendations
     - ufw_firewall
     - dns_blackhole
+    - rofi
+    #- dmenu  # replaced by rofi
+    - polybar
+    #- i3status  # replaced by polybar
     - i3
     - shell
     - theme
