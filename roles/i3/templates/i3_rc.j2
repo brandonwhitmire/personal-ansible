@@ -33,8 +33,9 @@ bindsym $mod+y border pixel 1
 bindsym $mod+n border normal
 
 # Gaps
-gaps inner 12
-gaps outer -2
+gaps inner 6
+gaps outer -1
+smart_gaps on
 
 #----------------------------------------------------------------#
 # Keybindings
@@ -58,8 +59,8 @@ bindsym $mod+z exec --no-startup-id $menu
 bindsym $mod+Shift+m exec pavucontrol
 
 # Screen brightness controls
-bindsym XF86MonBrightnessUp exec brightnessctl set +10%
-bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
 # Start Applications
 bindsym $mod+Ctrl+b exec $terminal -e /usr/bin/bmenu
@@ -204,21 +205,11 @@ assign [class="discord"] $ws5
 for_window [class="Galculator"] floating enable, border pixel 1
 for_window [class="Pavucontrol"] floating enable
 
-# KeePassXC password prompts - always floating, focused, and sticky
-# These MUST come BEFORE the general KeePassXC rule to prevent scratchpad move
-# Using both class and title to be more specific than the general rule
-# Note: i3 applies ALL matching rules, so the general rule below will also match
-# We need to prevent the scratchpad move by ensuring these dialogs stay on current workspace
-for_window [class="KeePassXC" title="Unlock Database - KeePassXC"] floating enable, focus, sticky enable, workspace current, move to workspace current
-for_window [class="KeePassXC" title="Desbloquear base de datos - KeePassXC"] floating enable, focus, sticky enable, workspace current, move to workspace current
-
-# Make KeePassXC main window spawn in scratchpad by default
-# This matches all KeePassXC windows, but the unlock dialogs above are explicitly
-# moved to current workspace, which should prevent them from going to scratchpad
-for_window [class="KeePassXC"] move to scratchpad
-
-# switch to workspace with urgent window automatically
-for_window [urgent=latest] focus
+for_window [class="KeePassXC" title="*Unlock Database*"] floating enable, sticky enable, move container to workspace current, focus
+for_window [class="KeePassXC" title="*Desbloquear base de datos*"] floating enable, sticky enable, move container to workspace current, focus
+for_window [class="KeePassXC" title="*[Locked]*"] move to scratchpad
+for_window [class="KeePassXC" title="*[Bloqueada]*"] move to scratchpad
+for_window [urgent=latest] focus, move to workspace current
 
 #----------------------------------------------------------------#
 # Modes (Resize, Gaps, System)
@@ -327,6 +318,4 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 
 # Autostart applications via script
 exec --no-startup-id ~/.config/i3/scripts/autostart.sh
-
-
 

@@ -41,18 +41,3 @@
     mode: '0755'
     force: true
 
-- name: Create battery low hook script
-  become: false
-  ansible.builtin.template:
-    src: battery-low-hook.sh.j2
-    dest: ~/.config/polybar/battery-low-hook.sh
-    mode: '0755'
-    force: true
-
-- name: Create network IP script
-  become: false
-  ansible.builtin.copy:
-    src: files/network-ip.sh
-    dest: ~/.config/polybar/network-ip.sh
-    mode: '0755'
-    force: true
