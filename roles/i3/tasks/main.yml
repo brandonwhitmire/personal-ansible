@@ -22,6 +22,7 @@
     name:
       - i3  # metapackage of various i3 packages
       - dunst  # system notifications
+      - redshift  # screen color temperature adjustment (includes redshift-gtk)
     state: present
 
 # https://wiki.archlinux.org/title/Getty#Virtual_console
@@ -114,6 +115,21 @@
     dest: ~/.config/i3/scripts/autostart.sh
     mode: '0755'
   register: i3_config_changed
+
+- name: Ensure redshift config directory exists
+  become: false
+  ansible.builtin.file:
+    path: ~/.config/
+    state: directory
+    mode: '0755'
+
+- name: Copy redshift config file (template)
+  become: false
+  ansible.builtin.template:
+    force: true
+    src: redshift.conf.j2
+    dest: ~/.config/redshift.conf
+    mode: '0644'
 
 - name: Install AUR pkgs
   vars:

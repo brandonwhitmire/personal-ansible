@@ -726,6 +726,8 @@ precmd() {
 # === AUTOSTART ZELLIJ ===
 # Auto-start zellij terminal multiplexer for interactive shells or SSH sessions
 # Only start if not already in zellij (ZELLIJ env var not set)
+# Using zellij without exec so terminal stays open when zellij exits
 if [[ ( -o interactive || -n "$SSH_CONNECTION" ) && -z "$ZELLIJ" ]]; then
-    exec zellij
+    # Start zellij (without exec) so terminal stays open when exiting
+    zellij
 fi

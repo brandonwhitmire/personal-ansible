@@ -1,4 +1,4 @@
-#!/bin/bash
+i3#!/bin/bash
 
 # Restore display configuration
 # This script dynamically queries displays at boot time since display names can change

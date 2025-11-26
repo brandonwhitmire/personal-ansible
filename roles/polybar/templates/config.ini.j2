@@ -42,7 +42,7 @@ font-2 = "Font Awesome 6 Brands:size=12;3"
 
 modules-left = i3
 ; modules-center = date
-modules-right = network separator disk separator cpu separator memory separator battery battery-warning separator date separator
+modules-right = network-wireless network-wired separator disk separator cpu separator memory separator battery separator date separator
 
 tray-position = right
 tray-padding = 2
@@ -105,28 +105,57 @@ label-foreground = ${colors.foreground}
 [module/cpu]
 type = internal/cpu
 interval = 2
-format-prefix = "🖥️ "
-format-prefix-foreground = ${colors.primary}
 label = CPU %percentage:2%%
 
 ; Memory module
 [module/memory]
 type = internal/memory
 interval = 2
-format-prefix = "🧠 "
-format-prefix-foreground = ${colors.primary}
-label = %gb_used%/%gb_total%
+label = MEM %gb_used%/%gb_total%
 format-warn = <label-warn>
-label-warn = 🧠 MEM %gb_used%/%gb_total%
+label-warn = %gb_used%/%gb_total%
 warn-percentage = 10
 
-; Network module (wireless/ethernet) - using script for better IP detection
-[module/network]
-type = custom/script
-exec = bash ~/.config/polybar/network-ip.sh
-interval = 3
-format = <output>
-format-foreground = ${colors.foreground}
+; Wireless network module - using built-in polybar network module
+[module/network-wireless]
+type = internal/network
+interface-type = wireless
+interval = 3.0
+unknown-as-up = true
+accumulate-stats = true
+udspeed-minwidth = 5
+
+format-connected = <ramp-signal> <label-connected>
+format-disconnected = <label-disconnected>
+
+label-connected = WIFI %local_ip%
+label-connected-foreground = ${colors.foreground}
+label-disconnected = not connected
+label-disconnected-foreground = ${colors.disabled}
+
+ramp-signal-0 = ▁
+ramp-signal-1 = ▂
+ramp-signal-2 = ▃
+ramp-signal-3 = ▅
+ramp-signal-4 = ▆
+ramp-signal-5 = ▇
+
+; Wired network module - using built-in polybar network module
+[module/network-wired]
+type = internal/network
+interface-type = wired
+interval = 3.0
+unknown-as-up = true
+accumulate-stats = true
+udspeed-minwidth = 5
+
+format-connected = <label-connected>
+format-disconnected = <label-disconnected>
+
+label-connected = ETH %local_ip%
+label-connected-foreground = ${colors.foreground}
+label-disconnected = 
+label-disconnected-foreground = ${colors.disabled}
 
 ; Disk module
 [module/disk]
@@ -135,30 +164,31 @@ interval = 25
 mount-0 = /
 format-mounted = <label-mounted>
 format-unmounted = <label-unmounted>
-label-mounted = 💾 HDD %used%/%total%
+label-mounted = HDD %used%/%total%
 label-unmounted = %mountpoint%: not mounted
 label-unmounted-foreground = ${colors.disabled}
 
-; Battery module
+; Battery module - always shows power info even when plugged in or at 100%
 [module/battery]
 type = internal/battery
 battery = BAT0
 adapter = AC
-full-at = 98
-low-threshold = 20
+full-at = 99
+low-at = 20
 time-format = %H:%M
+poll-interval = 5
 
-format-charging = <animation-charging> <label-charging>
+format-charging = <ramp-capacity> <label-charging>
 format-discharging = <ramp-capacity> <label-discharging>
 format-full = <ramp-capacity> <label-full>
 format-plugged = <ramp-capacity> <label-plugged>
 format-low = <ramp-capacity> <label-low>
 
-label-charging = ⚡ CHR %percentage%% %time%
-label-discharging = 🔋 BAT %percentage%% %time%
-label-full = 🔌 PLUG %percentage%%
-label-plugged = 🔌 PLUG %percentage%%
-label-low = 🔋 BAT %percentage%% %time%
+label-charging = CHR %percentage%% %time%
+label-discharging = BAT %percentage%% %time%
+label-full = PLUG %percentage%%
+label-plugged = PLUG %percentage%%
+label-low = BAT %percentage%% %time% LOW
 label-low-foreground = #FFFFFF
 label-low-background = #ff5555
 
@@ -168,18 +198,14 @@ ramp-capacity-2 = ▅
 ramp-capacity-3 = ▇
 ramp-capacity-4 = █
 
-animation-charging-0 = 🔋
-animation-charging-1 = ⚡
-animation-charging-framerate = 750
-
 ; Volume module with mouse wheel support
 [module/volume]
 type = internal/pulseaudio
 format-volume = <label-volume>
-label-volume = 🔊 %percentage%%
+label-volume = VOL %percentage%%
 label-volume-foreground = ${colors.foreground}
 format-muted = <label-muted>
-label-muted = 🔇 muted
+label-muted = muted
 label-muted-foreground = ${colors.disabled}
 
 ; Mouse controls for volume
@@ -187,14 +213,6 @@ click-right = pavucontrol
 scroll-up = pactl set-sink-volume @DEFAULT_SINK@ +5%
 scroll-down = pactl set-sink-volume @DEFAULT_SINK@ -5%
 click-middle = pactl set-sink-mute @DEFAULT_SINK@ toggle
-
-; Battery warning module - changes bar background to red when battery is low
-[module/battery-warning]
-type = custom/script
-exec = ~/.config/polybar/battery-low-hook.sh
-interval = 5
-format = <output>
-format-foreground = ${colors.foreground}
 
 ; Separator module
 [module/separator]
