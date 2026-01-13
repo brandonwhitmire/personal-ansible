@@ -9,7 +9,7 @@ set $mod Mod4
 
 # Set terminal and other applications
 set $terminal alacritty
-set $launcher /usr/local/bin/dmenu_run_history
+set $launcher {{ i3_launcher_command }}
 set $menu morc_menu
 set $powermenu ~/.config/i3/scripts/powermenu.sh
 
@@ -33,8 +33,9 @@ bindsym $mod+y border pixel 1
 bindsym $mod+n border normal
 
 # Gaps
-gaps inner 12
-gaps outer -2
+gaps inner 6
+gaps outer -1
+smart_gaps on
 
 #----------------------------------------------------------------#
 # Keybindings
@@ -58,15 +59,15 @@ bindsym $mod+z exec --no-startup-id $menu
 bindsym $mod+Shift+m exec pavucontrol
 
 # Screen brightness controls
-bindsym XF86MonBrightnessUp exec brightnessctl set +10%
-bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
 # Start Applications
 bindsym $mod+Ctrl+b exec $terminal -e /usr/bin/bmenu
 bindsym $mod+F1 exec /usr/bin/galculator
 bindsym $mod+F2 exec "notify-send --expire-time 10000 '🌐 Launching Web Browser' ; /usr/bin/firefox"
 bindsym $mod+F3 exec --no-startup-id /usr/bin/pcmanfm
-bindsym $mod+F4 exec "notify-send --expire-time 10000 '🔐 KeePassXC Launched (in scratchpad)' ; /usr/bin/keepassxc"
+bindsym $mod+F4 exec "notify-send --expire-time 10000 '🔐 KeePassXC Launched' ; /usr/bin/keepassxc"
 bindsym $mod+F5 exec /usr/bin/virtualbox
 
 # Screenshots
@@ -76,14 +77,12 @@ bindsym $mod+Shift+Print --release exec --no-startup-id "flameshot gui && notify
 # Click & Kill Window/Program
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 
-# Picom & Dunst management
-bindsym $mod+t exec --no-startup-id "pkill picom"
-bindsym $mod+Ctrl+t exec --no-startup-id "picom -b"
+# Dunst management
 bindsym $mod+Shift+d --release exec "killall dunst ; exec notify-send 'Dunst Restarted'"
 
 # mouse behavior
-focus_follows_mouse no
-mouse_warping output
+focus_follows_mouse yes
+mouse_warping none
 
 # change focus (vim-style)
 bindsym $mod+j focus down
@@ -144,14 +143,14 @@ bindsym $mod+minus scratchpad show
 # Workspaces
 #----------------------------------------------------------------#
 # Workspace names with Nerd Font icons
-set $ws1 "1: "
-set $ws2 "2: "
-set $ws3 "3: "
-set $ws4 "4: "
-set $ws5 "5: "
-set $ws6 "6: "
-set $ws7 "7: "
-set $ws8 "8: "
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
@@ -203,14 +202,8 @@ assign [class="discord"] $ws5
 # Open specific applications in floating mode
 for_window [class="Galculator"] floating enable, border pixel 1
 for_window [class="Pavucontrol"] floating enable
-for_window [title="Unlock Database - KeePassXC"] floating enable
-for_window [title="Desbloquear base de datos - KeePassXC"] floating enable
 
-# Make KeePassXC spawn in scratchpad by default
-for_window [class="KeePassXC"] move to scratchpad
-
-# switch to workspace with urgent window automatically
-for_window [urgent=latest] focus
+for_window [urgent=latest] focus, move to workspace current
 
 #----------------------------------------------------------------#
 # Modes (Resize, Gaps, System)
@@ -268,40 +261,42 @@ bindsym $mod+0 exec --no-startup-id $powermenu
 #----------------------------------------------------------------#
 # i3 bar
 #----------------------------------------------------------------#
+{% if i3_status_bar == 'i3status' %}
 bar {
     i3bar_command i3bar
-    status_command i3status
+    status_command ~/.config/i3status/i3status-wrapper.sh
     position top
     tray_output primary
     font pango:JetBrainsMono Nerd Font 12
 
     colors {
-        background #222D31
-        statusline #F9FAF9
-        separator  #454947
+        background #282a36
+        statusline #f8f8f2
+        separator  #44475a
 
         # border background text
-        focused_workspace  #16a085 #16a085 #FFFFFF
-        active_workspace   #353836 #353836 #FDF6E3
-        inactive_workspace #222D31 #222D31 #EEE8D5
-        urgent_workspace   #E5201D #E5201D #FFFFFF
-        binding_mode       #2C2C2C #2C2C2C #F9FAF9
+        focused_workspace  #bd93f9 #bd93f9 #282a36
+        active_workspace   #44475a #44475a #f8f8f2
+        inactive_workspace #282a36 #282a36 #6272a4
+        urgent_workspace   #ff5555 #ff5555 #f8f8f2
+        binding_mode       #44475a #44475a #f8f8f2
     }
 }
 
 # hide/unhide i3status bar
 bindsym $mod+m bar mode toggle
+{% endif %}
 
 #----------------------------------------------------------------#
 # Colors and Theme
 #----------------------------------------------------------------#
 # class                 border  backgr. text    indic.   child_border
-client.focused          #16a085 #16a085 #ffffff #FDF6E3
-client.focused_inactive #2F3D44 #2F3D44 #1ABC9C #454948
-client.unfocused        #2F3D44 #2F3D44 #1ABC9C #454948
-client.urgent           #CB4B16 #FDF6E3 #1ABC9C #268BD2
-client.placeholder      #000000 #0c0c0c #ffffff #000000
-client.background       #2B2C2B
+client.focused          #bd93f9 #bd93f9 #282a36 #bd93f9
+client.focused_inactive #44475a #44475a #f8f8f2 #44475a
+client.unfocused        #282a36 #282a36 #6272a4 #282a36
+client.urgent           #ff5555 #ff5555 #f8f8f2 #ff5555
+client.placeholder      #282a36 #282a36 #f8f8f2 #282a36
+client.background       #282a36
 
 #----------------------------------------------------------------#
 # System & Session
@@ -317,3 +312,6 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 
 # Autostart applications via script
 exec --no-startup-id ~/.config/i3/scripts/autostart.sh
+
+# Lock Workspace 2 to the Primary (external) monitor
+workspace 2 output primary

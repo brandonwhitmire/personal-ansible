@@ -220,19 +220,19 @@ logs_follow_systemd () {
 	journalctl --follow
 }
 # Show current used GPU
-gpu_used () {
+gpu-used () {
 	glxinfo | grep 'server glx vendor string'
-	optimus-manager --status | grep -E '(intel|integrated|nvidia)'
+	envycontrol --query
 }
 # Switch GPU to Nvidia (more powerful, discrete GPU)
-gpu_nvidia () {
-	gpu_used
-	optimus-manager --switch nvidia --no-confirm
+gpu-nvidia () {
+	gpu-used
+	envycontrol --switch nvidia --force
 }
 # Switch GPU to Intel (less powerful, integrated GPU)
-gpu_integrated () {
-	gpu_used
-	optimus-manager --switch integrated --no-confirm
+gpu-integrated () {
+	gpu-used
+	envycontrol --switch integrated --force
 }
 # EZ block device mounting
 ez_mount () {
@@ -291,7 +291,7 @@ mount_luks_device () {
     echo "Opening cryptdevice"
     sudo cryptsetup open "/dev/$DEVICE" "$NAME"
 		echo "MOUNTING..."
-		MOUNT=$(sudo udisksctl mount --block-device /dev/mapper/"$NAME")
+		MOUNT=$(udisksctl mount --block-device /dev/mapper/"$NAME")
 		echo "$MOUNT"
 		ll $(echo "$MOUNT" | awk -F ' ' '{print $NF}')
 	# Device already mounted ; so unmount
@@ -299,7 +299,7 @@ mount_luks_device () {
     read -q "ANSWER?Do you want to unmount? [y/n]: "
     if [[ "$ANSWER" =~ ^[Yy]$ ]] ; then
       echo "UNMOUNTING..."
-      sudo udisksctl unmount --block-device /dev/mapper/"$NAME"
+      udisksctl unmount --block-device /dev/mapper/"$NAME"
       echo "Closing cryptdevice..."
       sudo cryptsetup close "$NAME"
     else
@@ -358,7 +358,7 @@ borg_backup () {
         --exclude '*.ova' \
         --exclude '*.vdi' \
         --exclude '*.vmdk' \
-        --exclude '*.box' \
+        --exclude '*box' \
 		--exclude '*.qcow2' \
         --exclude $HOME/.local \
         --exclude $HOME/.cache \
@@ -394,7 +394,7 @@ update () {
 }
 # Update pacman mirrors
 # Reference: https://xyne.dev/projects/reflector/
-: "${ARCH_MIRROR_COUNTRY:=US}"
+: "${ARCH_MIRROR_COUNTRY:=MX,US}"
 update_mirrors () {
     echo "[i] Updating package mirrors..."
     sudo reflector \
@@ -452,40 +452,10 @@ pprint () {
 # Force screen on ; wait ; screen off
 # NOTE: wake screen via keyboard or mouse
 screen_off () {
-	SLEEP_TIME="0"
 	xset dpms force on
-	sleep "$SLEEP_TIME"
+	sleep 0
 	xset dpms force off
 }
-# Set/Fix monitor displays
-# For extended displays, run like: "set_displays"
-# For duplicated displays, run like: "set_displays asdfasdf"
-set_displays () {
-	echo "FIX: Hit button on external monitor to pop info box (wake monitor) or reset KVM switch..."
-	
-	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
-	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
-	LAPTOP_MONITOR="$(echo $DISPLAYS | grep -ioE $LAPTOP_KEYWORD)"
-	EXTERNAL_KEYWORD='HDMI-?[0-9\-]+'
-	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
-
-	# Give no options to activate this mode
-	if [[ -z "$1" ]] ; then
-		echo "[+] Setting EXTENDED Display mode!"
-		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
-			--output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 1920x0 --rotate normal
-	# Give any arbitrary option to activate this mode
-	else
-		echo "[+] Setting DUPLICATED Display mode!"
-		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
-			--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal
-	fi
-}
-
-fix_displays () {
-	set_displays
-}
-
 wifi_enable () {
     echo '[i] Enabling wifi...'
     sudo rfkill unblock wifi
@@ -520,6 +490,99 @@ export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 # Disable Touchpad by default
 #synclient TouchpadOff=1
 
+# === Command Execution Timing ===
+# Display command execution time similar to VSCode shell output
+# Shows: user time, system time, CPU percentage, total time, and start timestamp
+
+# Initialize timing variables
+zsh_command_start_time=""
+zsh_command_start_timestamp=""
+zsh_command_start_utime=""
+zsh_command_start_stime=""
+
+# Hook to capture command start time and CPU stats
+preexec() {
+    zsh_command_start_time=$SECONDS
+    zsh_command_start_timestamp=$(date '+%H:%M:%S')
+    # Get initial CPU time from /proc/self/stat (field 14 = utime, field 15 = stime, in clock ticks)
+    if [[ -r /proc/self/stat ]]; then
+        local stat_line=($(cat /proc/self/stat))
+        zsh_command_start_utime=${stat_line[13]}  # utime (index 13, 0-based)
+        zsh_command_start_stime=${stat_line[14]}  # stime (index 14, 0-based)
+    else
+        zsh_command_start_utime=0
+        zsh_command_start_stime=0
+    fi
+}
+
+# Hook to display command execution time after command completes
+precmd() {
+    if [[ -n "$zsh_command_start_time" ]]; then
+        local end_time=$SECONDS
+        local end_timestamp=$(date '+%H:%M:%S')
+        local elapsed=$(($end_time - $zsh_command_start_time))
+        
+        if (( elapsed > 0.1 )); then  # Only show for commands taking more than 0.1 seconds
+            # Get final CPU time
+            local end_utime=0
+            local end_stime=0
+            if [[ -r /proc/self/stat ]]; then
+                local stat_line=($(cat /proc/self/stat))
+                end_utime=${stat_line[13]}  # utime
+                end_stime=${stat_line[14]}  # stime
+            fi
+            
+            # Calculate CPU time used (in clock ticks, convert to seconds)
+            # Clock ticks per second is typically 100 (getconf CLK_TCK)
+            local clk_tck=$(getconf CLK_TCK 2>/dev/null || echo 100)
+            local cpu_user_diff=$((end_utime - zsh_command_start_utime))
+            local cpu_system_diff=$((end_stime - zsh_command_start_stime))
+            
+            local user_time=$(echo "scale=2; $cpu_user_diff / $clk_tck" | bc 2>/dev/null || echo "0.00")
+            local system_time=$(echo "scale=2; $cpu_system_diff / $clk_tck" | bc 2>/dev/null || echo "0.00")
+            
+            # Calculate CPU percentage
+            local cpu_percent="0.0"
+            if (( $(echo "$elapsed > 0" | bc -l 2>/dev/null || echo 0) )); then
+                local cpu_total=$(echo "scale=2; $user_time + $system_time" | bc 2>/dev/null || echo "0.00")
+                cpu_percent=$(echo "scale=1; ($cpu_total / $elapsed) * 100" | bc 2>/dev/null || echo "0.0")
+            fi
+            
+            # Format times to match VSCode output format
+            local user_time_str=$(printf "%.2fs" $user_time 2>/dev/null || echo "0.00s")
+            local system_time_str=$(printf "%.2fs" $system_time 2>/dev/null || echo "0.00s")
+            local total_time_str=$(printf "%.2fs" $elapsed 2>/dev/null || echo "0.00s")
+            
+            # Display in VSCode-like format: "start_timestamp end_timestamp user_time system_time CPU% total_time"
+            printf "\033[2m%s %s %s user %s system %s%% cpu %s total\033[0m\n" \
+                "$zsh_command_start_timestamp" \
+                "$end_timestamp" \
+                "$user_time_str" \
+                "$system_time_str" \
+                "$cpu_percent" \
+                "$total_time_str"
+        fi
+        
+        # Reset for next command
+        zsh_command_start_time=""
+        zsh_command_start_utime=""
+        zsh_command_start_stime=""
+    fi
+}
+
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login
+# This must come before zellij because it uses exec, which replaces the shell process
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
+
+# === AUTOSTART ZELLIJ ===
+# Auto-start zellij terminal multiplexer only when alacritty is the parent process
+# Only start if not already in zellij (ZELLIJ env var not set)
+# Using zellij without exec so terminal stays open when zellij exits
+if [[ -o interactive && -z "$ZELLIJ" ]]; then
+    parent_process=$(ps -o comm= -p $PPID 2>/dev/null)
+    if [[ "$parent_process" == "alacritty" ]]; then
+        # Start zellij (without exec) so terminal stays open when exiting
+        zellij attach --create main
+    fi
+fi

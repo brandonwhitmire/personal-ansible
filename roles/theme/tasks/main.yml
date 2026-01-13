@@ -82,22 +82,6 @@
     create: true
     state: present
 
-- name: '[Qt5/6] Use GTK themes'
-  vars:
-    gtk_version: gtk2
-  ansible.builtin.blockinfile:
-    path: ~/.xinitrc
-    insertbefore: BOF
-    marker: '# {mark} qt56_config'
-    block: |
-      export GTK2_RC_FILES=/usr/share/themes/{{ theme_selected_theme }}/gtk-2.0/gtkrc
-      export GTK_THEME={{ theme_selected_theme }}
-      export QT_QPA_PLATFORMTHEME={{ gtk_version }}
-      export QT_STYLE_OVERRIDE={{ gtk_version }}
-    mode: '0644'
-    create: true
-    state: present
-
 - name: '[Qt5/6] Install AUR pkgs'
   vars:
     function_yay_aur_packages:

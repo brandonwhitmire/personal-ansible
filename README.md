@@ -128,7 +128,7 @@ This requires a basic Arch Linux VM imported into Vagrant. My other project buil
 
 ```bash
 # Provision and configure VM; later, shut it down upon success
-vagrant up --provision && vagrant halt
+source venv/bin/activate && vagrant up --provision && vagrant halt
 # Delete VM
 vagrant destroy
 ```
