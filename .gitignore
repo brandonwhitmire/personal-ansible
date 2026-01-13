@@ -5,7 +5,7 @@
 *vault*
 all
 *.md.backup
-hosts
+hosts*
 artifacts/
 *.log
 .yamllint

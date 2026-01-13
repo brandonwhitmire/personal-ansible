@@ -42,7 +42,7 @@ font-2 = "Font Awesome 6 Brands:size=12;3"
 
 modules-left = i3
 ; modules-center = date
-modules-right = network-wireless network-wired separator disk separator cpu separator memory separator battery separator date separator
+modules-right = separator network-wireless network-wired separator disk separator cpu separator memory separator battery separator date separator
 
 tray-position = right
 tray-padding = 2
@@ -111,9 +111,10 @@ label = CPU %percentage:2%%
 [module/memory]
 type = internal/memory
 interval = 2
+format = <label>
 label = MEM %gb_used%/%gb_total%
 format-warn = <label-warn>
-label-warn = %gb_used%/%gb_total%
+label-warn = MEM %gb_used%/%gb_total%
 warn-percentage = 10
 
 ; Wireless network module - using built-in polybar network module
@@ -133,12 +134,12 @@ label-connected-foreground = ${colors.foreground}
 label-disconnected = not connected
 label-disconnected-foreground = ${colors.disabled}
 
-ramp-signal-0 = ▁
-ramp-signal-1 = ▂
-ramp-signal-2 = ▃
-ramp-signal-3 = ▅
-ramp-signal-4 = ▆
-ramp-signal-5 = ▇
+ramp-signal-0 = ✗
+ramp-signal-1 = ░
+ramp-signal-2 = ▒
+ramp-signal-3 = ▓
+ramp-signal-4 = █
+ramp-signal-5 = █
 
 ; Wired network module - using built-in polybar network module
 [module/network-wired]
@@ -192,10 +193,10 @@ label-low = BAT %percentage%% %time% LOW
 label-low-foreground = #FFFFFF
 label-low-background = #ff5555
 
-ramp-capacity-0 = ▁
-ramp-capacity-1 = ▃
-ramp-capacity-2 = ▅
-ramp-capacity-3 = ▇
+ramp-capacity-0 = ✗
+ramp-capacity-1 = ░
+ramp-capacity-2 = ▒
+ramp-capacity-3 = ▓
 ramp-capacity-4 = █
 
 ; Volume module with mouse wheel support

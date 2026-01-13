@@ -6,11 +6,13 @@
     - arch_recommendations
     - ufw_firewall
     - dns_blackhole
+    - nvidia
     - rofi
-    #- dmenu  # replaced by rofi
+    # - dmenu  # replaced by rofi
     - polybar
-    #- i3status  # replaced by polybar
+    # - i3status  # replaced by polybar
     - i3
+    - dunst
     - shell
     - theme
     - conky

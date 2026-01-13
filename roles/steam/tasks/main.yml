@@ -24,18 +24,6 @@
   ansible.builtin.meta:
     flush_handlers
 
-- name: Check if Nvidia GPU is present
-  become: false
-  ansible.builtin.shell: |
-    lspci | grep -i nvidia > /dev/null 2>&1
-  register: nvidia_gpu_check
-  changed_when: false
-  failed_when: false
-
-- name: Set fact for Nvidia GPU presence
-  ansible.builtin.set_fact:
-    has_nvidia_gpu: "{{ nvidia_gpu_check.rc == 0 }}"
-
 # https://wiki.archlinux.org/title/Steam#Installation
 - name: Ensure steam and common deps are installed
   become: true
@@ -49,17 +37,6 @@
     state: present
     update_cache: true
 
-- name: Ensure Nvidia drivers are installed (only if Nvidia GPU detected)
-  become: true
-  ansible.builtin.package:
-    name:
-      - lib32-nvidia-utils  # lib32-vulkan-driver: install before 'steam' pkg to prevent steam installing AMD drivers
-      - nvidia-utils  # vulkan-driver: see previous line
-      - nvidia  # Nvidia: closed-source GPU
-    state: present
-    update_cache: true
-  when: has_nvidia_gpu | bool
-
 - name: Ensure certain packages are not installed
   become: true
   ansible.builtin.package:
@@ -67,21 +44,6 @@
       - lib32-amdvlk
       - amdvlk
     state: absent
-
-- name: Install AUR pkgs (optimus-manager only if Nvidia GPU detected)
-  vars:
-    function_yay_aur_packages: "{{ ['optimus-manager'] if has_nvidia_gpu | bool else [] }}"
-  ansible.builtin.import_role:
-    name: function_yay
-  when: has_nvidia_gpu | bool
-
-- name: Enable optimus-manager service (only if Nvidia GPU detected)
-  become: true
-  ansible.builtin.service:
-    name: optimus-manager
-    enabled: true
-    state: started
-  when: has_nvidia_gpu | bool
 
 # https://github.com/GloriousEggroll/proton-ge-custom#native
 - name: === Proton GloriousEggroll Block ===

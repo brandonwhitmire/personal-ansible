@@ -11,11 +11,12 @@ dns_blackhole_blocked_domains:
   - facebook.com
   - twitter.com
   - x.com
+  - xcancel.com
   - instagram.com
   - snapchat.com
   # Video and streaming platforms
+  - youtube.com
   - tiktok.com
-  - twitch.tv
   - vimeo.com
   - dailymotion.com
   # Image and meme sharing
@@ -25,32 +26,26 @@ dns_blackhole_blocked_domains:
   - tumblr.com
   # Forums and discussion boards
   - reddit.com
+  - old.reddit.com
   - 4chan.org
   - 8ch.net
   - 8kun.top
   - kiwifarms.net
   - somethingawful.com
   - neogaf.com
-  # Q&A and content aggregation
-  - quora.com
-  - buzzfeed.com
-  - buzzfeednews.com
   # Gaming platforms
   - roblox.com
   - minecraft.net
   - epicgames.com
-  # News and clickbait sites
+  # News and timewaster sites
+  - nytimes.com/
   - upworthy.com
   - huffpost.com
   - vice.com
-  # International social media
-  - vk.com
-  - weibo.com
-  # Legacy/defunct platforms
-  - myspace.com
-  - vine.co
+  - quora.com
+  - buzzfeed.com
+  - buzzfeednews.com
   # Image hosting and art communities
-  - deviantart.com
   - flickr.com
   - photobucket.com
 

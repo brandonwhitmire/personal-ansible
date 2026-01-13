@@ -190,26 +190,3 @@
     src: files/starship.toml
     dest: ~/.config/starship.toml
     mode: '0644'
-
-- name: Ensure display config directory exists
-  become: false
-  ansible.builtin.file:
-    path: ~/.config/display/
-    state: directory
-    mode: '0755'
-
-- name: Create display restore script
-  become: false
-  ansible.builtin.copy:
-    src: restore-display.sh
-    dest: ~/.config/display/restore-display.sh
-    mode: '0755'
-    force: true
-
-- name: Create .xprofile to restore displays early in X session
-  become: false
-  ansible.builtin.template:
-    src: xprofile.j2
-    dest: ~/.xprofile
-    mode: '0755'
-    force: true

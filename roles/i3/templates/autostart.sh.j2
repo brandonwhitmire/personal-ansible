@@ -7,7 +7,6 @@
 # Note: i3status is managed by i3 itself (via bar {} block in config) and will be
 #       automatically restarted by i3, so it doesn't need to be launched here
 PROGRAMS_TO_KILL=(
-    picom
     dunst
     nitrogen
     nm-applet
@@ -36,9 +35,6 @@ done
 # Set wallpaper
 nitrogen --restore &
 
-# Launch compositor
-picom -b &
-
 # Launch notification daemon
 dunst &
 
@@ -48,7 +44,7 @@ blueman-applet &
 flameshot &
 
 # Launch password manager
-keepassxc &
+#keepassxc &
 
 # Launch system monitor
 conky --config=/usr/share/conky/conky_theme &
