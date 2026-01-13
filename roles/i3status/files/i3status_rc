@@ -34,13 +34,14 @@ memory {
 
 order += "battery all"
 battery all {
-        format = "%status %percentage %remaining"
+        format = "<span color='#F9FAF9'>%status %percentage %remaining</span>"
         format_down = "🔌 No battery"
         status_chr = "⚡ CHR"
         status_bat = "🔋 BAT"
         status_unk = "? UNK"
         status_full = "☻ FULL"
-        low_threshold = 25
+        low_threshold = 20
+        format_low = "<span background='#ff5555' color='#FFFFFF'>%status %percentage %remaining</span>"
 }
 
 order += "tztime local"
