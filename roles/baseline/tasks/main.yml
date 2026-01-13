@@ -107,7 +107,6 @@
       - xorg-xvinfo  # print out X-Video extension adaptor information
       - xorg-xwd  # dump an image of an X window
       - xorg-xwud  # display an X window dump
-      - picom  # xorg compositor
       - xterm  # default terminal
       - ttf-bitstream-vera  # serif and mono
       - ttf-dejavu  # Bitstream Vera modified w/more Unicode

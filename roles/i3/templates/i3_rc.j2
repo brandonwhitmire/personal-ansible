@@ -67,7 +67,7 @@ bindsym $mod+Ctrl+b exec $terminal -e /usr/bin/bmenu
 bindsym $mod+F1 exec /usr/bin/galculator
 bindsym $mod+F2 exec "notify-send --expire-time 10000 '🌐 Launching Web Browser' ; /usr/bin/firefox"
 bindsym $mod+F3 exec --no-startup-id /usr/bin/pcmanfm
-bindsym $mod+F4 exec "notify-send --expire-time 10000 '🔐 KeePassXC Launched (in scratchpad)' ; /usr/bin/keepassxc"
+bindsym $mod+F4 exec "notify-send --expire-time 10000 '🔐 KeePassXC Launched' ; /usr/bin/keepassxc"
 bindsym $mod+F5 exec /usr/bin/virtualbox
 
 # Screenshots
@@ -77,9 +77,7 @@ bindsym $mod+Shift+Print --release exec --no-startup-id "flameshot gui && notify
 # Click & Kill Window/Program
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 
-# Picom & Dunst management
-bindsym $mod+t exec --no-startup-id "pkill picom"
-bindsym $mod+Ctrl+t exec --no-startup-id "picom -b"
+# Dunst management
 bindsym $mod+Shift+d --release exec "killall dunst ; exec notify-send 'Dunst Restarted'"
 
 # mouse behavior
@@ -205,10 +203,6 @@ assign [class="discord"] $ws5
 for_window [class="Galculator"] floating enable, border pixel 1
 for_window [class="Pavucontrol"] floating enable
 
-for_window [class="KeePassXC" title="*Unlock Database*"] floating enable, sticky enable, move container to workspace current, focus
-for_window [class="KeePassXC" title="*Desbloquear base de datos*"] floating enable, sticky enable, move container to workspace current, focus
-for_window [class="KeePassXC" title="*[Locked]*"] move to scratchpad
-for_window [class="KeePassXC" title="*[Bloqueada]*"] move to scratchpad
 for_window [urgent=latest] focus, move to workspace current
 
 #----------------------------------------------------------------#
@@ -319,3 +313,5 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 # Autostart applications via script
 exec --no-startup-id ~/.config/i3/scripts/autostart.sh
 
+# Lock Workspace 2 to the Primary (external) monitor
+workspace 2 output primary

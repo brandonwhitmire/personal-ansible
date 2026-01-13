@@ -19,16 +19,16 @@ case "$CHOSEN" in
     "🔒 Lock")
         i3lock --ignore-empty-password --color=444444
         ;;
-    "😴 Sleep")
+    "😴 Sleep/Suspend")
         systemctl suspend
         ;;
     "🚪 Logout")
         i3-msg exit
         ;;
-    "🔄 Reboot")
+    "🔄 Reboot/Restart")
         systemctl reboot
         ;;
-    "⏻ Shutdown")
+    "⏻ Shutdown/Poweroff")
         systemctl poweroff -i
         ;;
 esac

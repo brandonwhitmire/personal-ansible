@@ -220,19 +220,19 @@ logs_follow_systemd () {
 	journalctl --follow
 }
 # Show current used GPU
-gpu_used () {
+gpu-used () {
 	glxinfo | grep 'server glx vendor string'
-	optimus-manager --status | grep -E '(intel|integrated|nvidia)'
+	envycontrol --query
 }
 # Switch GPU to Nvidia (more powerful, discrete GPU)
-gpu_nvidia () {
-	gpu_used
-	optimus-manager --switch nvidia --no-confirm
+gpu-nvidia () {
+	gpu-used
+	envycontrol --switch nvidia --force
 }
 # Switch GPU to Intel (less powerful, integrated GPU)
-gpu_integrated () {
-	gpu_used
-	optimus-manager --switch integrated --no-confirm
+gpu-integrated () {
+	gpu-used
+	envycontrol --switch integrated --force
 }
 # EZ block device mounting
 ez_mount () {
@@ -452,158 +452,10 @@ pprint () {
 # Force screen on ; wait ; screen off
 # NOTE: wake screen via keyboard or mouse
 screen_off () {
-	SLEEP_TIME="0"
 	xset dpms force on
-	sleep "$SLEEP_TIME"
+	sleep 0
 	xset dpms force off
 }
-# Set/Fix monitor displays
-# For extended displays, run like: "set_displays"
-# For duplicated displays, run like: "set_displays asdfasdf"
-set_displays () {
-	echo "FIX: Hit button on external monitor to pop info box (wake monitor) or reset KVM switch..."
-	
-	DISPLAYS="$(xrandr | grep -E '[^dis]connected' | awk '{ print $1 }')"
-	LAPTOP_KEYWORD='eDP-?[0-9\-]+'
-	LAPTOP_MONITOR="$(echo $DISPLAYS | grep -ioE $LAPTOP_KEYWORD)"
-	EXTERNAL_KEYWORD='HDMI-?[0-9\-]+'
-	EXTERNAL_MONITOR="$(echo $DISPLAYS | grep -ioE $EXTERNAL_KEYWORD)"
-
-	# Give no options to activate this mode
-	if [[ -z "$1" ]] ; then
-		echo "[+] Setting EXTENDED Display mode!"
-		xrandr --output "$EXTERNAL_MONITOR" --primary --mode 1920x1080 --pos 0x0 --rotate normal \
-			--output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 1920x0 --rotate normal
-	# Give any arbitrary option to activate this mode
-	else
-		echo "[+] Setting DUPLICATED Display mode!"
-		xrandr --output "$LAPTOP_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal \
-			--output "$EXTERNAL_MONITOR" --mode 1920x1080 --pos 0x0 --rotate normal
-	fi
-}
-
-fix_displays () {
-	set_displays
-}
-
-# Helper: Get list of connected displays
-_get_connected_displays () {
-	xrandr | grep -E '[^dis]connected' | awk '{ print $1 }'
-}
-
-# Helper: Detect laptop display (eDP-*)
-_detect_laptop_display () {
-	local displays="$(_get_connected_displays)"
-	echo "$displays" | grep -ioE 'eDP-?[0-9\-]+' | head -n1
-}
-
-# Helper: Detect external display (HDMI-* or DP-*, prefers HDMI)
-_detect_external_display () {
-	local displays="$(_get_connected_displays)"
-	local hdmi=$(echo "$displays" | grep -ioE 'HDMI-?[0-9\-]+' | head -n1)
-	local dp=$(echo "$displays" | grep -ioE 'DP-?[0-9\-]+' | head -n1)
-	
-	if [[ -n "$hdmi" ]]; then
-		echo "$hdmi"
-	else
-		echo "$dp"
-	fi
-}
-
-# Helper: Get native/preferred resolution for a display
-_get_display_resolution () {
-	local display="$1"
-	if [[ -z "$display" ]]; then
-		return 1
-	fi
-	
-	# Get the native resolution (marked with *+) for this specific display
-	xrandr --query | \
-		awk -v display="$display" '
-			$0 ~ "^" display " connected" { found=1; next }
-			found && /\*\+/ { print $1; exit }
-			found && /^[A-Z]/ { exit }
-		'
-}
-
-# Auto-configure displays: set all connected displays to their native resolution
-# External monitor is positioned on the left, laptop on the right
-display_auto () {
-	local displays="$(_get_connected_displays)"
-	
-	if [[ -z "$displays" ]]; then
-		echo "ERROR: No connected displays found"
-		return 1
-	fi
-	
-	# Detect external and laptop displays
-	local external="$(_detect_external_display)"
-	local laptop="$(_detect_laptop_display)"
-	
-	local pos_x=0
-	
-	# Configure both displays in a single xrandr command for proper linking
-	# This ensures mouse can move seamlessly in both directions
-	if [[ -n "$external" ]] && [[ -n "$laptop" ]]; then
-		local external_res="$(_get_display_resolution "$external")"
-		local laptop_res="$(_get_display_resolution "$laptop")"
-		
-		if [[ -n "$external_res" ]] && [[ -n "$laptop_res" ]]; then
-			local external_width=$(echo "$external_res" | cut -d'x' -f1)
-			local laptop_pos=$external_width
-			
-			echo "[+] Configuring dual display setup:"
-			echo "    External (left, primary): $external - $external_res"
-			echo "    Laptop (right): $laptop - $laptop_res at position ${laptop_pos}x0"
-			
-			# Configure both displays in ONE command for proper adjacency
-			xrandr --output "$external" --primary --mode "$external_res" --pos "${pos_x}x0" --rotate normal \
-			       --output "$laptop" --mode "$laptop_res" --pos "${laptop_pos}x0" --rotate normal
-		fi
-	elif [[ -n "$external" ]]; then
-		# Only external monitor
-		local external_res="$(_get_display_resolution "$external")"
-		
-		if [[ -n "$external_res" ]]; then
-			echo "[+] Configuring external monitor (primary): $external - $external_res"
-			xrandr --output "$external" --primary --mode "$external_res" --pos "${pos_x}x0" --rotate normal
-		fi
-	elif [[ -n "$laptop" ]]; then
-		# Only laptop display
-		local laptop_res="$(_get_display_resolution "$laptop")"
-		
-		if [[ -n "$laptop_res" ]]; then
-			echo "[+] Configuring laptop display (primary): $laptop - $laptop_res"
-			xrandr --output "$laptop" --primary --mode "$laptop_res" --pos "${pos_x}x0" --rotate normal
-		fi
-	else
-		# If no external/laptop detected, fall back to configuring all displays in order
-		local first_display=true
-		pos_x=0
-		
-		for display in $displays; do
-			local native_res="$(_get_display_resolution "$display")"
-			
-			if [[ -z "$native_res" ]]; then
-				echo "WARNING: Could not detect native resolution for $display, skipping"
-				continue
-			fi
-			
-			echo "[+] Configuring $display: $native_res"
-			
-			if [[ "$first_display" == true ]]; then
-				xrandr --output "$display" --primary --mode "$native_res" --pos "${pos_x}x0" --rotate normal
-				first_display=false
-			else
-				xrandr --output "$display" --mode "$native_res" --pos "${pos_x}x0" --rotate normal
-			fi
-			
-			local width=$(echo "$native_res" | cut -d'x' -f1)
-			pos_x=$((pos_x + width))
-		done
-	fi
-}
-
 wifi_enable () {
     echo '[i] Enabling wifi...'
     sudo rfkill unblock wifi
@@ -724,10 +576,13 @@ precmd() {
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
 
 # === AUTOSTART ZELLIJ ===
-# Auto-start zellij terminal multiplexer for interactive shells or SSH sessions
+# Auto-start zellij terminal multiplexer only when alacritty is the parent process
 # Only start if not already in zellij (ZELLIJ env var not set)
 # Using zellij without exec so terminal stays open when zellij exits
-if [[ ( -o interactive || -n "$SSH_CONNECTION" ) && -z "$ZELLIJ" ]]; then
-    # Start zellij (without exec) so terminal stays open when exiting
-    zellij
+if [[ -o interactive && -z "$ZELLIJ" ]]; then
+    parent_process=$(ps -o comm= -p $PPID 2>/dev/null)
+    if [[ "$parent_process" == "alacritty" ]]; then
+        # Start zellij (without exec) so terminal stays open when exiting
+        zellij attach --create main
+    fi
 fi

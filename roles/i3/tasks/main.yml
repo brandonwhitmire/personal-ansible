@@ -2,26 +2,13 @@
 # i3 window manager setup
 #
 # Boot Sequence:
-# systemd boot -> agetty (autologin into user) -> zsh (sources .zshrc) -> startx (sources .xinitrc) -> i3
+# systemd boot -> systemd unitfile -> agetty (autologin into user) -> zsh (sources .zshrc) -> startx (sources .xinitrc) -> i3
 #
-- name: Check if Nvidia GPU is present
-  become: false
-  ansible.builtin.shell: |
-    lspci | grep -i nvidia > /dev/null 2>&1
-  register: nvidia_gpu_check
-  changed_when: false
-  failed_when: false
-
-- name: Set fact for Nvidia GPU presence
-  ansible.builtin.set_fact:
-    has_nvidia_gpu: "{{ nvidia_gpu_check.rc == 0 }}"
-
 - name: Install i3 pkgs
   become: true
   ansible.builtin.package:
     name:
       - i3  # metapackage of various i3 packages
-      - dunst  # system notifications
       - redshift  # screen color temperature adjustment (includes redshift-gtk)
     state: present
 
@@ -42,11 +29,8 @@
     marker: '# {mark} agetty_autologin'
     block: |
       [Service]
+      # This empty ExecStart line must be present to ensure autologin works properly
       ExecStart=
-      {% if has_nvidia_gpu | bool %}
-      # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
-      ExecStartPre=-/usr/bin/prime-switch
-      {% endif %}
       ExecStart=-/sbin/agetty --autologin {{ ansible_user }} --noclear %I 38400 linux
     owner: root
     group: root
@@ -54,26 +38,13 @@
     create: true
     state: present
 
-- name: Startx i3 upon (auto)login
+- name: Create .xinitrc from template
   become: false
-  ansible.builtin.blockinfile:
-    path: ~/.xinitrc
-    marker: "# {mark} .xinitrc"
-    block: |
-      {% if has_nvidia_gpu | bool %}
-      # https://github.com/Askannz/optimus-manager/wiki/FAQ,-common-issues,-troubleshooting#i-do-not-use-a-display-manager-i-use-startx-or-xinit
-      if command -v prime-offload >/dev/null 2>&1; then
-          /usr/bin/prime-offload
-      fi
-      {% endif %}
-      # Restore display configuration before starting i3
-      if [ -f "$HOME/.config/display/restore-display.sh" ]; then
-          "$HOME/.config/display/restore-display.sh" 2>/dev/null
-      fi
-      exec i3
-    mode: '0644'
-    create: true
-    state: present
+  ansible.builtin.template:
+    src: xinitrc.j2
+    dest: ~/.xinitrc
+    mode: '0755'
+    backup: false
 
 - name: Ensure i3 config dir is present
   become: false
@@ -88,7 +59,7 @@
     src: i3_rc.j2
     dest: ~/.config/i3/config
     mode: '0644'
-    backup: true
+    backup: false
   register: i3_config_changed
 
 - name: Ensure i3 scripts directory exists
