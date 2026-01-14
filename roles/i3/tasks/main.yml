@@ -102,6 +102,24 @@
     dest: ~/.config/redshift.conf
     mode: '0644'
 
+- name: Create /usr/bin/hack script (quick lab dev environment)
+  become: true
+  ansible.builtin.copy:
+    src: hack
+    dest: /usr/bin/hack
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Install hack.desktop file for Rofi launcher
+  become: true
+  ansible.builtin.copy:
+    src: hack.desktop
+    dest: /usr/share/applications/hack.desktop
+    mode: '0644'
+    owner: root
+    group: root
+
 - name: Install AUR pkgs
   vars:
     function_yay_aur_packages:
