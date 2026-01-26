@@ -8,7 +8,7 @@ conky.config = {
 	double_buffer = true,
 	font = 'Bitstream Vera Sans:size=10',
 	gap_x = 10,
-	gap_y = 25,
+	gap_y = 35,
 	minimum_width = 200,
 	no_buffers = true,
 	own_window = true,
