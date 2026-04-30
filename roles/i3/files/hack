@@ -8,14 +8,15 @@
 commands=(
   "workspace 1; exec /usr/bin/obsidian"
   "workspace 2; exec /usr/bin/alacritty --working-directory ~/2ndBrain/Projects/1-Website-Content/cyber/box-kali-lab"
-  "workspace 4; exec /usr/bin/virt-manager"
-  "workspace 5; exec /usr/bin/alacritty --working-directory /tmp"
-  "workspace 7; exec /usr/bin/spotify-launcher"
+  #"workspace 4; exec /usr/bin/virt-manager"
+  #"workspace 5; exec /usr/bin/alacritty --working-directory /tmp"
+  "workspace 7; exec /usr/bin/firefox"
+  "workspace 8; exec /usr/bin/firefox"
   "workspace 3; exec /usr/bin/firefox"
 )
 
 for cmd in "${commands[@]}"; do
-  i3-msg "$cmd" && sleep 2
+  i3-msg "$cmd" && sleep 3
 done
 
 notify-send 'Quick-Dev Environment Ready!'
