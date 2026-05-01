@@ -78,7 +78,7 @@
     block: |
       # Auto-start tmux for interactive shells.
       if [ -z "$TMUX" ] && [ -n "$PS1" ] && command -v tmux >/dev/null 2>&1; then
-          exec tmux attach-session -t main || exec tmux new-session -s main
+          tmux attach-session -t main || tmux new-session -s main
       fi
     create: true
     owner: '{{ ansible_user }}'
@@ -153,6 +153,23 @@
   environment:
     TMUX_PLUGIN_MANAGER_PATH: '/home/{{ ansible_user }}/.tmux/plugins/'
   changed_when: false
+
+- name: Ensure tmux resurrect directory exists
+  ansible.builtin.file:
+    path: '/home/{{ ansible_user }}/.tmux/resurrect'
+    state: directory
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0755'
+
+- name: Bootstrap empty tmux resurrection file to suppress restore error
+  ansible.builtin.copy:
+    content: ""
+    dest: '/home/{{ ansible_user }}/.tmux/resurrect/last'
+    force: false
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0644'
 
 - name: 'Set default shell to zsh for users root and {{ ansible_user }}'
   become: true
