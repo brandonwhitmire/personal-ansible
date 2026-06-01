@@ -310,6 +310,8 @@ bindsym $mod+Shift+r restart
 # exit i3
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
+exec --no-startup-id systemctl --user import-environment DISPLAY XAUTHORITY && dbus-update-activation-environment --systemd DISPLAY XAUTHORITY
+exec --no-startup-id xfsettingsd
 # Autostart applications via script
 exec --no-startup-id ~/.config/i3/scripts/autostart.sh
 

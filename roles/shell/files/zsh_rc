@@ -379,6 +379,7 @@ update_no_backup () {
     echo "[i] Updating packages..."
     sudo pacman -S --refresh --sysupgrade
     yay -S --refresh --sysupgrade
+    grep "upgraded qt5-base" /var/log/pacman.log | grep -q "$(date +%Y-%m-%d)" && yay -S qt5-styleplugins --rebuild
 }
 # Perform system update properly
 update () {
