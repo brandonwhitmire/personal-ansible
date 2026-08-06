@@ -15,17 +15,7 @@ dns_blackhole_blocked_domains:
   - nitter.net
   - instagram.com
   - snapchat.com
-  # Video and streaming platforms (YouTube and related CDNs / endpoints)
-  - youtube.com
-  - m.youtube.com
-  - youtu.be
-  - youtube-nocookie.com
-  - googlevideo.com
-  - ytimg.com
-  - ggpht.com
-  - youtube.googleapis.com
-  - youtubei.googleapis.com
-  - tiktok.com
+  # Video and streaming platforms
   - vimeo.com
   - dailymotion.com
   # Image and meme sharing
