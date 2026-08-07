@@ -379,6 +379,7 @@ update_no_backup () {
     echo "[i] Updating packages..."
     sudo pacman -S --refresh --sysupgrade
     yay -S --refresh --sysupgrade
+    grep "upgraded qt5-base" /var/log/pacman.log | grep -q "$(date +%Y-%m-%d)" && yay -S qt5-styleplugins --rebuild
 }
 # Perform system update properly
 update () {
@@ -572,17 +573,7 @@ precmd() {
 
 # === AUTOSTART XORG ===
 # https://wiki.archlinux.org/title/Xinit#Autostart_X_at_login
-# This must come before zellij because it uses exec, which replaces the shell process
+# This must come before tmux autostart because it uses exec, which replaces the shell process
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
 
-# === AUTOSTART ZELLIJ ===
-# Auto-start zellij terminal multiplexer only when alacritty is the parent process
-# Only start if not already in zellij (ZELLIJ env var not set)
-# Using zellij without exec so terminal stays open when zellij exits
-if [[ -o interactive && -z "$ZELLIJ" ]]; then
-    parent_process=$(ps -o comm= -p $PPID 2>/dev/null)
-    if [[ "$parent_process" == "alacritty" ]]; then
-        # Start zellij (without exec) so terminal stays open when exiting
-        zellij attach --create main
-    fi
-fi
+# tmux autostart is managed from the shell role via blockinfile.

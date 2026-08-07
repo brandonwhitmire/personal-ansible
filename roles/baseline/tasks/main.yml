@@ -152,7 +152,6 @@
       - pulseaudio-bluetooth  # pulseaudio dep for bluetooth
       - xf86-input-synaptics  # touchpad
       - android-file-transfer  # access files from Android device
-      - spotify-launcher  # Spotify music
       - linux-headers  # Linux kernel headers
     state: present
 

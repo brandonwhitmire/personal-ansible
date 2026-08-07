@@ -81,3 +81,9 @@
         cmd: grub-mkconfig -o /boot/grub/grub.cfg
       changed_when: false
       when: nvidia_grub_changed is defined and nvidia_grub_changed.changed
+
+    # NOTE: steam must be at the end since it upgrades the system,
+    # which breaks some other things until a reboot is completed
+    - name: Install and configure Steam (requires discrete GPU)
+      ansible.builtin.import_role:
+        name: steam

@@ -12,11 +12,10 @@ dns_blackhole_blocked_domains:
   - twitter.com
   - x.com
   - xcancel.com
+  - nitter.net
   - instagram.com
   - snapchat.com
   # Video and streaming platforms
-  - youtube.com
-  - tiktok.com
   - vimeo.com
   - dailymotion.com
   # Image and meme sharing

@@ -6,7 +6,6 @@
     - arch_recommendations
     - ufw_firewall
     - dns_blackhole
-    - nvidia
     - rofi
     # - dmenu  # replaced by rofi
     - polybar
@@ -25,6 +24,4 @@
     - calibre
     - virtualization
     - vagrant
-    # NOTE: steam must be at the end since it upgrades the system,
-    # which breaks some other things until a reboot is completed
-    - steam
+    - nvidia

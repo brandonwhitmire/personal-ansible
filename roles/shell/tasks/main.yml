@@ -42,7 +42,7 @@
       # - texlive-most  # LaTeX generator dep for vim-latex-live-preview
       - deepin-image-viewer  # simple image viewer
       - starship  # prompt
-      - zellij  # terminal multiplexer
+      - tmux  # terminal multiplexer
     state: present
 
 # https://wiki.archlinux.org/title/Powerline
@@ -71,6 +71,24 @@
     - .zshrc
     # - .bashrc
 
+- name: Add tmux autostart for interactive shells
+  ansible.builtin.blockinfile:
+    path: '/home/{{ ansible_user }}/{{ item }}'
+    marker: '# {mark} tmux_autostart'
+    block: |
+      # Auto-start tmux for interactive shells.
+      if [ -z "$TMUX" ] && [ -n "$PS1" ] && command -v tmux >/dev/null 2>&1; then
+          tmux attach-session -t main || tmux new-session -s main
+      fi
+    create: true
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0644'
+    state: present
+  loop:
+    - .zshrc
+    - .bashrc
+
 - name: Copy custom zsh_rc to root
   become: true
   ansible.builtin.copy:
@@ -84,6 +102,74 @@
   loop:
     - .zshrc
     # - .bashrc
+
+- name: Ensure tmux data directory exists
+  ansible.builtin.file:
+    path: '/home/{{ ansible_user }}/my_data/tmux_logs'
+    state: directory
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0755'
+
+- name: Ensure tmux config directory exists
+  ansible.builtin.file:
+    path: '/home/{{ ansible_user }}/.tmux'
+    state: directory
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0755'
+
+- name: Deploy tmux configuration
+  ansible.builtin.copy:
+    src: files/tmux.conf
+    dest: '/home/{{ ansible_user }}/.tmux.conf'
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0644'
+
+- name: Ensure tmux plugin directory exists
+  ansible.builtin.file:
+    path: '/home/{{ ansible_user }}/.tmux/plugins'
+    state: directory
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0755'
+
+- name: Install TPM (tmux plugin manager)
+  ansible.builtin.git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: '/home/{{ ansible_user }}/.tmux/plugins/tpm'
+    version: master
+
+- name: Install tmux plugins from tmux.conf
+  ansible.builtin.shell: |
+    set -e
+    tmux start-server
+    tmux new-session -d -s ansible-tpm-bootstrap 2>/dev/null || true
+    "$TMUX_PLUGIN_MANAGER_PATH/tpm/bin/install_plugins"
+    tmux kill-server
+  args:
+    executable: /bin/bash
+  environment:
+    TMUX_PLUGIN_MANAGER_PATH: '/home/{{ ansible_user }}/.tmux/plugins/'
+  changed_when: false
+
+- name: Ensure tmux resurrect directory exists
+  ansible.builtin.file:
+    path: '/home/{{ ansible_user }}/.tmux/resurrect'
+    state: directory
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0755'
+
+- name: Bootstrap empty tmux resurrection file to suppress restore error
+  ansible.builtin.copy:
+    content: ""
+    dest: '/home/{{ ansible_user }}/.tmux/resurrect/last'
+    force: false
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: '0644'
 
 - name: 'Set default shell to zsh for users root and {{ ansible_user }}'
   become: true

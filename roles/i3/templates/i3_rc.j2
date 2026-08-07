@@ -68,7 +68,7 @@ bindsym $mod+F1 exec /usr/bin/galculator
 bindsym $mod+F2 exec "notify-send --expire-time 10000 '🌐 Launching Web Browser' ; /usr/bin/firefox"
 bindsym $mod+F3 exec --no-startup-id /usr/bin/pcmanfm
 bindsym $mod+F4 exec "notify-send --expire-time 10000 '🔐 KeePassXC Launched' ; /usr/bin/keepassxc"
-bindsym $mod+F5 exec /usr/bin/virtualbox
+bindsym $mod+F5 exec /usr/bin/virt-manager
 
 # Screenshots
 bindsym $mod+Print --release exec --no-startup-id "flameshot screen && notify-send '📸 Screenshot taken'"
@@ -195,9 +195,8 @@ bindsym $mod+Ctrl+Left workspace prev
 # Window Rules
 #----------------------------------------------------------------#
 # Assign applications to specific workspaces
-assign [class="Steam"] $ws4
-assign [class="Lutris"] $ws4
-assign [class="discord"] $ws5
+for_window [class="(?i).*steam.*$"] move container to workspace number $ws1
+for_window [class="(?i)\.exe$"] move container to workspace number $ws2
 
 # Open specific applications in floating mode
 for_window [class="Galculator"] floating enable, border pixel 1
@@ -310,6 +309,8 @@ bindsym $mod+Shift+r restart
 # exit i3
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
+exec --no-startup-id systemctl --user import-environment DISPLAY XAUTHORITY && dbus-update-activation-environment --systemd DISPLAY XAUTHORITY
+exec --no-startup-id xfsettingsd
 # Autostart applications via script
 exec --no-startup-id ~/.config/i3/scripts/autostart.sh
 
